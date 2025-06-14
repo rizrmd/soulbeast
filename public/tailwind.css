@@ -1,0 +1,13 @@
+/*! tailwindcss v4.1.10 | MIT License | https://tailwindcss.com */
+.absolute {
+  position: absolute;
+}
+.static {
+  position: static;
+}
+.grow {
+  flex-grow: 1;
+}
+.lowercase {
+  text-transform: lowercase;
+}

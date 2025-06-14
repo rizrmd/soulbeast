@@ -1,0 +1,756 @@
+{
+  "abilities": {
+    "Keth Stalker": {
+      "name": "Keth Stalker",
+      "title": "Crystal Nightmare Hunter",
+      "composition": {
+        "frost": 30,
+        "demon": 40,
+        "water": 30
+      },
+      "abilities": [
+        {
+          "name": "Nightmare Frost",
+          "emoji": "❄️",
+          "type": "quick",
+          "cooldown": 3,
+          "damage": 18,
+          "effect": "Applies slow for 2 seconds",
+          "description": "Channels demonic frost to slow and damage enemies"
+        },
+        {
+          "name": "Crystal Prison",
+          "emoji": "💎",
+          "type": "power",
+          "cooldown": 8,
+          "damage": 25,
+          "effect": "Stuns target for 1.5 seconds",
+          "description": "Traps enemy in crystalline ice, preventing movement"
+        },
+        {
+          "name": "Abyssal Tide",
+          "emoji": "🌊",
+          "type": "power",
+          "cooldown": 10,
+          "damage": 35,
+          "effect": "Heals self for 15 HP",
+          "description": "Summons dark waters that damage foes and restore vitality"
+        },
+        {
+          "name": "Nightmare Hunt",
+          "emoji": "🏹",
+          "type": "ultimate",
+          "cooldown": 25,
+          "damage": 60,
+          "effect": "Next 2 abilities have 50% reduced cooldown",
+          "description": "Enters a hunting frenzy, unleashing rapid attacks"
+        }
+      ]
+    },
+    "Crimson Vorthak": {
+      "name": "Crimson Vorthak",
+      "title": "Bleeding Rose Executioner",
+      "composition": {
+        "fire": 60,
+        "demon": 30,
+        "beast": 10
+      },
+      "abilities": [
+        {
+          "name": "Flame Slash",
+          "emoji": "🔥",
+          "type": "quick",
+          "cooldown": 2,
+          "damage": 22,
+          "effect": "Burns for 5 damage over 3 seconds",
+          "description": "Quick fiery strike that leaves burning wounds"
+        },
+        {
+          "name": "Demonic Roar",
+          "emoji": "😈",
+          "type": "power",
+          "cooldown": 9,
+          "damage": 15,
+          "effect": "Reduces enemy damage by 30% for 4 seconds",
+          "description": "Terrifying howl that weakens enemy resolve"
+        },
+        {
+          "name": "Infernal Execution",
+          "emoji": "⚔️",
+          "type": "power",
+          "cooldown": 12,
+          "damage": 45,
+          "effect": "Damage increases by 50% if enemy below 40% HP",
+          "description": "Devastating finisher attack against wounded foes"
+        },
+        {
+          "name": "Rose of Destruction",
+          "emoji": "🌹",
+          "type": "ultimate",
+          "cooldown": 30,
+          "damage": 70,
+          "effect": "Creates fire field that deals 10 damage/second for 5 seconds",
+          "description": "Blooms a deadly rose of fire that burns the battlefield"
+        }
+      ]
+    },
+    "Bone Thurak": {
+      "name": "Bone Thurak",
+      "title": "Ancient Fire Caller",
+      "composition": {
+        "earth": 50,
+        "fire": 30,
+        "demon": 20
+      },
+      "abilities": [
+        {
+          "name": "Stone Shard",
+          "emoji": "🪨",
+          "type": "quick",
+          "cooldown": 3,
+          "damage": 20,
+          "effect": "Reduces enemy movement speed by 20%",
+          "description": "Hurls sharp stone fragments at enemies"
+        },
+        {
+          "name": "Molten Boulder",
+          "emoji": "🌋",
+          "type": "power",
+          "cooldown": 8,
+          "damage": 40,
+          "effect": "Chance to knock down for 1 second",
+          "description": "Launches a massive burning rock projectile"
+        },
+        {
+          "name": "Bone Armor",
+          "emoji": "🦴",
+          "type": "power",
+          "cooldown": 15,
+          "damage": 0,
+          "effect": "Reduces all damage by 50% for 6 seconds",
+          "description": "Summons protective bone plating from the earth"
+        },
+        {
+          "name": "Ancient Eruption",
+          "emoji": "🔴",
+          "type": "ultimate",
+          "cooldown": 28,
+          "damage": 65,
+          "effect": "Creates 3 lava pools that deal 8 damage/second",
+          "description": "Calls forth an ancient volcanic eruption"
+        }
+      ]
+    },
+    "Shrom Xelar": {
+      "name": "Shrom Xelar",
+      "title": "Psychic Mushroom Axelar",
+      "composition": {
+        "nature": 60,
+        "beast": 30,
+        "demon": 10
+      },
+      "abilities": [
+        {
+          "name": "Spore Burst",
+          "emoji": "🌿",
+          "type": "quick",
+          "cooldown": 3,
+          "damage": 20,
+          "effect": "30% chance to poison for 8 damage over 4 seconds",
+          "description": "Releases toxic spores from mushroom cap"
+        },
+        {
+          "name": "Mycelium Network",
+          "emoji": "🕸️",
+          "type": "power",
+          "cooldown": 9,
+          "damage": 28,
+          "effect": "Spreads to nearby enemies, damage increases per target hit",
+          "description": "Underground fungal network damages connected foes"
+        },
+        {
+          "name": "Soul Absorb",
+          "emoji": "😈",
+          "type": "power",
+          "cooldown": 12,
+          "damage": 25,
+          "effect": "Heals for 100% of damage dealt and gains 20% damage boost",
+          "description": "Mushroom feeds on enemy soul energy to grow stronger"
+        },
+        {
+          "name": "Fungal Nightmare",
+          "emoji": "🧠",
+          "type": "ultimate",
+          "cooldown": 30,
+          "damage": 70,
+          "effect": "Causes hallucinations, enemy attacks random targets for 6 seconds",
+          "description": "Psychedelic spores invade enemy mind, causing chaos"
+        }
+      ]
+    },
+    "Void Ghorth": {
+      "name": "Void Ghorth",
+      "title": "Dimensional Terror Beast",
+      "composition": {
+        "water": 50,
+        "beast": 40,
+        "demon": 10
+      },
+      "abilities": [
+        {
+          "name": "Savage Splash",
+          "emoji": "💦",
+          "type": "quick",
+          "cooldown": 3,
+          "damage": 19,
+          "effect": "Heals self for 8 HP",
+          "description": "Bestial attack that splashes healing waters"
+        },
+        {
+          "name": "Dimensional Bite",
+          "emoji": "🕳️",
+          "type": "power",
+          "cooldown": 9,
+          "damage": 35,
+          "effect": "Teleports behind enemy, ignores armor",
+          "description": "Phases through dimensions to deliver a devastating bite"
+        },
+        {
+          "name": "Terror Howl",
+          "emoji": "😱",
+          "type": "power",
+          "cooldown": 11,
+          "damage": 20,
+          "effect": "Fears enemy, reversing their controls for 3 seconds",
+          "description": "Horrifying roar that disorients and terrifies"
+        },
+        {
+          "name": "Void Tsunami",
+          "emoji": "🌊",
+          "type": "ultimate",
+          "cooldown": 26,
+          "damage": 75,
+          "effect": "Creates void zones that deal 12 damage/second",
+          "description": "Summons dimensional water that tears reality apart"
+        }
+      ]
+    },
+    "Deep Zephyros": {
+      "name": "Deep Zephyros",
+      "title": "Abyssal Mind Breaker",
+      "composition": {
+        "water": 40,
+        "beast": 30,
+        "demon": 30
+      },
+      "abilities": [
+        {
+          "name": "Mind Lash",
+          "emoji": "🧠",
+          "type": "quick",
+          "cooldown": 3,
+          "damage": 20,
+          "effect": "Reduces enemy accuracy by 25% for 4 seconds",
+          "description": "Psychic attack that disrupts enemy focus"
+        },
+        {
+          "name": "Bestial Surge",
+          "emoji": "🐺",
+          "type": "power",
+          "cooldown": 8,
+          "damage": 35,
+          "effect": "Gains 20% attack speed for 5 seconds",
+          "description": "Channels primal instincts for rapid strikes"
+        },
+        {
+          "name": "Abyssal Drain",
+          "emoji": "🩸",
+          "type": "power",
+          "cooldown": 10,
+          "damage": 32,
+          "effect": "Steals 20 HP from enemy",
+          "description": "Drains life force through demonic waters"
+        },
+        {
+          "name": "Mind Break",
+          "emoji": "💥",
+          "type": "ultimate",
+          "cooldown": 24,
+          "damage": 65,
+          "effect": "Enemy abilities have double cooldown for 8 seconds",
+          "description": "Shatters enemy psyche, disrupting their abilities"
+        }
+      ]
+    },
+    "Astrix": {
+      "name": "Astrix",
+      "title": "Starbound Void Walker",
+      "composition": {
+        "demon": 40,
+        "divine": 30,
+        "wind": 30
+      },
+      "abilities": [
+        {
+          "name": "Void Wind",
+          "emoji": "💨",
+          "type": "quick",
+          "cooldown": 2,
+          "damage": 21,
+          "effect": "Pierces through defenses",
+          "description": "Wind infused with void energy that bypasses armor"
+        },
+        {
+          "name": "Divine Punishment",
+          "emoji": "⚡",
+          "type": "power",
+          "cooldown": 9,
+          "damage": 38,
+          "effect": "Extra damage vs demon enemies",
+          "description": "Holy power that especially harms demonic foes"
+        },
+        {
+          "name": "Stellar Dash",
+          "emoji": "⭐",
+          "type": "power",
+          "cooldown": 7,
+          "damage": 25,
+          "effect": "Becomes invulnerable during cast",
+          "description": "Dashes at light speed, avoiding all attacks"
+        },
+        {
+          "name": "Paradox Storm",
+          "emoji": "🌀",
+          "type": "ultimate",
+          "cooldown": 29,
+          "damage": 65,
+          "effect": "Deals divine damage to demons, demon damage to divine",
+          "description": "Creates a storm of contradictory energies"
+        }
+      ]
+    },
+    "Ember Pyrrak": {
+      "name": "Ember Pyrrak",
+      "title": "Molten Dawn Herald",
+      "composition": {
+        "fire": 80,
+        "earth": 10,
+        "beast": 10
+      },
+      "abilities": [
+        {
+          "name": "Flame Burst",
+          "emoji": "🔥",
+          "type": "quick",
+          "cooldown": 2,
+          "damage": 26,
+          "effect": "Burns for 4 damage over 4 seconds",
+          "description": "Pure fire blast that ignites the target"
+        },
+        {
+          "name": "Molten Claw",
+          "emoji": "🔴",
+          "type": "power",
+          "cooldown": 6,
+          "damage": 42,
+          "effect": "Melts enemy armor, reducing defense by 40%",
+          "description": "Bestial claws superheated to melting point"
+        },
+        {
+          "name": "Dawn's Embrace",
+          "emoji": "🌅",
+          "type": "power",
+          "cooldown": 14,
+          "damage": 0,
+          "effect": "Heals 50 HP over 5 seconds",
+          "description": "Channels the healing power of dawn's first light"
+        },
+        {
+          "name": "Solar Apocalypse",
+          "emoji": "✨",
+          "type": "ultimate",
+          "cooldown": 35,
+          "damage": 75,
+          "effect": "Burns all enemies for 8 damage/second for 5 seconds",
+          "description": "Brings forth the fury of a dying star"
+        }
+      ]
+    },
+    "Seraph Valdris": {
+      "name": "Seraph Valdris",
+      "title": "Divine Judgment Bearer",
+      "composition": {
+        "divine": 70,
+        "wind": 20,
+        "nature": 10
+      },
+      "abilities": [
+        {
+          "name": "Holy Bolt",
+          "emoji": "✨",
+          "type": "quick",
+          "cooldown": 2,
+          "damage": 23,
+          "effect": "Heals self for 5 HP",
+          "description": "Divine energy that harms foes and heals the righteous"
+        },
+        {
+          "name": "Wind of Judgment",
+          "emoji": "💨",
+          "type": "power",
+          "cooldown": 8,
+          "damage": 35,
+          "effect": "Removes all enemy buffs",
+          "description": "Divine wind that strips away false enhancements"
+        },
+        {
+          "name": "Nature's Sanctuary",
+          "emoji": "🛡️",
+          "type": "power",
+          "cooldown": 12,
+          "damage": 0,
+          "effect": "Reduces damage by 75% for 3 seconds",
+          "description": "Creates a sacred grove of protection"
+        },
+        {
+          "name": "Final Judgment",
+          "emoji": "⚖️",
+          "type": "ultimate",
+          "cooldown": 30,
+          "damage": 85,
+          "effect": "Damage increases based on enemy's missing HP",
+          "description": "Divine wrath that grows stronger against the wounded"
+        }
+      ]
+    },
+    "Morthen": {
+      "name": "Morthen",
+      "title": "Silent Death Stalker",
+      "composition": {
+        "frost": 50,
+        "beast": 30,
+        "wind": 20
+      },
+      "abilities": [
+        {
+          "name": "Frost Bite",
+          "emoji": "❄️",
+          "type": "quick",
+          "cooldown": 3,
+          "damage": 20,
+          "effect": "Slows enemy movement and attack speed by 30%",
+          "description": "Chilling bite that numbs and slows the target"
+        },
+        {
+          "name": "Silent Strike",
+          "emoji": "💎",
+          "type": "power",
+          "cooldown": 7,
+          "damage": 40,
+          "effect": "Cannot be dodged or blocked",
+          "description": "Moves like the wind to deliver an unavoidable strike"
+        },
+        {
+          "name": "Predator's Focus",
+          "emoji": "👁️",
+          "type": "power",
+          "cooldown": 11,
+          "damage": 0,
+          "effect": "Next ability deals triple damage",
+          "description": "Focuses hunting instincts for a devastating attack"
+        },
+        {
+          "name": "Absolute Zero",
+          "emoji": "🔮",
+          "type": "ultimate",
+          "cooldown": 27,
+          "damage": 70,
+          "effect": "Freezes enemy solid for 3 seconds",
+          "description": "Brings the temperature to absolute zero, freezing everything"
+        }
+      ]
+    },
+    "Stellar Nexath": {
+      "name": "Stellar Nexath",
+      "title": "Cosmic Web Dancer",
+      "composition": {
+        "divine": 50,
+        "wind": 30,
+        "nature": 20
+      },
+      "abilities": [
+        {
+          "name": "Starlight",
+          "emoji": "⭐",
+          "type": "quick",
+          "cooldown": 2,
+          "damage": 22,
+          "effect": "Restores 6 HP",
+          "description": "Gentle starlight that heals while harming enemies"
+        },
+        {
+          "name": "Cosmic Winds",
+          "emoji": "💫",
+          "type": "power",
+          "cooldown": 8,
+          "damage": 33,
+          "effect": "Increases ability speed by 50%",
+          "description": "Rides stellar winds for enhanced agility"
+        },
+        {
+          "name": "Life Web",
+          "emoji": "🕸️",
+          "type": "power",
+          "cooldown": 13,
+          "damage": 15,
+          "effect": "Connects to enemy, sharing all damage taken",
+          "description": "Creates a mystical bond that shares pain"
+        },
+        {
+          "name": "Galaxy Dance",
+          "emoji": "🌌",
+          "type": "ultimate",
+          "cooldown": 31,
+          "damage": 60,
+          "effect": "Hits 5 times over 3 seconds, each hit stronger",
+          "description": "Dances through space-time, striking multiple times"
+        }
+      ]
+    },
+    "Moltak": {
+      "name": "Moltak",
+      "title": "Burning Steel Titan",
+      "composition": {
+        "fire": 60,
+        "earth": 25,
+        "demon": 15
+      },
+      "abilities": [
+        {
+          "name": "Steel Strike",
+          "emoji": "😱",
+          "type": "quick",
+          "cooldown": 3,
+          "damage": 25,
+          "effect": "Ignores 50% of enemy armor",
+          "description": "Molten metal strike that pierces defenses"
+        },
+        {
+          "name": "Forge Strike",
+          "emoji": "⚔️",
+          "type": "power",
+          "cooldown": 9,
+          "damage": 45,
+          "effect": "Stuns for 2 seconds",
+          "description": "Massive double blow that leaves enemies dazed"
+        },
+        {
+          "name": "Demon Steel",
+          "emoji": "🛡️",
+          "type": "power",
+          "cooldown": 12,
+          "damage": 0,
+          "effect": "Gains 30 armor and reflects 25% damage for 8 seconds",
+          "description": "Skin becomes like demonic steel, reflecting attacks"
+        },
+        {
+          "name": "Molten Titan",
+          "emoji": "🩸",
+          "type": "ultimate",
+          "cooldown": 33,
+          "damage": 80,
+          "effect": "Becomes giant for 10 seconds, +50% damage and HP",
+          "description": "Transforms into a colossal burning titan"
+        }
+      ]
+    },
+    "Hexis": {
+      "name": "Hexis",
+      "title": "Geometric Chaos Spawn",
+      "composition": {
+        "divine": 40,
+        "demon": 35,
+        "earth": 25
+      },
+      "abilities": [
+        {
+          "name": "Chaos Shard",
+          "emoji": "🔮",
+          "type": "quick",
+          "cooldown": 3,
+          "damage": 19,
+          "effect": "Random elemental effect each cast",
+          "description": "Crystalline projectile with unpredictable properties"
+        },
+        {
+          "name": "Divine Corruption",
+          "emoji": "☠️",
+          "type": "power",
+          "cooldown": 10,
+          "damage": 36,
+          "effect": "Heals enemy but applies strong poison",
+          "description": "Twisted blessing that heals before destroying"
+        },
+        {
+          "name": "Geometric Prison",
+          "emoji": "💎",
+          "type": "power",
+          "cooldown": 8,
+          "damage": 20,
+          "effect": "Traps enemy in crystal cage for 4 seconds",
+          "description": "Creates an inescapable geometric prison"
+        },
+        {
+          "name": "Chaos Singularity",
+          "emoji": "🕳️",
+          "type": "ultimate",
+          "cooldown": 28,
+          "damage": 65,
+          "effect": "Randomly applies all status effects",
+          "description": "Creates a point of pure chaos that affects everything"
+        }
+      ]
+    },
+    "Crystal Nerith": {
+      "name": "Crystal Nerith",
+      "title": "Sakura Dream Guardian",
+      "composition": {
+        "water": 40,
+        "nature": 35,
+        "divine": 25
+      },
+      "abilities": [
+        {
+          "name": "Petal Stream",
+          "emoji": "⭐",
+          "type": "quick",
+          "cooldown": 2,
+          "damage": 18,
+          "effect": "Heals 10 HP",
+          "description": "Gentle stream of water and sakura petals"
+        },
+        {
+          "name": "Dream Shield",
+          "emoji": "🛡️",
+          "type": "power",
+          "cooldown": 11,
+          "damage": 0,
+          "effect": "Absorbs next 60 damage, then heals for absorbed amount",
+          "description": "Creates a shield that converts damage to healing"
+        },
+        {
+          "name": "Nature's Embrace",
+          "emoji": "🌿",
+          "type": "power",
+          "cooldown": 9,
+          "damage": 30,
+          "effect": "Roots enemy and heals self over time",
+          "description": "Vines embrace and hold the enemy while healing"
+        },
+        {
+          "name": "Sakura Storm",
+          "emoji": "🌌",
+          "type": "ultimate",
+          "cooldown": 26,
+          "damage": 55,
+          "effect": "Heals 60 HP and cleanses all debuffs",
+          "description": "Divine sakura petals that heal and purify"
+        }
+      ]
+    },
+    "Velana": {
+      "name": "Velana",
+      "title": "Midnight Garden Keeper",
+      "composition": {
+        "nature": 45,
+        "wind": 30,
+        "beast": 25
+      },
+      "abilities": [
+        {
+          "name": "Thorn Whip",
+          "emoji": "🌿",
+          "type": "quick",
+          "cooldown": 3,
+          "damage": 21,
+          "effect": "Pulls enemy closer",
+          "description": "Thorny vine that lashes and drags enemies"
+        },
+        {
+          "name": "Wind Seed",
+          "emoji": "🌱",
+          "type": "power",
+          "cooldown": 7,
+          "damage": 28,
+          "effect": "Plants grow over 5 seconds, dealing damage each second",
+          "description": "Seeds carried by wind that grow into damaging plants"
+        },
+        {
+          "name": "Feral Instinct",
+          "emoji": "🐺",
+          "type": "power",
+          "cooldown": 12,
+          "damage": 0,
+          "effect": "Next 3 abilities have 50% reduced cooldown",
+          "description": "Awakens primal instincts for rapid ability use"
+        },
+        {
+          "name": "Midnight Bloom",
+          "emoji": "🌙",
+          "type": "ultimate",
+          "cooldown": 29,
+          "damage": 65,
+          "effect": "Creates area of darkness, +50% damage in darkness for 8 seconds",
+          "description": "Garden blooms in eternal night, empowering attacks"
+        }
+      ]
+    },
+    "Crimson Thyra": {
+      "name": "Crimson Thyra",
+      "title": "Butterfly Soul Reaper",
+      "composition": {
+        "fire": 50,
+        "demon": 30,
+        "wind": 20
+      },
+      "abilities": [
+        {
+          "name": "Soul Flame",
+          "emoji": "🔥",
+          "type": "quick",
+          "cooldown": 2,
+          "damage": 23,
+          "effect": "Burns for 6 damage over 3 seconds",
+          "description": "Dark fire that burns the soul itself"
+        },
+        {
+          "name": "Butterfly Swarm",
+          "emoji": "🦋",
+          "type": "power",
+          "cooldown": 8,
+          "damage": 32,
+          "effect": "Each butterfly hit increases next ability damage by 10%",
+          "description": "Summons demonic butterflies that enhance power"
+        },
+        {
+          "name": "Reaper's Wind",
+          "emoji": "🌀",
+          "type": "power",
+          "cooldown": 10,
+          "damage": 35,
+          "effect": "Damage increases based on enemy's current HP",
+          "description": "Wind that grows stronger against healthy enemies"
+        },
+        {
+          "name": "Soul Harvest",
+          "emoji": "💀",
+          "type": "ultimate",
+          "cooldown": 32,
+          "damage": 75,
+          "effect": "Deals 50% more damage if enemy below 30% HP",
+          "description": "Reaps weakened souls with devastating power"
+        }
+      ]
+    }
+  }
+}
