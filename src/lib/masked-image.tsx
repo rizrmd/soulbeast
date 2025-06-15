@@ -26,22 +26,6 @@ import {
 } from "react";
 import { Object3D } from "three";
 
-/**
- * Resampling Algorithm Options:
- *
- * - "pixelated": Disables image smoothing for pixel-perfect rendering.
- *   Best for pixel art, icons, or when you want crisp edges without any blurring.
- *
- * - "low": Uses low-quality but fast resampling. Good for performance-critical
- *   scenarios where image quality is less important.
- *
- * - "medium": Balanced quality and performance. Good default for most use cases.
- *
- * - "high": Highest quality resampling with more sophisticated algorithms like
- *   bicubic interpolation. Best for photographic images, detailed artwork, or
- *   when maximum sharpness and quality are required. This is the default.
- */
-
 // Helper function to parse dimension values
 const parseDimension = (value: any): number | undefined => {
   if (typeof value === "number") {

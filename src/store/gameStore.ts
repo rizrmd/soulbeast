@@ -2,6 +2,7 @@ import { proxy, subscribe } from "valtio";
 import { BattleEngine } from "../engine/BattleEngine";
 import { BattleState, BattleEvent, ActionInput } from "../types";
 import { DataLoader } from "../engine/DataLoader";
+import { ImageLoader } from "../lib/loader";
 
 interface GameStore {
   // Game state
@@ -60,7 +61,7 @@ export const gameStore = proxy<GameStore>({
   showAbilities: false,
   selectedAbility: null,
 
-  isLoading: false,
+  isLoading: true,
   error: null,
   winner: null,
 
@@ -82,6 +83,14 @@ export const gameActions = {
   async initialize() {
     gameStore.isLoading = true;
     gameStore.error = null;
+
+    const loader = ImageLoader.getInstance();
+    await loader.loadImagesFromFolder({
+      onProgress: (progress) => {
+        console.log(progress)
+      },
+      onError: (error) => console.error("Error:", error),
+    });
 
     try {
       await DataLoader.loadData();

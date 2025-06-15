@@ -15,12 +15,7 @@ const App = () => {
 
   const renderCurrentScreen = () => {
     if (state.isLoading) {
-      return (
-        <div className="loading-screen">
-          <div className="loading-spinner"></div>
-          <p>Loading game data...</p>
-        </div>
-      );
+      return null;
     }
 
     switch (state.currentScreen) {
@@ -38,9 +33,7 @@ const App = () => {
   };
 
   return (
-    <div
-      className={cn("min-h-screen flex items-stretch justify-center")}
-    >
+    <div className={cn("min-h-screen flex items-stretch justify-center")}>
       <div
         className={cn(
           `max-w-[500px] w-full shadow-sm shadow-gray-600 contain-content`

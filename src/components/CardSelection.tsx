@@ -39,16 +39,18 @@ const Cards = () => {
       >
         {store.player2Cards.map((cardName, i) => {
           return (
-            <animate.Container
-              key={`${cardName}-${i}`}
-              marginTop={local.init ? 0 : -30}
+            <animate.DefaultProperties
+              key={i}
+              opacity={local.init ? 1 : 0}
+              backgroundOpacity={local.init ? 0 : 1}
               springConfig={{
                 duration: 1000,
-                delay: 100 + (i + 1) * 300,
+                delay: (i + 1) * 300,
+                from: { backgroundOpacity: 1 },
               }}
             >
               <SmallCard cardName={cardName} />
-            </animate.Container>
+            </animate.DefaultProperties>
           );
         })}
       </animate.Container>
