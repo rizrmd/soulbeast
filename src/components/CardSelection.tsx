@@ -87,7 +87,7 @@ const Content = () => {
       <Container
         gap={10}
         padding={10}
-        paddingTop={40}
+        paddingTop={30}
         height="20%"
         onClick={(e) => {
           e.stopPropagation();
@@ -160,7 +160,7 @@ const Content = () => {
         })}
       </Container>
 
-      <Container
+      <animate.Container
         height={300}
         overflow={"scroll"}
         gap={10}
@@ -247,7 +247,7 @@ const Content = () => {
               </Container>
             );
           })}
-      </Container>
+      </animate.Container>
     </>
   );
 };
