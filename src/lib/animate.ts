@@ -6,14 +6,16 @@ import {
   Image,
   Text,
 } from "@react-three/uikit";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { SpringConfig, SpringValue, useSpring } from "react-spring";
 import { ImageRef, MaskedImage } from "./masked-image";
+import { useLocal } from "./use-local";
 
 // Extended SpringConfig with optional delay and from values
 export interface ExtendedSpringConfig extends SpringConfig {
   delay?: number;
   from?: Record<string, any>;
+  duration?: number;
 }
 
 // Types for different UI components
@@ -24,56 +26,71 @@ type AnimatableRef = {
 // Core animation hook that provides the most complete animation logic
 export const useAnimatedElement = <T extends AnimatableRef>(
   targetValues: Record<string, any>,
-  springConfig?: ExtendedSpringConfig,
-  visibility?: string
+  springConfig?: ExtendedSpringConfig
 ) => {
   const ref = useRef<T>(null);
+  const isAnimatingRef = useRef(false);
 
-  // Extract delay and from values from config
-  const { delay, from, ...config } = springConfig || {};
+  const { delay, from, duration, ...config } = springConfig || {};
 
-  // Create spring animation with proper initial setup
   const [springs, api] = useSpring(() => ({
     from: from || targetValues,
     to: targetValues,
     delay: delay || 0,
-    config: config,
+    config,
+    onStart: () => {
+      isAnimatingRef.current = true;
+    },
+    onRest: () => {
+      isAnimatingRef.current = false;
+    },
   }));
 
-  // Handle target value changes and visibility
+  // Handle target value changes and trigger animations
   useEffect(() => {
-    if (visibility !== "hidden") {
-      api.start({
-        to: targetValues,
-        delay: delay || 0,
-        config: config,
-      });
-    } else {
-      api.stop();
-    }
-  }, [targetValues, api, config, visibility, delay]);
+    api.stop();
+    api.start({
+      to: targetValues,
+      delay: delay || 0,
+      config,
+      onStart: () => {
+        isAnimatingRef.current = true;
+      },
+      onRest: () => {
+        isAnimatingRef.current = false;
+      },
+    });
+  }, [api, targetValues, delay, config]);
 
-  // Use frame loop to apply animated values to the element
+  // Apply spring values to the element's styles on each frame
   useFrame(() => {
-    if (ref.current && ref.current.setStyle && visibility !== "hidden") {
-      let isAnimating = false;
-      const currentStyles: Record<string, any> = {};
-      Object.entries(springs).forEach(([key, s]) => {
-        if (s instanceof SpringValue) {
-          if (s.isAnimating || s.isDelayed || !s.hasAnimated) {
-            isAnimating = true;
-            currentStyles[key] = s.get();
-          }
-        }
-      });
+    if (!ref.current) return;
 
-      if (isAnimating) {
-        ref.current.setStyle(currentStyles);
+    let hasActiveAnimation = false;
+    const newStyles: Record<string, any> = {};
+
+    for (const [key, s] of Object.entries(springs)) {
+      if (s instanceof SpringValue) {
+        // Always apply the current spring value
+        newStyles[key] = s.get();
+
+        // Check if there's any active animation (including delayed ones)
+        if (s.isAnimating || s.isDelayed) {
+          hasActiveAnimation = true;
+        }
       }
+    }
+
+    // Always apply styles, whether animating or not
+    ref.current.setStyle(newStyles);
+
+    // Update animation state
+    if (!hasActiveAnimation && isAnimatingRef.current) {
+      isAnimatingRef.current = false;
     }
   });
 
-  return { ref };
+  return { ref, springs, api, isAnimating: isAnimatingRef.current };
 };
 
 // Utility to extract animatable properties for different component types
@@ -128,6 +145,7 @@ export const extractAnimatableProps = {
     borderBottomLeftRadius: props.borderBottomLeftRadius,
     borderBottomRightRadius: props.borderBottomRightRadius,
     borderRadius: props.borderRadius,
+    borderOpacity: props.borderOpacity,
     positionTop: props.positionTop,
     positionRight: props.positionRight,
     positionBottom: props.positionBottom,
@@ -146,6 +164,21 @@ export const extractAnimatableProps = {
     paddingRight: props.paddingRight,
     paddingBottom: props.paddingBottom,
     paddingLeft: props.paddingLeft,
+    borderTopWidth: props.borderTopWidth,
+    borderRightWidth: props.borderRightWidth,
+    borderBottomWidth: props.borderBottomWidth,
+    borderLeftWidth: props.borderLeftWidth,
+    borderWidth: props.borderWidth,
+    borderTopLeftRadius: props.borderTopLeftRadius,
+    borderTopRightRadius: props.borderTopRightRadius,
+    borderBottomLeftRadius: props.borderBottomLeftRadius,
+    borderBottomRightRadius: props.borderBottomRightRadius,
+    borderRadius: props.borderRadius,
+    borderOpacity: props.borderOpacity,
+    positionTop: props.positionTop,
+    positionRight: props.positionRight,
+    positionBottom: props.positionBottom,
+    positionLeft: props.positionLeft,
     opacity: props.opacity,
   }),
 
@@ -200,9 +233,8 @@ const AnimatedContainer = React.forwardRef<
   ContainerRef,
   React.ComponentProps<typeof Container> & {
     springConfig?: ExtendedSpringConfig;
-    visibility?: string;
   }
->(({ children, springConfig, visibility, ...props }, forwardedRef) => {
+>(({ children, springConfig, ...props }, forwardedRef) => {
   const animatableProps = extractAnimatableProps.container(props);
 
   // Create memoized target values
@@ -236,20 +268,12 @@ const AnimatedContainer = React.forwardRef<
   ]);
 
   // Use the core animation hook
-  const { ref } = useAnimatedElement<ContainerRef>(
-    targetValues,
-    springConfig,
-    visibility
-  );
+  const { ref } = useAnimatedElement<ContainerRef>(targetValues, springConfig);
 
   // Combine refs using the utility
   useCombineRefs(ref, forwardedRef);
 
-  return React.createElement(
-    Container,
-    { ref, ...props, visibility },
-    children
-  );
+  return React.createElement(Container, { ref, ...props }, children);
 });
 
 AnimatedContainer.displayName = "AnimatedContainer";
@@ -261,7 +285,7 @@ const AnimatedMaskedImage = React.forwardRef<
     springConfig?: ExtendedSpringConfig;
     visibility?: string;
   }
->(({ children, springConfig, visibility, ...props }, forwardedRef) => {
+>(({ children, springConfig, ...props }, forwardedRef) => {
   // Extract animatable properties using the utility
   const animatableProps = extractAnimatableProps.image(props);
 
@@ -277,24 +301,31 @@ const AnimatedMaskedImage = React.forwardRef<
     props.paddingRight,
     props.paddingBottom,
     props.paddingLeft,
+    props.borderTopWidth,
+    props.borderRightWidth,
+    props.borderBottomWidth,
+    props.borderLeftWidth,
+    props.borderWidth,
+    props.borderTopLeftRadius,
+    props.borderTopRightRadius,
+    props.borderBottomLeftRadius,
+    props.borderBottomRightRadius,
+    props.borderRadius,
+    props.borderOpacity,
+    props.positionTop,
+    props.positionRight,
+    props.positionBottom,
+    props.positionLeft,
     props.opacity,
   ]);
 
   // Use the core animation hook
-  const { ref } = useAnimatedElement<ImageRef>(
-    targetValues,
-    springConfig,
-    visibility
-  );
+  const { ref } = useAnimatedElement<ImageRef>(targetValues, springConfig);
 
   // Combine refs using the utility
   useCombineRefs(ref, forwardedRef);
 
-  return React.createElement(
-    MaskedImage,
-    { ref, ...props, visibility },
-    children
-  );
+  return React.createElement(MaskedImage, { ref, ...props }, children);
 });
 
 AnimatedMaskedImage.displayName = "AnimatedMaskedImage";
@@ -322,15 +353,26 @@ const AnimatedImage = React.forwardRef<
     props.paddingRight,
     props.paddingBottom,
     props.paddingLeft,
+    props.borderTopWidth,
+    props.borderRightWidth,
+    props.borderBottomWidth,
+    props.borderLeftWidth,
+    props.borderWidth,
+    props.borderTopLeftRadius,
+    props.borderTopRightRadius,
+    props.borderBottomLeftRadius,
+    props.borderBottomRightRadius,
+    props.borderRadius,
+    props.borderOpacity,
+    props.positionTop,
+    props.positionRight,
+    props.positionBottom,
+    props.positionLeft,
     props.opacity,
   ]);
 
   // Use the core animation hook
-  const { ref } = useAnimatedElement<any>(
-    targetValues,
-    springConfig,
-    visibility
-  );
+  const { ref } = useAnimatedElement<any>(targetValues, springConfig);
 
   // Combine refs using the utility
   useCombineRefs(ref, forwardedRef);
@@ -368,11 +410,7 @@ const AnimatedText = React.forwardRef<
   ]);
 
   // Use the core animation hook
-  const { ref } = useAnimatedElement<any>(
-    targetValues,
-    springConfig,
-    visibility
-  );
+  const { ref } = useAnimatedElement<any>(targetValues, springConfig);
 
   // Combine refs using the utility
   useCombineRefs(ref, forwardedRef);
@@ -393,8 +431,6 @@ const AnimatedDefaultProperties = (
   }
 ) => {
   const animatableProps = extractAnimatableProps.defaultProperties(props);
-  const [animatedProps, setAnimatedProps] = useState<Record<string, any>>({});
-
   // Create memoized target values
   const targetValues = useAnimatableTargetValues(animatableProps, [
     props.width,
@@ -424,75 +460,67 @@ const AnimatedDefaultProperties = (
     props.positionLeft,
     props.opacity,
   ]);
+  const local = useLocal({ props: targetValues });
+  const isAnimatingRef = useRef(false);
 
-  const { delay, from, ...config } = props.springConfig || {};
+  const { delay, from, duration, ...config } = props.springConfig || {};
+
   const [springs, api] = useSpring(() => ({
     from: from || targetValues,
     to: targetValues,
     delay: delay || 0,
     config,
+    onStart: () => {
+      isAnimatingRef.current = true;
+    },
+    onRest: () => {
+      isAnimatingRef.current = false;
+    },
   }));
 
-  // Handle animation updates and visibility changes
+  // Handle target value changes and trigger animations
   useEffect(() => {
-    if (props.visibility === "hidden") {
-      api.stop();
-    } else {
+    if (props.visibility !== "hidden") {
       api.start({
         to: targetValues,
         delay: delay || 0,
-        config: config,
+        config,
+        onStart: () => {
+          isAnimatingRef.current = true;
+        },
+        onRest: () => {
+          isAnimatingRef.current = false;
+        },
       });
     }
-  }, [props.visibility, targetValues, api, delay, config]);
-
-  // Initialize with from values if empty (not target values, to allow delay to work)
-  useEffect(() => {
-    if (Object.keys(animatedProps).length === 0) {
-      setAnimatedProps(from || {});
-    }
-  }, [from, animatedProps]);
+  }, [api, targetValues, props.visibility, delay, config]);
 
   useFrame(() => {
-    if (props.visibility === "hidden") {
-      return;
-    }
+    if (!isAnimatingRef.current) return;
 
-    let isAnimating = false;
-    const currentStyles: Record<string, any> = {};
+    let hasActiveAnimation = false;
 
-    Object.entries(springs).forEach(([key, s]) => {
+    for (const [key, s] of Object.entries(springs)) {
       if (s instanceof SpringValue) {
-        if (s.isAnimating || s.isDelayed || !s.hasAnimated) {
-          isAnimating = true;
-          currentStyles[key] = s.get();
+        if (s.isAnimating || s.isDelayed) {
+          local.props[key] = s.get();
+          hasActiveAnimation = true;
         }
       }
-    });
+    }
 
-    if (isAnimating) {
-      setAnimatedProps((prev) => {
-        // Only update if values actually changed to prevent unnecessary re-renders
-        const hasChanged = Object.entries(currentStyles).some(
-          ([key, value]) => prev[key] !== value
-        );
-        return hasChanged ? { ...prev, ...currentStyles } : prev;
-      });
+    if (hasActiveAnimation) {
+      local.render();
+    } else {
+      isAnimatingRef.current = false;
     }
   });
 
-  // Extract non-animatable props to pass through
-  const { springConfig, children, visibility, ...remainingProps } = props;
-  const nonAnimatableProps = Object.fromEntries(
-    Object.entries(remainingProps).filter(
-      ([key]) => !Object.prototype.hasOwnProperty.call(animatableProps, key)
-    )
+  return React.createElement(
+    DefaultProperties,
+    { ...local.props },
+    props.children
   );
-
-  // Merge animated values with non-animatable props
-  const mergedProps = { ...nonAnimatableProps, ...animatedProps };
-
-  return React.createElement(DefaultProperties, mergedProps, children);
 };
 
 AnimatedDefaultProperties.displayName = "AnimatedDefaultProperties";

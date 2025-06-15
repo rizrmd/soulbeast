@@ -1,9 +1,5 @@
 import { Canvas } from "@react-three/fiber";
-import {
-  Container,
-  FontFamilyProvider,
-  Fullscreen
-} from "@react-three/uikit";
+import { Container, FontFamilyProvider, Fullscreen } from "@react-three/uikit";
 import { Suspense } from "react";
 import { easings } from "react-spring";
 import { useSnapshot } from "valtio";
@@ -21,7 +17,7 @@ const Cards = () => {
     setTimeout(() => {
       local.ready = true;
       local.render();
-    }, 2500);
+    }, 2700);
   });
 
   return (
@@ -43,19 +39,16 @@ const Cards = () => {
       >
         {store.player2Cards.map((cardName, i) => {
           return (
-            <Container key={`${cardName}-${i}`}>
-              <animate.DefaultProperties
-                opacity={local.init ? 1 : 0}
-                backgroundOpacity={local.init ? 0 : 1}
-                springConfig={{
-                  duration: 1000,
-                  delay: (i + 1) * 300,
-                  from: { opacity: 0 },
-                }}
-              >
-                <SmallCard cardName={cardName} />
-              </animate.DefaultProperties>
-            </Container>
+            <animate.Container
+              key={`${cardName}-${i}`}
+              marginTop={local.init ? 0 : -30}
+              springConfig={{
+                duration: 1000,
+                delay: 100 + (i + 1) * 300,
+              }}
+            >
+              <SmallCard cardName={cardName} />
+            </animate.Container>
           );
         })}
       </animate.Container>
@@ -68,8 +61,8 @@ const Cards = () => {
           pointerEvents={"none"}
           springConfig={{
             duration: 1000,
-            delay: 1800,
             easing: easings.easeInOutElastic,
+            delay: !local.ready ? 1800 : 0,
           }}
           marginTop={-40}
           width={local.init ? "20%" : "0%"}
@@ -118,7 +111,11 @@ const Cards = () => {
               <animate.DefaultProperties
                 opacity={local.init ? 1 : 0}
                 backgroundOpacity={local.init ? 0 : 1}
-                springConfig={{ duration: 1000, delay: 600 + (i + 1) * 400 }}
+                springConfig={{
+                  duration: 1000,
+                  delay: 600 + (i + 1) * 400,
+                  from: { backgroundOpacity: 1 },
+                }}
               >
                 <animate.Image
                   src="/img/battle/select.webp"
@@ -130,9 +127,12 @@ const Cards = () => {
                   positionRight={20}
                   positionLeft={20}
                   positionType={"absolute"}
-                  springConfig={{ from: { opacity: 0, marginTop: -70 } }}
                   zIndexOffset={10}
-                  visibility={local.ready ? "visible" : "hidden"}
+                  visibility={local.init ? "visible" : "hidden"}
+                  springConfig={{
+                    delay: !local.ready ? 2300 : 0,
+                    from: { opacity: 0, marginTop: -70 },
+                  }}
                 />
                 <SmallCard
                   cardName={cardName}
@@ -149,10 +149,13 @@ const Cards = () => {
                   opacity={local.selection === i ? 1 : 0}
                   positionRight={20}
                   positionLeft={20}
-                  springConfig={{ from: { opacity: 0, marginBottom: -70 } }}
                   positionType={"absolute"}
                   zIndexOffset={10}
-                  visibility={local.ready ? "visible" : "hidden"}
+                  visibility={local.init ? "visible" : "hidden"}
+                  springConfig={{
+                    delay: !local.ready ? 2300 : 0,
+                    from: { opacity: 0, marginBottom: -45 },
+                  }}
                 />
               </animate.DefaultProperties>
             </Container>
