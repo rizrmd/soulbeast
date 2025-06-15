@@ -645,14 +645,26 @@ export const MaskedImage: (
   useEffect(() => {
     if (internals.size) {
       let timeoutId: number | undefined;
+      let lastValidSize: [number, number] | null = null;
 
       const subscription = internals.size.subscribe((size) => {
         if (size && size[0] > 0 && size[1] > 0) {
-          // Debounce size changes to prevent flickering during rapid resizes
-          if (timeoutId) clearTimeout(timeoutId);
-          timeoutId = window.setTimeout(() => {
-            setContainerSize([size[0], size[1]]);
-          }, 16); // One frame delay
+          // Only update if the size has significantly changed to prevent micro-adjustments
+          const hasSignificantChange = !lastValidSize ||
+            Math.abs(size[0] - lastValidSize[0]) > 1 ||
+            Math.abs(size[1] - lastValidSize[1]) > 1;
+
+          if (hasSignificantChange) {
+            // Debounce size changes to prevent flickering during rapid resizes
+            if (timeoutId) clearTimeout(timeoutId);
+            timeoutId = window.setTimeout(() => {
+              // Double-check the size is still valid before setting
+              if (size[0] > 0 && size[1] > 0) {
+                setContainerSize([size[0], size[1]]);
+                lastValidSize = [size[0], size[1]];
+              }
+            }, 50); // Increased delay to allow layout to stabilize
+          }
         }
       });
 

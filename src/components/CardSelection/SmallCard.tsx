@@ -3,8 +3,7 @@ import { DataLoader } from "../../engine/DataLoader";
 import { MaskedImage } from "../../lib/masked-image";
 import { useLocal } from "../../lib/use-local";
 import { Character } from "../../types";
-
-const getCardData = (
+export const getCardData = (
   cardName: string
 ): (Character & { image: string }) | undefined => {
   const characters = DataLoader.loadCharacters();
@@ -33,8 +32,10 @@ export const SmallCard = (
     card: undefined as ReturnType<typeof getCardData>,
     width: 0,
     height: 0,
+    init: false,
     ready: false,
     sizesub: null as any,
+    svgMask: "",
   });
 
   if (local.card?.name !== cardName) {
@@ -42,7 +43,9 @@ export const SmallCard = (
   }
 
   const card = local.card;
-  const svgMask = `<svg viewBox="0 0 ${local.width} ${local.height}" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+  if (local.width && local.height && !local.svgMask) {
+    local.svgMask = `<svg viewBox="0 0 ${local.width} ${local.height}" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect 
   width="${local.width}" height="${local.height}"
   rx="${local.width / ((local.width / local.height) * 7)}" ry="${local.height / 7}" fill="url(#linear)"/>
@@ -54,6 +57,8 @@ export const SmallCard = (
 </defs>
 </svg>
 `;
+  }
+
   const _props: any = { ...props };
   delete _props.cardName;
 
@@ -71,37 +76,35 @@ export const SmallCard = (
               local.height = size[1];
               if (local.width && local.height) {
                 local.sizesub?.();
-                local.ready = true;
+                local.init = true;
                 local.render();
+                setTimeout(() => {
+                  local.ready = true;
+                  local.render();
+                }, 100);
               }
             }
           });
         }
       }}
     >
-      {card && local.ready && (
+      {card && local.init && (
         <>
-          <Container
-            backgroundColor={"black"}
-            alignItems={"flex-start"}
-            justifyContent={"flex-start"}
-          >
-            <MaskedImage
-              src={card.image}
-              width={"100%"}
-              height={"100%"}
-              imgFit="cover"
-              imgCoverPosition={card.name === "???" ? "bottom-center" : "top-center"}
-              maskFit="fill"
-              imageSmoothing="high"
-              maskText={svgMask}
-            />
-          </Container>
+          <MaskedImage
+            src={card.image}
+            width={"100%"}
+            height={"100%"}
+            imgFit="cover"
+            imgCoverPosition={card.name === "???" ? "top-center" : "top-center"}
+            maskFit="fill"
+            maskText={local.svgMask}
+          />
           <Container
             positionType={"absolute"}
-            positionBottom={0}
+            positionBottom={14}
             positionRight={0}
             positionLeft={0}
+            zIndexOffset={100}
             flexDirection={"column"}
           >
             <Text
@@ -109,7 +112,6 @@ export const SmallCard = (
               color="white"
               fontSize={20}
               textAlign={"center"}
-              marginBottom={card.title ? 0 : 14}
             >
               {card.name}
             </Text>

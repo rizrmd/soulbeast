@@ -80,13 +80,15 @@ export const useAnimatedElement = <T extends AnimatableRef>(
         }
       }
     }
-
-    // Always apply styles, whether animating or not
-    ref.current.setStyle(newStyles);
-
+    
     // Update animation state
     if (!hasActiveAnimation && isAnimatingRef.current) {
       isAnimatingRef.current = false;
+    }
+
+    if (hasActiveAnimation || isAnimatingRef.current) {
+      ref.current.setStyle(newStyles);
+      isAnimatingRef.current = true;
     }
   });
 
@@ -118,6 +120,7 @@ export const extractAnimatableProps = {
     borderRadius: props.borderRadius,
     borderOpacity: props.borderOpacity,
     backgroundOpacity: props.backgroundOpacity,
+    backgroundColor: props.backgroundColor,
     positionTop: props.positionTop,
     positionRight: props.positionRight,
     positionBottom: props.positionBottom,
@@ -261,6 +264,7 @@ const AnimatedContainer = React.forwardRef<
     props.borderRadius,
     props.borderOpacity,
     props.backgroundOpacity,
+    props.backgroundColor,
     props.positionTop,
     props.positionRight,
     props.positionBottom,

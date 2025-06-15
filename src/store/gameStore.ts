@@ -86,9 +86,7 @@ export const gameActions = {
 
     const loader = ImageLoader.getInstance();
     await loader.loadImagesFromFolder({
-      onProgress: (progress) => {
-        console.log(progress)
-      },
+      onProgress: (progress) => {},
       onError: (error) => console.error("Error:", error),
     });
 

@@ -7,49 +7,46 @@ import { animate } from "../lib/animate";
 import { MaskedImage } from "../lib/masked-image";
 import { useLocal } from "../lib/use-local";
 import { gameStore } from "../store/gameStore";
-import { SmallCard } from "./CardSelection/SmallCard";
+import { getCardData, SmallCard } from "./CardSelection/SmallCard";
 
-const Cards = () => {
+const cardDelay = 300;
+const Content = () => {
   const store = useSnapshot(gameStore);
-  const local = useLocal({ init: false, ready: false, selection: 0 }, () => {
-    local.init = true;
-    local.render();
-    setTimeout(() => {
-      local.ready = true;
+  const local = useLocal(
+    { init: false, ready: false, selection: 0, card: { height: 0 } },
+    () => {
+      local.init = true;
       local.render();
-    }, 2700);
-  });
+      setTimeout(() => {
+        local.ready = true;
+        local.render();
+      }, 7 * cardDelay);
+    }
+  );
 
   return (
-    <Container
-      flexDirection={"column"}
-      flexWrap={"wrap"}
-      alignItems={"stretch"}
-      flexGrow={1}
-    >
+    <>
       <animate.Container
         flexDirection={"row"}
         gap={10}
         padding={10}
-        height={"25%"}
+        height={"20%"}
         borderBottomWidth={!local.init ? 0 : 1}
         borderColor="#fcd569"
-        springConfig={{ duration: 3000 }}
         borderOpacity={0.6}
+        springConfig={{ duration: 2000 }}
       >
         {store.player2Cards.map((cardName, i) => {
           return (
             <animate.DefaultProperties
               key={i}
               opacity={local.init ? 1 : 0}
-              backgroundOpacity={local.init ? 0 : 1}
               springConfig={{
                 duration: 1000,
-                delay: (i + 1) * 300,
-                from: { backgroundOpacity: 1 },
+                delay: (i + 1) * cardDelay,
               }}
             >
-              <SmallCard cardName={cardName} />
+              <SmallCard key={i} cardName={cardName} />
             </animate.DefaultProperties>
           );
         })}
@@ -64,10 +61,10 @@ const Cards = () => {
           springConfig={{
             duration: 1000,
             easing: easings.easeInOutElastic,
-            delay: !local.ready ? 1800 : 0,
+            delay: 5 * cardDelay,
           }}
           marginTop={-40}
-          width={local.init ? "20%" : "0%"}
+          width={local.init ? "15%" : "0%"}
         />
         <MaskedImage
           width="100%"
@@ -90,8 +87,8 @@ const Cards = () => {
       <Container
         gap={10}
         padding={10}
-        paddingTop={20}
-        height="15%"
+        paddingTop={40}
+        height="20%"
         onClick={(e) => {
           e.stopPropagation();
         }}
@@ -107,74 +104,158 @@ const Cards = () => {
               onClick={(e) => {
                 e.stopPropagation();
                 local.selection = i;
+                if (store.player1Cards[i]) {
+                  gameStore.player1Cards[i] = "";
+                }
                 local.render();
               }}
             >
+              <animate.Image
+                src="/img/battle/select.webp"
+                height={60}
+                pointerEvents={"none"}
+                marginTop={local.selection === i ? -30 : -70}
+                opacity={local.selection === i ? 1 : 0}
+                transformRotateZ={180}
+                positionRight={20}
+                positionLeft={20}
+                positionType={"absolute"}
+                zIndexOffset={10}
+                visibility={local.init ? "visible" : "hidden"}
+                springConfig={{
+                  delay: !local.ready ? 2300 : 0,
+                  from: { opacity: 0, marginTop: -70 },
+                }}
+              />
+              <animate.Image
+                src="/img/battle/select.webp"
+                height={60}
+                pointerEvents={"none"}
+                positionBottom={0}
+                marginBottom={local.selection === i ? -30 : -70}
+                opacity={local.selection === i ? 1 : 0}
+                positionRight={20}
+                positionLeft={20}
+                positionType={"absolute"}
+                zIndexOffset={10}
+                visibility={local.init ? "visible" : "hidden"}
+                springConfig={{
+                  delay: !local.ready ? 2300 : 0,
+                  from: { opacity: 0, marginBottom: -45 },
+                }}
+              />
+
               <animate.DefaultProperties
+                key={i}
                 opacity={local.init ? 1 : 0}
-                backgroundOpacity={local.init ? 0 : 1}
                 springConfig={{
                   duration: 1000,
-                  delay: 600 + (i + 1) * 400,
-                  from: { backgroundOpacity: 1 },
+                  delay: cardDelay * 2 + (i + 1) * cardDelay,
                 }}
               >
-                <animate.Image
-                  src="/img/battle/select.webp"
-                  height={60}
-                  pointerEvents={"none"}
-                  marginTop={local.selection === i ? -30 : -70}
-                  opacity={local.selection === i ? 1 : 0}
-                  transformRotateZ={180}
-                  positionRight={20}
-                  positionLeft={20}
-                  positionType={"absolute"}
-                  zIndexOffset={10}
-                  visibility={local.init ? "visible" : "hidden"}
-                  springConfig={{
-                    delay: !local.ready ? 2300 : 0,
-                    from: { opacity: 0, marginTop: -70 },
-                  }}
-                />
-                <SmallCard
-                  cardName={cardName}
-                  overflow={"hidden"}
-                  height="100%"
-                />
-
-                <animate.Image
-                  src="/img/battle/select.webp"
-                  height={60}
-                  pointerEvents={"none"}
-                  positionBottom={0}
-                  marginBottom={local.selection === i ? -45 : -70}
-                  opacity={local.selection === i ? 1 : 0}
-                  positionRight={20}
-                  positionLeft={20}
-                  positionType={"absolute"}
-                  zIndexOffset={10}
-                  visibility={local.init ? "visible" : "hidden"}
-                  springConfig={{
-                    delay: !local.ready ? 2300 : 0,
-                    from: { opacity: 0, marginBottom: -45 },
-                  }}
-                />
+                <SmallCard cardName={cardName} height="100%" />
               </animate.DefaultProperties>
             </Container>
           );
         })}
       </Container>
-    </Container>
+
+      <Container
+        height={300}
+        overflow={"scroll"}
+        gap={10}
+        ref={(ref) => {
+          const size = ref?.size.peek();
+
+          if (size && !local.card.height) {
+            local.card.height = size[1] - 30;
+            local.render();
+          }
+        }}
+        flexDirection={"row"}
+        paddingX={10}
+        paddingTop={10}
+        scrollbarBorderRadius={6}
+        scrollbarColor={local.ready ? "white" : "black"}
+      >
+        {local.card.height &&
+          store.availableCards.map((cardName, i) => {
+            const card = getCardData(cardName);
+
+            const isSelected = store.player1Cards.includes(cardName);
+            if (!card) return null;
+            const w = (736 / 1104) * local.card.height;
+            return (
+              <Container
+                key={i}
+                height={local.card.height}
+                minWidth={w}
+                width={w}
+                maxWidth={w}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (isSelected) {
+                    gameStore.player1Cards = gameStore.player1Cards.filter(
+                      (c) => c !== cardName
+                    );
+                    local.selection = gameStore.player1Cards.length;
+                    return;
+                  }
+
+                  if (store.player1Cards[local.selection] === "") {
+                    gameStore.player1Cards[local.selection] = cardName;
+                    return;
+                  }
+                  if (store.player1Cards.length >= 2) {
+                    gameStore.player1Cards.pop();
+                    local.selection = 1;
+                    gameStore.player1Cards.push(cardName);
+                  } else {
+                    gameStore.player1Cards.push(cardName);
+                    local.selection = gameStore.player1Cards.length;
+                  }
+                }}
+              >
+                <animate.Image
+                  src={card.image}
+                  borderRadius={20}
+                  opacity={isSelected ? 0.7 : 1}
+                />
+                <animate.Image
+                  src="/img/battle/border.webp"
+                  positionType={"absolute"}
+                  width="100%"
+                  height="100%"
+                  opacity={isSelected ? 1 : 0}
+                />
+                <animate.Text
+                  fontFamily="NewRocker"
+                  fontSize={24}
+                  positionType={"absolute"}
+                  color="#fcd569"
+                  width={"100%"}
+                  textAlign={"center"}
+                  positionTop={"45%"}
+                  opacity={isSelected ? 1 : 0}
+                  springConfig={{
+                    delay: 0 * cardDelay,
+                    duration: 1000,
+                  }}
+                >
+                  Selected
+                </animate.Text>
+              </Container>
+            );
+          })}
+      </Container>
+    </>
   );
 };
 
 const CardSelection = () => {
   return (
     <Canvas
-      style={{
-        position: "absolute",
-        inset: "0",
-      }}
+      style={{ position: "absolute", inset: "0", touchAction: "none" }}
       gl={{
         localClippingEnabled: true,
       }}
@@ -190,8 +271,8 @@ const CardSelection = () => {
             medium: "/fonts/texturina.json",
           }}
         >
-          <Fullscreen flexDirection="row">
-            <Cards />
+          <Fullscreen flexDirection={"column"} alignItems={"stretch"}>
+            <Content />
           </Fullscreen>
         </FontFamilyProvider>
       </Suspense>
