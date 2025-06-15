@@ -1,10 +1,23 @@
 import { Canvas } from "@react-three/fiber";
-import { Container, FontFamilyProvider, Fullscreen } from "@react-three/uikit";
+import {
+  Container,
+  FontFamilyProvider,
+  Fullscreen,
+  Image,
+} from "@react-three/uikit";
 import { useSnapshot } from "valtio";
 import { gameStore } from "../store/gameStore";
 import { SmallCard } from "./CardSelection/SmallCard";
+import { animate } from "../lib/animate";
+import { useLocal } from "../lib/use-local";
+import { easings } from "react-spring";
+
 const Cards = () => {
   const store = useSnapshot(gameStore);
+  const local = useLocal({ ready: false }, () => {
+    local.ready = true;
+    local.render();
+  });
 
   return (
     <Container
@@ -13,12 +26,7 @@ const Cards = () => {
       alignItems={"stretch"}
       flexGrow={1}
     >
-      <Container
-        flexDirection={"row"}
-        gap={10}
-        padding={10}
-        maxHeight={"25%"}
-      >
+      <Container flexDirection={"row"} gap={10} padding={10} height={"25%"}>
         {store.player2Cards.map((cardName, i) => {
           return (
             <Container key={i}>
@@ -26,6 +34,21 @@ const Cards = () => {
             </Container>
           );
         })}
+      </Container>
+      <Container alignItems={"center"} justifyContent={"center"}>
+        <animate.Image
+          src="/img/battle/vs.webp"
+          positionType={"absolute"}
+          zIndexOffset={1000}
+          opacity={local.ready ? 1 : 0}
+          springConfig={{
+            duration: 1000,
+            easing: easings.easeInOutElastic,
+            delay: 1000
+          }}
+          marginTop={-40}
+          width={local.ready ? "20%" : "15%"}
+        />
       </Container>
       <Container
         flexGrow={1}
