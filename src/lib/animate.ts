@@ -68,6 +68,17 @@ const AnimatedContainer = React.forwardRef<
     paddingRight: props.paddingRight,
     paddingBottom: props.paddingBottom,
     paddingLeft: props.paddingLeft,
+    borderTopWidth: props.borderTopWidth,
+    borderRightWidth: props.borderRightWidth,
+    borderBottomWidth: props.borderBottomWidth,
+    borderLeftWidth: props.borderLeftWidth,
+    borderWidth: props.borderWidth,
+    borderTopLeftRadius: props.borderTopLeftRadius,
+    borderTopRightRadius: props.borderTopRightRadius,
+    borderBottomLeftRadius: props.borderBottomLeftRadius,
+    borderBottomRightRadius: props.borderBottomRightRadius,
+    borderRadius: props.borderRadius,
+    borderOpacity: props.borderOpacity,
   };
 
   // Filter out undefined values

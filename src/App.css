@@ -1,1 +1,9 @@
-@import 'tailwindcss';
+@import "tailwindcss";
+
+html,
+body,
+canvas {
+  background-color: black;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}

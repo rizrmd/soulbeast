@@ -39,11 +39,11 @@ const App = () => {
 
   return (
     <div
-      className={cn("min-h-screen bg-black flex items-stretch justify-center")}
+      className={cn("min-h-screen flex items-stretch justify-center")}
     >
       <div
         className={cn(
-          `max-w-[600px] w-full shadow-sm shadow-gray-600 contain-content`
+          `max-w-[500px] w-full shadow-sm shadow-gray-600 contain-content`
         )}
       >
         {renderCurrentScreen()}

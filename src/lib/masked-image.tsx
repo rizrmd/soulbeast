@@ -25,6 +25,22 @@ import {
 } from "@react-three/uikit/dist/ref.js";
 import { DefaultProperties } from "@react-three/uikit/dist/default.js";
 
+/**
+ * Resampling Algorithm Options:
+ *
+ * - "pixelated": Disables image smoothing for pixel-perfect rendering.
+ *   Best for pixel art, icons, or when you want crisp edges without any blurring.
+ *
+ * - "low": Uses low-quality but fast resampling. Good for performance-critical
+ *   scenarios where image quality is less important.
+ *
+ * - "medium": Balanced quality and performance. Good default for most use cases.
+ *
+ * - "high": Highest quality resampling with more sophisticated algorithms like
+ *   bicubic interpolation. Best for photographic images, detailed artwork, or
+ *   when maximum sharpness and quality are required. This is the default.
+ */
+
 // Helper function to parse dimension values
 const parseDimension = (value: any): number | undefined => {
   if (typeof value === "number") {
@@ -100,7 +116,8 @@ const extractSVGDimensions = (
 const createTransparentImageFromSVG = async (
   svgMask: string,
   width?: number,
-  height?: number
+  height?: number,
+  imageSmoothing: "pixelated" | "low" | "medium" | "high" = "high"
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
     // Extract SVG dimensions from content
@@ -111,12 +128,12 @@ const createTransparentImageFromSVG = async (
     const parsedHeight = parseDimension(height);
 
     // Use explicit dimensions if provided and valid, otherwise use SVG dimensions
-    // For better quality, ensure minimum size
+    // Only apply minimum size when no explicit dimensions are provided
     const baseWidth = parsedWidth || svgDimensions.width;
     const baseHeight = parsedHeight || svgDimensions.height;
 
-    const canvasWidth = Math.max(baseWidth, 230); // Ensure minimum quality
-    const canvasHeight = Math.max(baseHeight, 230);
+    const canvasWidth = parsedWidth ? baseWidth : Math.max(baseWidth, 230); // Ensure minimum quality only for auto-sized
+    const canvasHeight = parsedHeight ? baseHeight : Math.max(baseHeight, 230);
 
     // Ensure we have valid dimensions
     if (canvasWidth <= 0 || canvasHeight <= 0) {
@@ -156,9 +173,15 @@ const createTransparentImageFromSVG = async (
         return;
       }
 
-      // Enable high-quality rendering
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = "high";
+      // Configure image resampling based on algorithm choice
+      if (imageSmoothing === "pixelated") {
+        // Disable smoothing for pixel-perfect rendering
+        ctx.imageSmoothingEnabled = false;
+      } else {
+        // Enable high-quality rendering with specified resampling algorithm
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = imageSmoothing;
+      }
 
       // Clear canvas with transparent background
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -194,7 +217,17 @@ const createMaskedImageDataURL = async (
     | "top-right"
     | "bottom-left"
     | "bottom-center"
-    | "bottom-right" = "top-left"
+    | "bottom-right" = "top-left",
+  maskFit: "cover" | "contain" | "fill" = "fill",
+  maskCoverPosition:
+    | "center"
+    | "top-left"
+    | "top-center"
+    | "top-right"
+    | "bottom-left"
+    | "bottom-center"
+    | "bottom-right" = "center",
+  imageSmoothing: "pixelated" | "low" | "medium" | "high" = "high"
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
     // Extract SVG dimensions from content first
@@ -213,43 +246,57 @@ const createMaskedImageDataURL = async (
       img.crossOrigin = "anonymous";
 
       img.onload = () => {
-        // Parse the provided dimensions to ensure they're valid numbers
+        // Step 0: Get all dimensions
+        const sourceWidth = img.naturalWidth;
+        const sourceHeight = img.naturalHeight;
         const parsedWidth = parseDimension(width);
         const parsedHeight = parseDimension(height);
-
-        // Determine canvas dimensions based on desired output size, not source image size
-        let canvasWidth: number;
-        let canvasHeight: number;
-
+        
+        // Determine target dimensions (what the user wants to display)
+        let targetWidth: number;
+        let targetHeight: number;
+        
         if (parsedWidth && parsedHeight) {
-          // Use explicit dimensions
-          canvasWidth = Math.max(parsedWidth, 460);
-          canvasHeight = Math.max(parsedHeight, 460);
+          targetWidth = parsedWidth;
+          targetHeight = parsedHeight;
         } else if (parsedWidth) {
-          // Use width, maintain SVG aspect ratio
-          canvasWidth = Math.max(parsedWidth, 460);
-          canvasHeight = Math.max(
-            (svgDimensions.height / svgDimensions.width) * canvasWidth,
-            460
-          );
+          targetWidth = parsedWidth;
+          targetHeight = (svgDimensions.height / svgDimensions.width) * targetWidth;
         } else if (parsedHeight) {
-          // Use height, maintain SVG aspect ratio
-          canvasHeight = Math.max(parsedHeight, 460);
-          canvasWidth = Math.max(
-            (svgDimensions.width / svgDimensions.height) * canvasHeight,
-            460
-          );
+          targetHeight = parsedHeight;
+          targetWidth = (svgDimensions.width / svgDimensions.height) * targetHeight;
+        } else if (width && height) {
+          // Use raw width/height values (e.g., from container size)
+          targetWidth = width;
+          targetHeight = height;
         } else {
-          // No explicit dimensions - use SVG dimensions or reasonable defaults
-          canvasWidth = Math.max(svgDimensions.width, 460);
-          canvasHeight = Math.max(svgDimensions.height, 460);
+          // Fallback to SVG dimensions
+          targetWidth = svgDimensions.width;
+          targetHeight = svgDimensions.height;
         }
 
-        // Ensure we have valid dimensions
-        if (canvasWidth <= 0 || canvasHeight <= 0) {
-          URL.revokeObjectURL(svgUrl);
-          reject(new Error("Invalid canvas dimensions"));
-          return;
+        // Step 1: Create high-quality canvas
+        // Maintain target aspect ratio while ensuring minimum quality
+        const qualityThreshold = 512;
+        const targetAspectRatio = targetWidth / targetHeight;
+        
+        let canvasWidth: number;
+        let canvasHeight: number;
+        
+        // Determine which dimension needs upscaling for quality
+        if (Math.max(targetWidth, targetHeight) < qualityThreshold) {
+          // Scale up while maintaining aspect ratio
+          if (targetWidth > targetHeight) {
+            canvasWidth = qualityThreshold;
+            canvasHeight = qualityThreshold / targetAspectRatio;
+          } else {
+            canvasHeight = qualityThreshold;
+            canvasWidth = qualityThreshold * targetAspectRatio;
+          }
+        } else {
+          // Use target dimensions, but don't exceed source size unnecessarily
+          canvasWidth = Math.min(targetWidth, sourceWidth * 2);
+          canvasHeight = Math.min(targetHeight, sourceHeight * 2);
         }
 
         const canvas = document.createElement("canvas");
@@ -263,124 +310,149 @@ const createMaskedImageDataURL = async (
           return;
         }
 
-        // Enable high-quality rendering
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = "high";
-
-        // Calculate mask dimensions based on maskSize option
-        // Scale mask to match image resolution
-        let maskWidth: number;
-        let maskHeight: number;
-        let maskX = 0;
-        let maskY = 0;
-
-        switch (maskSize) {
-          case "original":
-            // Use SVG's extracted dimensions, but scale to image resolution
-            const scaleX = canvasWidth / svgDimensions.width;
-            const scaleY = canvasHeight / svgDimensions.height;
-            const uniformScale = Math.min(scaleX, scaleY);
-            maskWidth = svgDimensions.width * uniformScale;
-            maskHeight = svgDimensions.height * uniformScale;
-            // Center the mask
-            maskX = (canvasWidth - maskWidth) / 2;
-            maskY = (canvasHeight - maskHeight) / 2;
-            break;
-          case "full-width":
-            // Scale mask to full width, maintain aspect ratio at top-left
-            maskWidth = canvas.width;
-            maskHeight =
-              (svgDimensions.height / svgDimensions.width) * canvas.width;
-            maskX = 0;
-            maskY = 0;
-            break;
-          case "full-height":
-            // Scale mask to full height, maintain aspect ratio at top-left
-            maskHeight = canvas.height;
-            maskWidth =
-              (svgDimensions.width / svgDimensions.height) * canvas.height;
-            maskX = 0;
-            maskY = 0;
-            break;
-          case "full":
-          default:
-            // Scale mask to fill entire canvas
-            maskWidth = canvas.width;
-            maskHeight = canvas.height;
-            break;
+        // Configure image resampling
+        if (imageSmoothing === "pixelated") {
+          ctx.imageSmoothingEnabled = false;
+        } else {
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = imageSmoothing;
         }
 
-        // Clear canvas first
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Step 2: Calculate scaling factors
+        const canvasToTargetScale = Math.min(canvasWidth / targetWidth, canvasHeight / targetHeight);
 
-        // Draw the image with the appropriate imgFit behavior first
+        // Clear canvas
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+        // Step 3: Draw image to canvas with proper fitting
         if (imgFit === "cover") {
-          // Scale image to cover entire canvas, cropping if necessary
-          const scaleX = canvas.width / img.naturalWidth;
-          const scaleY = canvas.height / img.naturalHeight;
+          // Scale image to cover entire canvas
+          const scaleX = canvasWidth / sourceWidth;
+          const scaleY = canvasHeight / sourceHeight;
           const scale = Math.max(scaleX, scaleY);
 
-          const scaledWidth = img.naturalWidth * scale;
-          const scaledHeight = img.naturalHeight * scale;
-          
-          // Calculate offset based on imgCoverPosition
-          let offsetX: number;
-          let offsetY: number;
+          const scaledWidth = sourceWidth * scale;
+          const scaledHeight = sourceHeight * scale;
 
+          let offsetX: number, offsetY: number;
           switch (imgCoverPosition) {
             case "top-left":
               offsetX = 0;
               offsetY = 0;
               break;
             case "top-center":
-              offsetX = (canvas.width - scaledWidth) / 2;
+              offsetX = (canvasWidth - scaledWidth) / 2;
               offsetY = 0;
               break;
             case "top-right":
-              offsetX = canvas.width - scaledWidth;
+              offsetX = canvasWidth - scaledWidth;
               offsetY = 0;
               break;
             case "bottom-left":
               offsetX = 0;
-              offsetY = canvas.height - scaledHeight;
+              offsetY = canvasHeight - scaledHeight;
               break;
             case "bottom-center":
-              offsetX = (canvas.width - scaledWidth) / 2;
-              offsetY = canvas.height - scaledHeight;
+              offsetX = (canvasWidth - scaledWidth) / 2;
+              offsetY = canvasHeight - scaledHeight;
               break;
             case "bottom-right":
-              offsetX = canvas.width - scaledWidth;
-              offsetY = canvas.height - scaledHeight;
+              offsetX = canvasWidth - scaledWidth;
+              offsetY = canvasHeight - scaledHeight;
               break;
             case "center":
             default:
-              offsetX = (canvas.width - scaledWidth) / 2;
-              offsetY = (canvas.height - scaledHeight) / 2;
+              offsetX = (canvasWidth - scaledWidth) / 2;
+              offsetY = (canvasHeight - scaledHeight) / 2;
               break;
           }
-
           ctx.drawImage(img, offsetX, offsetY, scaledWidth, scaledHeight);
         } else if (imgFit === "contain") {
-          // Scale image to fit entirely within canvas, letterboxing if necessary
-          const scaleX = canvas.width / img.naturalWidth;
-          const scaleY = canvas.height / img.naturalHeight;
+          // Scale image to fit within canvas
+          const scaleX = canvasWidth / sourceWidth;
+          const scaleY = canvasHeight / sourceHeight;
           const scale = Math.min(scaleX, scaleY);
 
-          const scaledWidth = img.naturalWidth * scale;
-          const scaledHeight = img.naturalHeight * scale;
-          const offsetX = (canvas.width - scaledWidth) / 2;
-          const offsetY = (canvas.height - scaledHeight) / 2;
+          const scaledWidth = sourceWidth * scale;
+          const scaledHeight = sourceHeight * scale;
+          const offsetX = (canvasWidth - scaledWidth) / 2;
+          const offsetY = (canvasHeight - scaledHeight) / 2;
 
           ctx.drawImage(img, offsetX, offsetY, scaledWidth, scaledHeight);
         } else {
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          // Fill entire canvas
+          ctx.drawImage(img, 0, 0, canvasWidth, canvasHeight);
         }
 
-        // Apply the mask using destination-in to clip to mask shape
+        // Step 4: Prepare mask at correct size
+        let maskWidth: number, maskHeight: number, maskX: number, maskY: number;
+
+        if (maskSize === "original") {
+          // Use SVG original size relative to target, then scale to canvas
+          const scaleToTarget = Math.min(targetWidth / svgDimensions.width, targetHeight / svgDimensions.height);
+          maskWidth = svgDimensions.width * scaleToTarget * canvasToTargetScale;
+          maskHeight = svgDimensions.height * scaleToTarget * canvasToTargetScale;
+          maskX = (canvasWidth - maskWidth) / 2;
+          maskY = (canvasHeight - maskHeight) / 2;
+        } else if (maskSize === "full-width") {
+          // Mask spans full target width
+          maskWidth = targetWidth * canvasToTargetScale;
+          maskHeight = (svgDimensions.height / svgDimensions.width) * maskWidth;
+          maskX = (canvasWidth - maskWidth) / 2;
+          maskY = (canvasHeight - maskHeight) / 2;
+        } else if (maskSize === "full-height") {
+          // Mask spans full target height
+          maskHeight = targetHeight * canvasToTargetScale;
+          maskWidth = (svgDimensions.width / svgDimensions.height) * maskHeight;
+          maskX = (canvasWidth - maskWidth) / 2;
+          maskY = (canvasHeight - maskHeight) / 2;
+        } else {
+          // maskSize === "full" - apply maskFit behavior to canvas area
+          if (maskFit === "fill") {
+            // FILL: Resize mask to match all four corners of canvas, ignoring aspect ratio
+            maskWidth = canvasWidth;
+            maskHeight = canvasHeight;
+            maskX = 0;
+            maskY = 0;
+          } else if (maskFit === "cover") {
+            // COVER: Resize to match canvas width while maintaining aspect ratio, use maskCoverPosition as anchor
+            maskWidth = canvasWidth;
+            maskHeight = (svgDimensions.height / svgDimensions.width) * canvasWidth;
+            
+            // Position based on maskCoverPosition
+            maskX = 0; // Always fill width
+            switch (maskCoverPosition) {
+              case "top-left":
+              case "top-center":
+              case "top-right":
+                maskY = 0;
+                break;
+              case "bottom-left":
+              case "bottom-center":
+              case "bottom-right":
+                maskY = canvasHeight - maskHeight;
+                break;
+              case "center":
+              default:
+                maskY = (canvasHeight - maskHeight) / 2;
+                break;
+            }
+          } else {
+            // CONTAIN: Resize to match canvas size while maintaining aspect ratio, may be smaller (letterbox)
+            const scaleX = canvasWidth / svgDimensions.width;
+            const scaleY = canvasHeight / svgDimensions.height;
+            const scale = Math.min(scaleX, scaleY);
+            
+            maskWidth = svgDimensions.width * scale;
+            maskHeight = svgDimensions.height * scale;
+            maskX = (canvasWidth - maskWidth) / 2;
+            maskY = (canvasHeight - maskHeight) / 2;
+          }
+        }
+
+        // Step 5: Apply mask with composite operation
         ctx.globalCompositeOperation = "destination-in";
         ctx.drawImage(maskImg, maskX, maskY, maskWidth, maskHeight);
-
-        ctx.restore();
 
         URL.revokeObjectURL(svgUrl);
         resolve(canvas.toDataURL());
@@ -414,52 +486,112 @@ export const MaskedImage: (
   props: Omit<ImageProperties, "src"> &
     RefAttributes<ImageRef> & {
       src?: string;
-      svgMask: string;
+      maskText: string;
       maskSize?: "full" | "full-width" | "full-height" | "original";
       imgFit?: "cover" | "contain" | "fill";
-      imgCoverPosition?: "center" | "top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right";
+      imgCoverPosition?:
+        | "center"
+        | "top-left"
+        | "top-center"
+        | "top-right"
+        | "bottom-left"
+        | "bottom-center"
+        | "bottom-right";
+      maskFit?: "cover" | "contain" | "fill";
+      maskCoverPosition?:
+        | "center"
+        | "top-left"
+        | "top-center"
+        | "top-right"
+        | "bottom-left"
+        | "bottom-center"
+        | "bottom-right";
+      imageSmoothing?: "pixelated" | "low" | "medium" | "high";
     }
 ) => ReactNode = forwardRef((properties, ref) => {
   const parent = useParent();
   const outerRef = useRef<Object3D>(null);
   const innerRef = useRef<Object3D>(null);
   const [maskedImageSrc, setMaskedImageSrc] = useState<string | null>(null);
+  const [containerSize, setContainerSize] = useState<[number, number] | null>(
+    null
+  );
 
-  // Create masked image when src or svgMask changes
+  // Create masked image when src, svgMask, or container size changes
   useEffect(() => {
-    if (properties.svgMask) {
-      if (properties.src && typeof properties.src === "string") {
-        // Create masked image when both src and svgMask are provided
-        createMaskedImageDataURL(
-          properties.src,
-          properties.svgMask,
-          properties.maskSize || "full",
-          properties.width as number | undefined,
-          properties.height as number | undefined,
-          properties.imgFit || "cover",
-          properties.imgCoverPosition || "top-center"
-        )
-          .then(setMaskedImageSrc)
-          .catch(console.error);
-      } else {
-        // Create transparent image from SVG when only svgMask is provided
-        createTransparentImageFromSVG(
-          properties.svgMask,
-          properties.width as number | undefined,
-          properties.height as number | undefined
-        )
-          .then(setMaskedImageSrc)
-          .catch(console.error);
+    if (!properties.maskText) return;
+
+    // Get actual dimensions - use container size if width/height are percentages
+    let actualWidth = parseDimension(properties.width);
+    let actualHeight = parseDimension(properties.height);
+
+    // Check if we need container size for percentage dimensions
+    const needsContainerWidth =
+      !actualWidth &&
+      typeof properties.width === "string" &&
+      properties.width.includes("%");
+    const needsContainerHeight =
+      !actualHeight &&
+      typeof properties.height === "string" &&
+      properties.height.includes("%");
+
+    // If we need container size but don't have it yet, wait
+    if ((needsContainerWidth || needsContainerHeight) && !containerSize) {
+      return;
+    }
+
+    // If we have container size and dimensions are not explicitly set in pixels
+    if (containerSize) {
+      if (needsContainerWidth) {
+        actualWidth = containerSize[0];
       }
+      if (needsContainerHeight) {
+        actualHeight = containerSize[1];
+      }
+      // If still no dimensions, use container size
+      if (!actualWidth) actualWidth = containerSize[0];
+      if (!actualHeight) actualHeight = containerSize[1];
+    }
+
+    if (properties.src && typeof properties.src === "string") {
+      // Create masked image when both src and svgMask are provided
+      createMaskedImageDataURL(
+        properties.src,
+        properties.maskText,
+        properties.maskSize || "full",
+        actualWidth,
+        actualHeight,
+        properties.imgFit || "cover",
+        properties.imgCoverPosition || "top-center",
+        properties.maskFit || "fill",
+        properties.maskCoverPosition || "center",
+        properties.imageSmoothing || "high"
+      )
+        .then(setMaskedImageSrc)
+        .catch(console.error);
+    } else {
+      // Create transparent image from SVG when only svgMask is provided
+      createTransparentImageFromSVG(
+        properties.maskText,
+        actualWidth,
+        actualHeight,
+        properties.imageSmoothing || "high"
+      )
+        .then(setMaskedImageSrc)
+        .catch(console.error);
     }
   }, [
     properties.src,
-    properties.svgMask,
+    properties.maskText,
     properties.maskSize,
     properties.width,
     properties.height,
     properties.imgFit,
     properties.imgCoverPosition,
+    properties.maskFit,
+    properties.maskCoverPosition,
+    properties.imageSmoothing,
+    containerSize,
   ]);
 
   // Only render when masked image is ready to prevent flash of unmasked image
@@ -467,6 +599,9 @@ export const MaskedImage: (
     () => ({
       ...properties,
       src: maskedImageSrc || undefined,
+      objectFit: "fill" as const, // Ensure image fills the container exactly
+      // Hide the image until masked version is ready
+      opacity: maskedImageSrc ? (properties.opacity ?? 1) : 0,
     }),
     [properties, maskedImageSrc]
   );
@@ -510,6 +645,28 @@ export const MaskedImage: (
     internals,
     internals.interactionPanel
   );
+
+  // Track container size for percentage dimensions
+  useEffect(() => {
+    if (internals.size) {
+      let timeoutId: number | undefined;
+
+      const subscription = internals.size.subscribe((size) => {
+        if (size && size[0] > 0 && size[1] > 0) {
+          // Debounce size changes to prevent flickering during rapid resizes
+          if (timeoutId) clearTimeout(timeoutId);
+          timeoutId = window.setTimeout(() => {
+            setContainerSize([size[0], size[1]]);
+          }, 16); // One frame delay
+        }
+      });
+
+      return () => {
+        if (timeoutId) clearTimeout(timeoutId);
+        subscription?.();
+      };
+    }
+  }, [internals.size]);
 
   return (
     <AddHandlers ref={outerRef} handlers={internals.handlers}>

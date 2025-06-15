@@ -1,31 +1,40 @@
-import { Container, Text } from "@react-three/uikit";
+import { Container, ContainerProperties, Text } from "@react-three/uikit";
 import { DataLoader } from "../../engine/DataLoader";
-import { animate } from "../../lib/animate";
 import { MaskedImage } from "../../lib/masked-image";
 import { useLocal } from "../../lib/use-local";
 import { Character } from "../../types";
 
-const getCardData = (cardName: string) => {
+const getCardData = (
+  cardName: string
+): (Character & { image: string }) | undefined => {
   const characters = DataLoader.loadCharacters();
   const found = characters.find((char) => char.name === cardName) as any;
 
-  const imageName = cardName.toLowerCase().replace(/\s+/g, "-");
-  found.image = `/img/cards/${imageName}.jpeg`;
+  if (!found) {
+    return {
+      image: `/img/battle/ornament.webp`,
+      name: "???",
+      title: "",
+      composition: {},
+    };
+  } else {
+    const imageName = cardName.toLowerCase().replace(/\s+/g, "-");
+    found.image = `/img/cards/${imageName}.jpeg`;
+  }
 
-  return found as (Character & { image: string }) | undefined;
+  return found as any;
 };
 
-export const SmallCard = ({
-  cardName,
-}: {
-  cardName: string;
-  height?: number;
-}) => {
+export const SmallCard = (
+  props: { cardName: string } & ContainerProperties
+) => {
+  const { cardName } = props;
   const local = useLocal({
     card: undefined as ReturnType<typeof getCardData>,
     width: 0,
     height: 0,
     ready: false,
+    sizesub: null as any,
   });
 
   if (local.card?.name !== cardName) {
@@ -33,52 +42,58 @@ export const SmallCard = ({
   }
 
   const card = local.card;
-
-  let svgHeight = 1000;
-  if (local.height > 0) {
-    svgHeight = (local.height / local.width) * 1000;
-    local.ready = true;
-  }
+  const svgMask = `<svg viewBox="0 0 ${local.width} ${local.height}" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect 
+  width="${local.width}" height="${local.height}"
+  rx="${local.width / ((local.width / local.height) * 7)}" ry="${local.height / 7}" fill="url(#linear)"/>
+<defs>
+<linearGradient id="linear" x1="0" y1="0" x2="0" y2="${local.height}" gradientUnits="userSpaceOnUse">
+<stop offset="0.35" stop-color="black"/>
+<stop offset="0.9" stop-color="black" stop-opacity="0" />
+</linearGradient>
+</defs>
+</svg>
+`;
+  const _props: any = { ...props };
+  delete _props.cardName;
 
   return (
     <Container
       alignItems={"stretch"}
       flexGrow={1}
+      width="100%"
+      {..._props}
       ref={(ref) => {
-        if (!local.height) {
-          const unsub = ref?.size.subscribe((size) => {
-            if (size?.[1] || 0 > 0) {
-              local.width = size?.[0] || 0;
-              local.height = size?.[1] || 0;
-
-              setTimeout(() => {
-                unsub?.();
-              });
-              local.render();
+        if (!local.sizesub) {
+          local.sizesub = ref?.size.subscribe((size) => {
+            if (size) {
+              local.width = size[0];
+              local.height = size[1];
+              if (local.width && local.height) {
+                local.sizesub?.();
+                local.ready = true;
+                local.render();
+              }
             }
           });
         }
       }}
     >
-      {card ? (
+      {card && local.ready && (
         <>
-          <Container height={"100%"}>
-            <animate.MaskedImage
+          <Container
+            backgroundColor={"black"}
+            alignItems={"flex-start"}
+            justifyContent={"flex-start"}
+          >
+            <MaskedImage
               src={card.image}
               width={"100%"}
-              opacity={local.ready ? 1 : 0}
-              imgCoverPosition="top-center"
-              springConfig={{ duration: 1000}}
-              svgMask={`<svg width="1000" height="${svgHeight}" viewBox="0 0 1000 ${svgHeight}" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="1000" height="${svgHeight}" rx="90" fill="url(#paint0_linear_58_2)"/>
-<defs>
-<linearGradient id="paint0_linear_58_2" x1="115" y1="0" x2="115" y2="${svgHeight}" gradientUnits="userSpaceOnUse">
-<stop offset="0.381764" stop-color="white"/>
-<stop offset="0.908654" stop-color="white" stop-opacity="0" />
-</linearGradient>
-</defs>
-</svg>
-`}
+              height={"100%"}
+              imgFit="cover"
+              maskFit="fill"
+              imageSmoothing="high"
+              maskText={svgMask}
             />
           </Container>
           <Container
@@ -93,21 +108,22 @@ export const SmallCard = ({
               color="white"
               fontSize={20}
               textAlign={"center"}
+              marginBottom={card.title ? 0 : 14}
             >
               {card.name}
             </Text>
-            <Text
-              fontFamily={"Texturina"}
-              color="white"
-              fontSize={13}
-              textAlign={"center"}
-            >
-              {card.title}
-            </Text>
+            {card.title && (
+              <Text
+                fontFamily={"Texturina"}
+                color="white"
+                fontSize={13}
+                textAlign={"center"}
+              >
+                {card.title}
+              </Text>
+            )}
           </Container>
         </>
-      ) : (
-        <></>
       )}
     </Container>
   );

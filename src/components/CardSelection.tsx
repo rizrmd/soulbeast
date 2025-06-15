@@ -1,16 +1,13 @@
 import { Canvas } from "@react-three/fiber";
-import {
-  Container,
-  FontFamilyProvider,
-  Fullscreen,
-  Image,
-} from "@react-three/uikit";
+import { Container, FontFamilyProvider, Fullscreen } from "@react-three/uikit";
+import { easings } from "react-spring";
 import { useSnapshot } from "valtio";
-import { gameStore } from "../store/gameStore";
-import { SmallCard } from "./CardSelection/SmallCard";
 import { animate } from "../lib/animate";
 import { useLocal } from "../lib/use-local";
-import { easings } from "react-spring";
+import { gameStore } from "../store/gameStore";
+import { SmallCard } from "./CardSelection/SmallCard";
+import { Suspense } from "react";
+import { MaskedImage } from "../lib/masked-image";
 
 const Cards = () => {
   const store = useSnapshot(gameStore);
@@ -26,15 +23,27 @@ const Cards = () => {
       alignItems={"stretch"}
       flexGrow={1}
     >
-      <Container flexDirection={"row"} gap={10} padding={10} height={"25%"}>
+      <animate.Container
+        flexDirection={"row"}
+        gap={10}
+        padding={10}
+        height={"25%"}
+        borderBottomWidth={!local.ready ? 0 : 1}
+        borderColor="#fcd569"
+        borderOpacity={0.6}
+        springConfig={{
+          duration: 800,
+          easing: easings.easeInOutCubic,
+        }}
+      >
         {store.player2Cards.map((cardName, i) => {
           return (
             <Container key={i}>
-              <SmallCard cardName={cardName} height={200} />
+              <SmallCard cardName={cardName} />
             </Container>
           );
         })}
-      </Container>
+      </animate.Container>
       <Container alignItems={"center"} justifyContent={"center"}>
         <animate.Image
           src="/img/battle/vs.webp"
@@ -44,30 +53,50 @@ const Cards = () => {
           springConfig={{
             duration: 1000,
             easing: easings.easeInOutElastic,
-            delay: 1000
+            delay: 500,
           }}
           marginTop={-40}
           width={local.ready ? "20%" : "15%"}
         />
+        <MaskedImage
+          width="100%"
+          height={20}
+          marginTop={-10}
+          positionType={"absolute"}
+          maskText={`<svg width="400" height="20" viewBox="0 0 400 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="400" height="20" fill="url(#paint0_linear_64_2)"/>
+<defs>
+<linearGradient id="paint0_linear_64_2" x1="0" y1="10" x2="400" y2="10" gradientUnits="userSpaceOnUse">
+<stop/>
+<stop offset="0.504808" stop-opacity="0"/>
+<stop offset="1"/>
+</linearGradient>
+</defs>
+</svg>
+`}
+        />
       </Container>
       <Container
-        flexGrow={1}
-        zIndexOffset={500}
         gap={10}
         padding={10}
-        alignItems={"flex-end"}
+        height="20%"
         onClick={(e) => {
           e.stopPropagation();
         }}
       >
-        {/* {store.availableCards.map((cardName, i) => {
-          if (i > 1) return null;
+        {[0, 1].map((i) => {
+          const cardName = store.player1Cards[i] || "";
+
           return (
-            <Container key={i} height={100}>
-              <SmallCard cardName={cardName} />{" "}
+            <Container key={i}>
+              <SmallCard
+                cardName={cardName}
+                overflow={"hidden"}
+                height="100%"
+              />
             </Container>
           );
-        })} */}
+        })}
       </Container>
     </Container>
   );
@@ -76,22 +105,29 @@ const Cards = () => {
 const CardSelection = () => {
   return (
     <Canvas
-      style={{ position: "absolute", inset: "0", touchAction: "none" }}
-      gl={{ localClippingEnabled: true }}
+      style={{
+        position: "absolute",
+        inset: "0",
+      }}
+      gl={{
+        localClippingEnabled: true,
+      }}
       onContextMenu={(e) => e.preventDefault()}
     >
-      <FontFamilyProvider
-        NewRocker={{
-          medium: "/fonts/newrocker.json",
-        }}
-        Texturina={{
-          medium: "/fonts/texturina.json",
-        }}
-      >
-        <Fullscreen flexDirection="row">
-          <Cards />
-        </Fullscreen>
-      </FontFamilyProvider>
+      <Suspense fallback={null}>
+        <FontFamilyProvider
+          NewRocker={{
+            medium: "/fonts/newrocker.json",
+          }}
+          Texturina={{
+            medium: "/fonts/texturina.json",
+          }}
+        >
+          <Fullscreen flexDirection="row">
+            <Cards />
+          </Fullscreen>
+        </FontFamilyProvider>
+      </Suspense>
     </Canvas>
   );
 
