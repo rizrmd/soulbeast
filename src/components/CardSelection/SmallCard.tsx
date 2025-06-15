@@ -1,9 +1,9 @@
-import { Container, ContainerRef, Text } from "@react-three/uikit";
+import { Container, Text } from "@react-three/uikit";
 import { DataLoader } from "../../engine/DataLoader";
+import { animate } from "../../lib/animate";
 import { MaskedImage } from "../../lib/masked-image";
 import { useLocal } from "../../lib/use-local";
 import { Character } from "../../types";
-import { useRef } from "react";
 
 const getCardData = (cardName: string) => {
   const characters = DataLoader.loadCharacters();
@@ -17,7 +17,6 @@ const getCardData = (cardName: string) => {
 
 export const SmallCard = ({
   cardName,
-  height,
 }: {
   cardName: string;
   height?: number;
@@ -38,6 +37,7 @@ export const SmallCard = ({
   let svgHeight = 1000;
   if (local.height > 0) {
     svgHeight = (local.height / local.width) * 1000;
+    local.ready = true;
   }
 
   return (
@@ -63,10 +63,12 @@ export const SmallCard = ({
       {card ? (
         <>
           <Container height={"100%"}>
-            <MaskedImage
+            <animate.MaskedImage
               src={card.image}
               width={"100%"}
+              opacity={local.ready ? 1 : 0}
               imgCoverPosition="top-center"
+              springConfig={{ duration: 1000}}
               svgMask={`<svg width="1000" height="${svgHeight}" viewBox="0 0 1000 ${svgHeight}" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect width="1000" height="${svgHeight}" rx="90" fill="url(#paint0_linear_58_2)"/>
 <defs>
