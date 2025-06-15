@@ -1,10 +1,8 @@
 import { Canvas } from "@react-three/fiber";
 import {
   Container,
-  DefaultProperties,
   FontFamilyProvider,
-  Fullscreen,
-  Image,
+  Fullscreen
 } from "@react-three/uikit";
 import { Suspense } from "react";
 import { easings } from "react-spring";

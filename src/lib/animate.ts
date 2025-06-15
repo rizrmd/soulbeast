@@ -32,28 +32,26 @@ export const useAnimatedElement = <T extends AnimatableRef>(
   // Extract delay and from values from config
   const { delay, from, ...config } = springConfig || {};
 
-  // Create spring animation with target values
+  // Create spring animation with proper initial setup
   const [springs, api] = useSpring(() => ({
+    from: from || targetValues,
     to: targetValues,
-    from: from || {},
     delay: delay || 0,
     config: config,
   }));
 
-  // Update animation when target values change (and not hidden)
+  // Handle target value changes and visibility
   useEffect(() => {
     if (visibility !== "hidden") {
       api.start({
         to: targetValues,
+        delay: delay || 0,
         config: config,
       });
     } else {
-      const cur = ref.current as { isVisible?: boolean };
-      if (cur.isVisible) {
-        api.stop();
-      }
+      api.stop();
     }
-  }, [targetValues, api, config, visibility]);
+  }, [targetValues, api, config, visibility, delay]);
 
   // Use frame loop to apply animated values to the element
   useFrame(() => {
@@ -429,44 +427,31 @@ const AnimatedDefaultProperties = (
 
   const { delay, from, ...config } = props.springConfig || {};
   const [springs, api] = useSpring(() => ({
+    from: from || targetValues,
     to: targetValues,
-    from: from || {},
     delay: delay || 0,
     config,
   }));
 
-  // Handle visibility changes to start/stop animation
+  // Handle animation updates and visibility changes
   useEffect(() => {
     if (props.visibility === "hidden") {
-      // Stop the animation
       api.stop();
-    } else if (props.visibility === "visible") {
-      // Restart the animation
+    } else {
       api.start({
         to: targetValues,
-        from: from || {},
         delay: delay || 0,
         config: config,
       });
     }
-  }, [props.visibility, targetValues, api, delay, from, config]);
+  }, [props.visibility, targetValues, api, delay, config]);
 
-  // Update animation when target values change (and not hidden)
-  useEffect(() => {
-    if (props.visibility !== "hidden") {
-      api.start({
-        to: targetValues,
-        config: config,
-      });
-    }
-  }, [targetValues, api, config, props.visibility]);
-
-  // Initialize with target values if empty
+  // Initialize with from values if empty (not target values, to allow delay to work)
   useEffect(() => {
     if (Object.keys(animatedProps).length === 0) {
-      setAnimatedProps(targetValues);
+      setAnimatedProps(from || {});
     }
-  }, [targetValues, animatedProps]);
+  }, [from, animatedProps]);
 
   useFrame(() => {
     if (props.visibility === "hidden") {
