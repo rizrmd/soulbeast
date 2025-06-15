@@ -55,7 +55,7 @@ const BattleArena: React.FC = () => {
 
   const getCardImage = (cardName: string) => {
     const imageName = cardName.toLowerCase().replace(/\s+/g, "-");
-    return `/img/cards/${imageName}.jpeg`;
+    return `/img/cards/${imageName}.webp`;
   };
 
   const getHealthPercentage = (entity: BattleEntity) => {

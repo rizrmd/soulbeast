@@ -163,7 +163,7 @@ public/
 1. Add character data to `public/cards.json`
 2. Add abilities to `public/abilities.json`
 3. Add character portrait to `public/img/cards/`
-4. Character portraits should be named with lowercase and hyphens (e.g., `character-name.jpeg`)
+4. Character portraits should be named with lowercase and hyphens (e.g., `character-name.webp`)
 
 ### Extending Abilities
 

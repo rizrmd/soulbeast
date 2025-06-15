@@ -19,7 +19,7 @@ const getCardData = (
     };
   } else {
     const imageName = cardName.toLowerCase().replace(/\s+/g, "-");
-    found.image = `/img/cards/${imageName}.jpeg`;
+    found.image = `/img/cards/${imageName}.webp`;
   }
 
   return found as any;
