@@ -3,6 +3,18 @@ import {
   createImageState,
   setupImage,
 } from "@pmndrs/uikit/internals";
+import { Image as UIKitImage } from "@react-three/uikit";
+import { ParentProvider, useParent } from "@react-three/uikit/dist/context.js";
+import { DefaultProperties } from "@react-three/uikit/dist/default.js";
+import {
+  ComponentInternals,
+  useComponentInternals,
+} from "@react-three/uikit/dist/ref.js";
+import {
+  AddHandlers,
+  R3FEventMap,
+  usePropertySignals,
+} from "@react-three/uikit/dist/utils.js";
 import {
   ReactNode,
   RefAttributes,
@@ -13,17 +25,6 @@ import {
   useState,
 } from "react";
 import { Object3D } from "three";
-import {
-  AddHandlers,
-  R3FEventMap,
-  usePropertySignals,
-} from "@react-three/uikit/dist/utils.js";
-import { ParentProvider, useParent } from "@react-three/uikit/dist/context.js";
-import {
-  ComponentInternals,
-  useComponentInternals,
-} from "@react-three/uikit/dist/ref.js";
-import { DefaultProperties } from "@react-three/uikit/dist/default.js";
 
 /**
  * Resampling Algorithm Options:
@@ -251,20 +252,22 @@ const createMaskedImageDataURL = async (
         const sourceHeight = img.naturalHeight;
         const parsedWidth = parseDimension(width);
         const parsedHeight = parseDimension(height);
-        
+
         // Determine target dimensions (what the user wants to display)
         let targetWidth: number;
         let targetHeight: number;
-        
+
         if (parsedWidth && parsedHeight) {
           targetWidth = parsedWidth;
           targetHeight = parsedHeight;
         } else if (parsedWidth) {
           targetWidth = parsedWidth;
-          targetHeight = (svgDimensions.height / svgDimensions.width) * targetWidth;
+          targetHeight =
+            (svgDimensions.height / svgDimensions.width) * targetWidth;
         } else if (parsedHeight) {
           targetHeight = parsedHeight;
-          targetWidth = (svgDimensions.width / svgDimensions.height) * targetHeight;
+          targetWidth =
+            (svgDimensions.width / svgDimensions.height) * targetHeight;
         } else if (width && height) {
           // Use raw width/height values (e.g., from container size)
           targetWidth = width;
@@ -279,10 +282,10 @@ const createMaskedImageDataURL = async (
         // Maintain target aspect ratio while ensuring minimum quality
         const qualityThreshold = 512;
         const targetAspectRatio = targetWidth / targetHeight;
-        
+
         let canvasWidth: number;
         let canvasHeight: number;
-        
+
         // Determine which dimension needs upscaling for quality
         if (Math.max(targetWidth, targetHeight) < qualityThreshold) {
           // Scale up while maintaining aspect ratio
@@ -319,7 +322,10 @@ const createMaskedImageDataURL = async (
         }
 
         // Step 2: Calculate scaling factors
-        const canvasToTargetScale = Math.min(canvasWidth / targetWidth, canvasHeight / targetHeight);
+        const canvasToTargetScale = Math.min(
+          canvasWidth / targetWidth,
+          canvasHeight / targetHeight
+        );
 
         // Clear canvas
         ctx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -389,9 +395,13 @@ const createMaskedImageDataURL = async (
 
         if (maskSize === "original") {
           // Use SVG original size relative to target, then scale to canvas
-          const scaleToTarget = Math.min(targetWidth / svgDimensions.width, targetHeight / svgDimensions.height);
+          const scaleToTarget = Math.min(
+            targetWidth / svgDimensions.width,
+            targetHeight / svgDimensions.height
+          );
           maskWidth = svgDimensions.width * scaleToTarget * canvasToTargetScale;
-          maskHeight = svgDimensions.height * scaleToTarget * canvasToTargetScale;
+          maskHeight =
+            svgDimensions.height * scaleToTarget * canvasToTargetScale;
           maskX = (canvasWidth - maskWidth) / 2;
           maskY = (canvasHeight - maskHeight) / 2;
         } else if (maskSize === "full-width") {
@@ -417,8 +427,9 @@ const createMaskedImageDataURL = async (
           } else if (maskFit === "cover") {
             // COVER: Resize to match canvas width while maintaining aspect ratio, use maskCoverPosition as anchor
             maskWidth = canvasWidth;
-            maskHeight = (svgDimensions.height / svgDimensions.width) * canvasWidth;
-            
+            maskHeight =
+              (svgDimensions.height / svgDimensions.width) * canvasWidth;
+
             // Position based on maskCoverPosition
             maskX = 0; // Always fill width
             switch (maskCoverPosition) {
@@ -442,7 +453,7 @@ const createMaskedImageDataURL = async (
             const scaleX = canvasWidth / svgDimensions.width;
             const scaleY = canvasHeight / svgDimensions.height;
             const scale = Math.min(scaleX, scaleY);
-            
+
             maskWidth = svgDimensions.width * scale;
             maskHeight = svgDimensions.height * scale;
             maskX = (canvasWidth - maskWidth) / 2;
@@ -600,8 +611,8 @@ export const MaskedImage: (
       ...properties,
       src: maskedImageSrc || undefined,
       objectFit: "fill" as const, // Ensure image fills the container exactly
-      // Hide the image until masked version is ready
-      opacity: maskedImageSrc ? (properties.opacity ?? 1) : 0,
+      // Hide the image until masked version is ready, but respect inherited opacity
+      opacity: maskedImageSrc ? properties.opacity : 0,
     }),
     [properties, maskedImageSrc]
   );

@@ -1,8 +1,9 @@
-import { Container, ContainerProperties, Text } from "@react-three/uikit";
+import { Container, ContainerProperties, Image, Text } from "@react-three/uikit";
 import { DataLoader } from "../../engine/DataLoader";
 import { MaskedImage } from "../../lib/masked-image";
 import { useLocal } from "../../lib/use-local";
 import { Character } from "../../types";
+import { animate } from "../../lib/animate";
 
 const getCardData = (
   cardName: string
@@ -86,6 +87,7 @@ export const SmallCard = (
             alignItems={"flex-start"}
             justifyContent={"flex-start"}
           >
+
             <MaskedImage
               src={card.image}
               width={"100%"}
