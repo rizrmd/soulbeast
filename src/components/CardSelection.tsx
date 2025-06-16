@@ -1,5 +1,11 @@
 import { Canvas } from "@react-three/fiber";
-import { Container, FontFamilyProvider, Fullscreen } from "@react-three/uikit";
+import {
+  Container,
+  FontFamilyProvider,
+  Fullscreen,
+  Image,
+  Text,
+} from "@react-three/uikit";
 import { Suspense } from "react";
 import { easings } from "react-spring";
 import { useSnapshot } from "valtio";
@@ -13,7 +19,7 @@ const cardDelay = 300;
 const Content = () => {
   const store = useSnapshot(gameStore);
   const local = useLocal(
-    { init: false, ready: false, selection: 0, card: { height: 0 } },
+    { init: false, ready: false, card: { height: 0 } },
     () => {
       local.init = true;
       local.render();
@@ -103,19 +109,18 @@ const Content = () => {
               flexGrow={1}
               onClick={(e) => {
                 e.stopPropagation();
-                local.selection = i;
+                gameStore.selectedCardIndex = i;
                 if (store.player1Cards[i]) {
                   gameStore.player1Cards[i] = "";
                 }
-                local.render();
               }}
             >
               <animate.Image
                 src="/img/battle/select.webp"
                 height={60}
                 pointerEvents={"none"}
-                marginTop={local.selection === i ? -30 : -70}
-                opacity={local.selection === i ? 1 : 0}
+                marginTop={gameStore.selectedCardIndex === i ? -30 : -70}
+                opacity={gameStore.selectedCardIndex === i ? 1 : 0}
                 transformRotateZ={180}
                 positionRight={20}
                 positionLeft={20}
@@ -132,8 +137,8 @@ const Content = () => {
                 height={60}
                 pointerEvents={"none"}
                 positionBottom={0}
-                marginBottom={local.selection === i ? -30 : -70}
-                opacity={local.selection === i ? 1 : 0}
+                marginBottom={gameStore.selectedCardIndex === i ? -30 : -70}
+                opacity={gameStore.selectedCardIndex === i ? 1 : 0}
                 positionRight={20}
                 positionLeft={20}
                 positionType={"absolute"}
@@ -198,37 +203,37 @@ const Content = () => {
                     gameStore.player1Cards = gameStore.player1Cards.filter(
                       (c) => c !== cardName
                     );
-                    local.selection = gameStore.player1Cards.length;
+                    gameStore.selectedCardIndex = gameStore.player1Cards.length;
                     return;
                   }
 
-                  if (store.player1Cards[local.selection] === "") {
-                    gameStore.player1Cards[local.selection] = cardName;
+                  if (store.player1Cards[gameStore.selectedCardIndex] === "") {
+                    gameStore.player1Cards[gameStore.selectedCardIndex] = cardName;
                     return;
                   }
                   if (store.player1Cards.length >= 2) {
                     gameStore.player1Cards.pop();
-                    local.selection = 1;
+                    gameStore.selectedCardIndex = 1;
                     gameStore.player1Cards.push(cardName);
                   } else {
                     gameStore.player1Cards.push(cardName);
-                    local.selection = gameStore.player1Cards.length;
+                    gameStore.selectedCardIndex = gameStore.player1Cards.length;
                   }
                 }}
               >
-                <animate.Image
+                <Image
                   src={card.image}
                   borderRadius={20}
                   opacity={isSelected ? 0.7 : 1}
                 />
-                <animate.Image
+                <Image
                   src="/img/battle/border.webp"
                   positionType={"absolute"}
                   width="100%"
                   height="100%"
                   opacity={isSelected ? 1 : 0}
                 />
-                <animate.Text
+                <Text
                   fontFamily="NewRocker"
                   fontSize={24}
                   positionType={"absolute"}
@@ -237,13 +242,9 @@ const Content = () => {
                   textAlign={"center"}
                   positionTop={"45%"}
                   opacity={isSelected ? 1 : 0}
-                  springConfig={{
-                    delay: 0 * cardDelay,
-                    duration: 1000,
-                  }}
                 >
                   Selected
-                </animate.Text>
+                </Text>
               </Container>
             );
           })}

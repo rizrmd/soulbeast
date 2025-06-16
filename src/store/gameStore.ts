@@ -14,7 +14,7 @@ interface GameStore {
   availableCards: string[];
   player1Cards: string[];
   player2Cards: string[];
-  selectedCard: string | null;
+  selectedCardIndex: number;
 
   // Battle UI state
   selectedEntity: string | null;
@@ -54,7 +54,7 @@ export const gameStore = proxy<GameStore>({
   availableCards: [],
   player1Cards: [],
   player2Cards: [],
-  selectedCard: null,
+  selectedCardIndex: 0,
 
   selectedEntity: null,
   targetEntity: null,
@@ -130,11 +130,6 @@ export const gameActions = {
       // Remove selected card from available cards
       availableCardsCopy.splice(randomIndex, 1);
     }
-  },
-
-  // Card selection actions
-  selectCard(cardName: string) {
-    gameStore.selectedCard = cardName;
   },
 
   addToPlayer1(cardName: string) {
