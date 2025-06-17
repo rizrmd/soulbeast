@@ -1,7 +1,18 @@
+@import url("https://fonts.googleapis.com/css2?family=New+Rocker&family=Texturina:ital,opsz,wght@0,12..72,100..900;1,12..72,100..900&display=fallback");
 @import "tailwindcss";
 
+@theme {
+  --font-rocker: "New Rocker", sans-serif;
+}
+
 html,
-body{
+body {
   background-color: black;
   overscroll-behavior: none;
+  color: white;
+  font-family: "Texturina", serif;
+}
+
+#root {
+  height: 100vh;
 }

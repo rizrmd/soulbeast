@@ -10,18 +10,12 @@
     "simulate": "bun run src/simulator/multiCardBattle.ts"
   },
   "dependencies": {
-    "@react-three/drei": "^10.2.0",
-    "@react-three/fiber": "^9.1.2",
-    "@react-three/uikit": "^0.8.19",
-    "@react-three/uikit-default": "^0.8.19",
     "@tailwindcss/postcss": "^4.1.10",
     "@types/node": "^24.0.1",
-    "@types/three": "^0.177.0",
     "goober": "^2.1.16",
-    "maath": "^0.10.8",
+    "motion": "^12.18.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-spring": "^10.0.1",
     "valtio": "^2.1.5"
   },
   "devDependencies": {

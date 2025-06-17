@@ -1,3 +1,5 @@
+import { AllSoulBeast } from "./engine/SoulBeast";
+
 export interface ElementComposition {
   frost?: number;
   demon?: number;
@@ -19,24 +21,30 @@ export interface Character {
 export interface Ability {
   name: string;
   emoji: string;
-  type: 'quick' | 'power' | 'ultimate';
+  type: "quick" | "power" | "ultimate";
   cooldown: number;
   damage: number;
   effect: string;
   description: string;
+  target: "single-enemy" | "all-enemy" | "single-friend" | "all-friend" | "self";
   castTime?: number; // in seconds
+  initiationTime?: number; // initial delay before first use (in seconds)
 }
+export type SoulBeastName = keyof typeof AllSoulBeast;
 
-export interface CharacterAbilities {
-  name: string;
+export interface SoulBeast {
+  name: SoulBeastName;
   title: string;
   composition: ElementComposition;
   abilities: Ability[];
 }
+export interface SoulBeastUI extends SoulBeast {
+  image: string;
+}
 
 export interface StatusEffect {
   name: string;
-  type: 'buff' | 'debuff' | 'dot' | 'hot';
+  type: "buff" | "debuff" | "dot" | "hot";
   duration: number;
   value: number;
   tickInterval?: number;
@@ -45,15 +53,14 @@ export interface StatusEffect {
 
 export interface BattleEntity {
   id: string;
-  character: CharacterAbilities;
+  character: SoulBeast;
   hp: number;
   maxHp: number;
   armor: number;
   damageMultiplier: number;
-  movementSpeed: number;
-  attackSpeed: number;
   statusEffects: StatusEffect[];
   abilityCooldowns: Map<string, number>;
+  abilityInitiationTimes: Map<string, number>; // tracks when abilities become available for first use
   currentCast?: {
     ability: Ability;
     timeRemaining: number;
@@ -65,7 +72,15 @@ export interface BattleEntity {
 
 export interface BattleEvent {
   timestamp: number;
-  type: 'damage' | 'heal' | 'cast_start' | 'cast_complete' | 'ability_used' | 'status_applied' | 'status_removed' | 'death';
+  type:
+    | "damage"
+    | "heal"
+    | "cast_start"
+    | "cast_complete"
+    | "ability_used"
+    | "status_applied"
+    | "status_removed"
+    | "death";
   source: string;
   target?: string;
   ability?: string;

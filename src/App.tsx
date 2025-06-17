@@ -4,13 +4,24 @@ import BattleArena from "./components/BattleArena";
 import CardSelection from "./components/CardSelection";
 import MainMenu from "./components/MainMenu";
 import ResultsScreen from "./components/ResultsScreen";
-import { gameActions, gameStore } from "./store/gameStore";
+import { gameActions, gameStore } from "./store/vsai";
 
 const App = () => {
   const state = useSnapshot(gameStore);
 
   useEffect(() => {
     gameActions.initialize();
+
+    if (
+      document.documentElement.clientHeight <
+      document.documentElement.scrollHeight
+    ) {
+      const res =
+        document.documentElement.scrollHeight -
+        document.documentElement.clientHeight;
+      document.getElementById("root")!.style.maxHeight =
+        `${document.documentElement.clientHeight}px`;
+    }
   }, []);
 
   const renderCurrentScreen = () => {
@@ -33,7 +44,12 @@ const App = () => {
   };
 
   return (
-    <div className={cn("min-h-screen flex items-stretch justify-center")}>
+    <div
+      onContextMenu={(e) => {
+        e.preventDefault();
+      }}
+      className={cn("h-full select-none flex items-stretch justify-center")}
+    >
       <div
         className={cn(
           `max-w-[500px] w-full shadow-sm shadow-gray-600 contain-content`

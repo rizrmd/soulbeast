@@ -1,10 +1,10 @@
-import { proxy, subscribe } from "valtio";
+import { proxy } from "valtio";
 import { BattleEngine } from "../engine/BattleEngine";
-import { BattleState, BattleEvent, ActionInput } from "../types";
-import { DataLoader } from "../engine/DataLoader";
 import { ImageLoader } from "../lib/loader";
+import { ActionInput, BattleEvent, BattleState } from "../types";
+import { AllSoulBeast } from "../engine/Soulbeast";
 
-interface GameStore {
+interface vsai {
   // Game state
   currentScreen: "menu" | "cardSelection" | "battle" | "results";
   battleEngine: BattleEngine | null;
@@ -46,7 +46,7 @@ interface GameStore {
   aiStepDelay: number; // Delay between each step of AI action (entity selection, ability selection, target selection)
 }
 
-export const gameStore = proxy<GameStore>({
+export const gameStore = proxy<vsai>({
   currentScreen: "cardSelection",
   battleEngine: null,
   battleState: null,
@@ -91,8 +91,7 @@ export const gameActions = {
     });
 
     try {
-      await DataLoader.loadData();
-      gameStore.availableCards = DataLoader.getAllCharacterNames();
+      gameStore.availableCards = Object.keys(AllSoulBeast);
 
       // Automatically select 2 random cards for Player 2 (AI)
       gameActions.selectRandomCardsForAI();

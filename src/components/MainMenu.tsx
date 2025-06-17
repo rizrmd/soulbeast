@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { gameActions } from "../store/gameStore";
+import { gameActions } from "../store/vsai";
 
 const MainMenu: React.FC = () => {
   const handleStartGame = () => {

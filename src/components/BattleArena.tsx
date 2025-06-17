@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback } from "react";
 import { useSnapshot } from "valtio";
-import { gameStore, gameActions } from "../store/gameStore";
+import { gameStore, gameActions } from "../store/vsai";
 import { BattleEntity } from "../types";
 
 const BattleArena: React.FC = () => {
@@ -418,7 +418,7 @@ const BattleArena: React.FC = () => {
                   return (
                     <div
                       key={target.id}
-                      className={`relative bg-[#23232a] rounded-xl border-2 shadow flex flex-col items-center p-3 cursor-pointer transition-all duration-150 ${
+                      className={`relative bg-[#23232a] rounded-xl border-2 shadow flex flex-col items-center p-3 transition-all duration-150 ${
                         isSelected
                           ? "border-yellow-400 ring-2 ring-yellow-300"
                           : "border-transparent hover:border-indigo-400"
