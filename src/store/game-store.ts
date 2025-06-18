@@ -1,19 +1,19 @@
 import { proxy } from "valtio";
 import { BattleEngine } from "../engine/BattleEngine";
 import { ImageLoader } from "../lib/loader";
-import { ActionInput, BattleEvent, BattleState } from "../types";
-import { AllSoulBeast } from "../engine/Soulbeast";
+import { ActionInput, BattleEvent, BattleState, SoulBeastName } from "../types";
+import { AllSoulBeast } from "../engine/SoulBeast";
 
-interface vsai {
+interface GameStore {
   // Game state
   currentScreen: "menu" | "cardSelection" | "battle" | "results";
   battleEngine: BattleEngine | null;
   battleState: BattleState | null;
 
   // Card selection
-  availableCards: string[];
-  player1Cards: string[];
-  player2Cards: string[];
+  availableCards: SoulBeastName[];
+  player1Cards: SoulBeastName[];
+  player2Cards: SoulBeastName[];
   selectedCardIndex: number;
 
   // Battle UI state
@@ -46,7 +46,7 @@ interface vsai {
   aiStepDelay: number; // Delay between each step of AI action (entity selection, ability selection, target selection)
 }
 
-export const gameStore = proxy<vsai>({
+export const gameStore = proxy<GameStore>({
   currentScreen: "cardSelection",
   battleEngine: null,
   battleState: null,
@@ -91,10 +91,10 @@ export const gameActions = {
     });
 
     try {
-      gameStore.availableCards = Object.keys(AllSoulBeast);
+      gameStore.availableCards = Object.keys(AllSoulBeast) as SoulBeastName[];
 
       // Automatically select 2 random cards for Player 2 (AI)
-      gameActions.selectRandomCardsForAI();
+      gameActions.selectRandomCards("player2");
 
       gameStore.currentScreen = "cardSelection";
     } catch (error) {
@@ -106,11 +106,13 @@ export const gameActions = {
   },
 
   // Automatically select random cards for AI (Player 2)
-  selectRandomCardsForAI() {
+  selectRandomCards(player: "player1" | "player2") {
     if (gameStore.availableCards.length <= 1) return;
 
+    const playerCards =
+      player === "player1" ? gameStore.player1Cards : gameStore.player2Cards;
     // Clear any existing AI cards
-    gameStore.player2Cards = [];
+    playerCards.length = 0;
 
     // Create a copy of available cards to avoid modifying the original
     const availableCardsCopy = [...gameStore.availableCards];
@@ -124,14 +126,14 @@ export const gameActions = {
       const selectedCard = availableCardsCopy[randomIndex];
 
       // Add to Player 2's cards
-      gameStore.player2Cards.push(selectedCard);
+      playerCards.push(selectedCard);
 
       // Remove selected card from available cards
       availableCardsCopy.splice(randomIndex, 1);
     }
   },
 
-  addToPlayer1(cardName: string) {
+  addToPlayer1(cardName: SoulBeastName) {
     if (
       gameStore.player1Cards.length < 1 &&
       !gameStore.player1Cards.includes(cardName)
@@ -140,7 +142,7 @@ export const gameActions = {
     }
   },
 
-  addToPlayer2(cardName: string) {
+  addToPlayer2(cardName: SoulBeastName) {
     if (
       gameStore.player2Cards.length < 1 &&
       !gameStore.player2Cards.includes(cardName)
@@ -149,14 +151,14 @@ export const gameActions = {
     }
   },
 
-  removeFromPlayer1(cardName: string) {
+  removeFromPlayer1(cardName: SoulBeastName) {
     const index = gameStore.player1Cards.indexOf(cardName);
     if (index > -1) {
       gameStore.player1Cards.splice(index, 1);
     }
   },
 
-  removeFromPlayer2(cardName: string) {
+  removeFromPlayer2(cardName: SoulBeastName) {
     const index = gameStore.player2Cards.indexOf(cardName);
     if (index > -1) {
       gameStore.player2Cards.splice(index, 1);
@@ -528,7 +530,7 @@ export const gameActions = {
 
     // Re-select random cards for AI when going back to card selection
     if (gameStore.availableCards.length > 0) {
-      gameActions.selectRandomCardsForAI();
+      gameActions.selectRandomCards("player2");
     }
   },
 };

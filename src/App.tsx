@@ -4,7 +4,7 @@ import BattleArena from "./components/BattleArena";
 import CardSelection from "./components/CardSelection";
 import MainMenu from "./components/MainMenu";
 import ResultsScreen from "./components/ResultsScreen";
-import { gameActions, gameStore } from "./store/vsai";
+import { gameActions, gameStore } from "./store/game-store";
 
 const App = () => {
   const state = useSnapshot(gameStore);
