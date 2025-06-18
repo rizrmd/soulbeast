@@ -14,16 +14,23 @@ export const EnemyCard: FC<{
     `player2_card${idx}`
   ) as BattleEntity;
 
-  const local = useLocal({
-    image: "",
-    hover: { card: false, ability: "" },
-    card: null as null | SoulBeastUI,
-    tick: false,
-    ival: null as any,
-    lastTick: Date.now(),
-    abilityStartTime: {} as Record<string, number>,
-    abilityCastTime: {} as Record<string, number>,
-  });
+  const local = useLocal(
+    {
+      init: false,
+      image: "",
+      hover: { card: false, ability: "" },
+      card: null as null | SoulBeastUI,
+      tick: false,
+      ival: null as any,
+      lastTick: Date.now(),
+      abilityStartTime: {} as Record<string, number>,
+      abilityCastTime: {} as Record<string, number>,
+    },
+    () => {
+      local.init = true;
+      local.render();
+    }
+  );
   useEffect(() => {
     if (entity.character.name) {
       local.card = DataLoader.getSoulBeast(entity.character.name);
@@ -71,7 +78,12 @@ export const EnemyCard: FC<{
   };
 
   return (
-    <div className={cn("flex flex-col flex-1 relative")}>
+    <motion.div
+      animate={{ opacity: 1, x: 0 }}
+      initial={{ opacity: 0, x: -100 }}
+      transition={{ duration: 0.8, delay: idx * 0.5, ease: "easeOut" }}
+      className={cn("flex flex-col flex-1 relative")}
+    >
       <motion.div
         animate={{
           scale: local.hover.card ? 0.9 : 1,
@@ -84,7 +96,13 @@ export const EnemyCard: FC<{
             "h-[80px] overflow-hidden pointer-events-none skew-x-[-10deg]  pl-[10px]"
           )}
         >
-          <img src={local.image} className={cn("w-full")} />
+          <img
+            src={local.image}
+            className={cn(
+              "w-full transition-all duration-[2s] ease-out",
+              local.hover.card && "-mt-[100px]"
+            )}
+          />
         </div>
       </motion.div>
       <div className="absolute h-[80px] w-full bg-gradient-to-t from-black/90 from-10% to-40% to-black/0 pointer-events-none z-10"></div>
@@ -122,7 +140,7 @@ export const EnemyCard: FC<{
             <sub className="text-xs"> {hp.max}</sub>
           </div>
         </div>
-        <div className="h-[26px] self-stretch -ml-3 mr-7 mt-3 flex items-stretch gap-1">
+        <div className="h-[36px] self-stretch -ml-3 mr-7 mt-3 flex items-stretch gap-1">
           {card?.abilities.map((ability, index) => {
             let cooldown = 0;
             let casting = 0;
@@ -158,7 +176,7 @@ export const EnemyCard: FC<{
             if (!casting) {
               delete local.abilityCastTime[ability.name];
             }
-            
+
             if (casting && !local.tick) {
               local.tick = true;
               setTimeout(() => local.render());
@@ -170,7 +188,7 @@ export const EnemyCard: FC<{
             return (
               <motion.div
                 key={index}
-                className=" flex-1"
+                className={cn(" flex-1")}
                 onPointerDown={(e) => {
                   e.stopPropagation();
                   local.hover.ability = ability.emoji;
@@ -191,54 +209,67 @@ export const EnemyCard: FC<{
                   opacity: local.hover.ability === ability.emoji ? 0.8 : 1,
                 }}
               >
-                <div
-                  className={cn(
-                    css`
-                      background-image: url("/img/abilities/${ability.emoji}.webp");
-                      background-size: 100%;
-                      background-repeat: no-repeat;
-                    `,
-                    "skew-x-[-10deg] border-b-2 w-full h-full flex flex-col items-end py-[2px] px-[2px] relative",
-                    cooldown ? "border-b-transparent" : "border-b-white"
-                  )}
+                <motion.div
+                  animate={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, y: -20 }}
+                  transition={{
+                    delay: 1 + 1 * idx + index * 0.15,
+                    ease: "easeOut",
+                  }}
+                  className="w-full h-full flex"
                 >
-                  {maxCooldown && (
-                    <>
-                      <div className="absolute bg-black/50 inset-0" />
-                      {cooldown && (
-                        <motion.div
-                          className={cn(
-                            "bg-white h-full absolute right-0 top-0 bottom-0"
-                          )}
-                          animate={{
-                            width: `${Math.round((cooldown / maxCooldown) * 100)}%`,
-                          }}
-                          initial={{ width: "100%" }}
-                        ></motion.div>
-                      )}
-                      {casting && (
-                        <motion.div
-                          className={cn(
-                            "bg-amber-500 h-full absolute left-0 top-0 bottom-0"
-                          )}
-                          animate={{
-                            width: `${Math.round((casting / maxCasting) * 100)}%`,
-                          }}
-                          initial={{ width: "100%" }}
-                        ></motion.div>
-                      )}
+                  <div
+                    className={cn(
+                      css`
+                        background-image: url("/img/abilities/${ability.emoji}.webp");
+                        background-size: 100%;
+                        background-repeat: no-repeat;
+                      `,
+                      "skew-x-[-10deg] border-b-2 w-full h-full flex flex-col items-end py-[2px] px-[2px] relative",
+                      cooldown ? "border-b-transparent" : "border-b-white",
+                      local.hover.ability === ability.emoji
+                        ? "border border-blue-50"
+                        : ""
+                    )}
+                  >
+                    {maxCooldown && (
+                      <>
+                        <div className="absolute bg-black/50 inset-0" />
+                        {cooldown && (
+                          <motion.div
+                            className={cn(
+                              "bg-white/70 h-full absolute right-0 top-0 bottom-0"
+                            )}
+                            animate={{
+                              width: `${Math.round((cooldown / maxCooldown) * 100)}%`,
+                            }}
+                            initial={{ width: "100%" }}
+                          ></motion.div>
+                        )}
+                        {casting && (
+                          <motion.div
+                            className={cn(
+                              "bg-amber-500 h-full absolute left-0 top-0 bottom-0"
+                            )}
+                            animate={{
+                              width: `${Math.round((casting / maxCasting) * 100)}%`,
+                            }}
+                            initial={{ width: "100%" }}
+                          ></motion.div>
+                        )}
 
-                      <div className="absolute bottom-0 right-0 text-black text-xs bg-white/50 w-full flex items-center justify-center leading-0 h-[15px] pb-1">
-                        {Math.round(cooldown * 10) / 10}
-                      </div>
-                    </>
-                  )}
-                </div>
+                        <div className="absolute bottom-0 right-0 text-black text-xs bg-white/50 w-full flex items-center justify-center leading-0 h-[15px] pb-1">
+                          {Math.round(cooldown * 10) / 10}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </motion.div>
               </motion.div>
             );
           })}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };

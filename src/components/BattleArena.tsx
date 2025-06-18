@@ -1,4 +1,3 @@
-import { motion } from "motion/react";
 import { FC } from "react";
 import { useSnapshot } from "valtio";
 import { gameStore } from "../store/game-store";
@@ -11,11 +10,10 @@ export const BattleArena: FC = () => {
 
   return (
     <div className="flex flex-col items-stretch h-full">
-      <motion.div
-        animate={{ opacity: 0.8 }}
-        initial={{ opacity: 1 }}
-        transition={{ duration: 3, repeat: Infinity, repeatType: "reverse" }}
-        className={cn("absolute max-w-[3%] top-[0px] left-[0px] pointer-events-none")}
+      <div
+        className={cn(
+          "absolute max-w-[3%] top-[0px] left-[0px] pointer-events-none"
+        )}
       >
         <img src="/img/battle/orn2.svg" width={20} />
         <img
@@ -24,7 +22,7 @@ export const BattleArena: FC = () => {
           className="mt-[5px] ml-[0px]"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/0 to-black/80 w-full h-full"></div>
-      </motion.div>
+      </div>
       <div className={cn("gap-1 px-6 flex")}>
         {p2.map((e, idx) => (
           <EnemyCard key={e.id} idx={idx} />
