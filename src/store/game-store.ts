@@ -135,7 +135,7 @@ export const gameActions = {
 
   addToPlayer1(cardName: SoulBeastName) {
     if (
-      gameStore.player1Cards.length < 1 &&
+      gameStore.player1Cards.length < 2 &&
       !gameStore.player1Cards.includes(cardName)
     ) {
       gameStore.player1Cards.push(cardName);
@@ -144,7 +144,7 @@ export const gameActions = {
 
   addToPlayer2(cardName: SoulBeastName) {
     if (
-      gameStore.player2Cards.length < 1 &&
+      gameStore.player2Cards.length < 2 &&
       !gameStore.player2Cards.includes(cardName)
     ) {
       gameStore.player2Cards.push(cardName);
@@ -237,6 +237,11 @@ export const gameActions = {
       return;
     }
 
+    // Prevent actions during countdown
+    if (gameStore.battleEngine.isCountdownActive()) {
+      return;
+    }
+
     const action: ActionInput = {
       entityId: entityId,
       abilityName: abilityName,
@@ -275,12 +280,22 @@ export const gameActions = {
 
   // For abilities that need targeting
   selectAbilityForTargeting(entityId: string, abilityName: string) {
+    // Prevent actions during countdown
+    if (gameStore.battleEngine?.isCountdownActive()) {
+      return;
+    }
+    
     gameStore.selectedEntity = entityId;
     gameStore.selectedAbility = abilityName;
     gameStore.targetEntity = null;
   },
 
   selectTarget(entityId: string) {
+    // Prevent actions during countdown
+    if (gameStore.battleEngine?.isCountdownActive()) {
+      return;
+    }
+    
     if (gameStore.selectedEntity && gameStore.selectedAbility) {
       gameActions.executeAbility(
         gameStore.selectedEntity,
@@ -316,6 +331,9 @@ export const gameActions = {
   // AI that mimics human UI interactions with delays
   runAI() {
     if (!gameStore.battleEngine || !gameStore.battleState) return;
+
+    // Don't run AI during countdown
+    if (gameStore.battleEngine.isCountdownActive()) return;
 
     const currentTime = Date.now();
 

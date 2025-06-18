@@ -1,8 +1,10 @@
-@import url("https://fonts.googleapis.com/css2?family=New+Rocker&family=Texturina:ital,opsz,wght@0,12..72,100..900;1,12..72,100..900&display=fallback");
+@import url("https://fonts.googleapis.com/css2?family=Megrim&family=New+Rocker&family=Texturina:ital,opsz,wght@0,12..72,100..900;1,12..72,100..900&display=swap");
 @import "tailwindcss";
 
 @theme {
   --font-rocker: "New Rocker", sans-serif;
+  --font-megrim: "Megrim", sans-serif;
+  --font-texturina: "Texturina", serif;
 }
 
 html,

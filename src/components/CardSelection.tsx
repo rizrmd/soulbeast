@@ -32,8 +32,8 @@ const CardSelection = () => {
     },
     () => {
       gameActions.selectRandomCards("player2");
-      gameActions.selectRandomCards("player1");
-      gameActions.startBattle();
+      // gameActions.selectRandomCards("player1");
+      // gameActions.startBattle();
     }
   );
   const card = local.selected.card;
@@ -259,6 +259,7 @@ const CardSelection = () => {
                       for (const card of Object.values(local.selected.cards)) {
                         gameActions.addToPlayer1(card as SoulBeastName);
                       }
+
                       gameActions.startBattle();
                     }, 1000);
                   }

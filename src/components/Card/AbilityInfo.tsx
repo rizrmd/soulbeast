@@ -7,6 +7,7 @@ interface AbilityInfoProps {
   isSelected: boolean;
   isHovered: boolean;
   onClose: () => void;
+  className?: string;
 }
 
 const AbilityInfo: FC<AbilityInfoProps> = ({
@@ -14,10 +15,11 @@ const AbilityInfo: FC<AbilityInfoProps> = ({
   isSelected,
   isHovered,
   onClose,
+  className,
 }) => {
   return (
     <div
-      className={cn("relative")}
+      className={cn(className ? className : "relative")}
       onPointerDown={() => {
         // Keep the modal open when hovering/interacting
       }}

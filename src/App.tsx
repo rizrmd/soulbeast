@@ -16,9 +16,6 @@ const App = () => {
       document.documentElement.clientHeight <
       document.documentElement.scrollHeight
     ) {
-      const res =
-        document.documentElement.scrollHeight -
-        document.documentElement.clientHeight;
       document.getElementById("root")!.style.maxHeight =
         `${document.documentElement.clientHeight}px`;
     }

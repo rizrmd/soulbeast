@@ -80,7 +80,8 @@ export interface BattleEvent {
     | "ability_used"
     | "status_applied"
     | "status_removed"
-    | "death";
+    | "death"
+    | "system";
   source: string;
   target?: string;
   ability?: string;
@@ -97,6 +98,8 @@ export interface BattleState {
   currentTime: number;
   isActive: boolean;
   winner?: string;
+  countdownActive: boolean;
+  countdownTimeRemaining: number; // in seconds
 }
 
 export interface PlayerState {

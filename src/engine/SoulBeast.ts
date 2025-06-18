@@ -17,6 +17,7 @@ export const AllSoulBeast = {
         effect: "Applies slow for 2 seconds",
         description: "Channels demonic frost to slow and damage enemies",
         target: "single-enemy",
+        castTime: 0.8,
       },
       {
         name: "Crystal Prison",
@@ -27,6 +28,7 @@ export const AllSoulBeast = {
         effect: "Stuns target for 1.5 seconds",
         description: "Traps enemy in crystalline ice, preventing movement",
         target: "single-enemy",
+        castTime: 2.0,
       },
       {
         name: "Abyssal Tide",
@@ -39,6 +41,7 @@ export const AllSoulBeast = {
           "Summons dark waters that damage foes and restore vitality",
         initiationTime: 3,
         target: "all-enemy",
+        castTime: 2.2,
       },
       {
         name: "Nightmare Hunt",
@@ -50,6 +53,7 @@ export const AllSoulBeast = {
         description: "Enters a hunting frenzy, unleashing rapid attacks",
         initiationTime: 8,
         target: "single-enemy",
+        castTime: 3.5,
       },
     ],
   },
@@ -71,6 +75,7 @@ export const AllSoulBeast = {
         effect: "Burns for 5 damage over 3 seconds",
         description: "Quick fiery strike that leaves burning wounds",
         target: "single-enemy",
+        castTime: 0.6,
       },
       {
         name: "Demonic Roar",
@@ -81,6 +86,7 @@ export const AllSoulBeast = {
         effect: "Reduces enemy damage by 30% for 4 seconds",
         description: "Terrifying howl that weakens enemy resolve",
         target: "all-enemy",
+        castTime: 1.8,
       },
       {
         name: "Infernal Execution",
@@ -92,6 +98,7 @@ export const AllSoulBeast = {
         description: "Devastating finisher attack against wounded foes",
         initiationTime: 4,
         target: "single-enemy",
+        castTime: 2.1,
       },
       {
         name: "Rose of Destruction",
@@ -103,6 +110,7 @@ export const AllSoulBeast = {
         description: "Blooms a deadly rose of fire that burns the battlefield",
         initiationTime: 10,
         target: "all-enemy",
+        castTime: 4.0,
       },
     ],
   },
@@ -124,6 +132,7 @@ export const AllSoulBeast = {
         effect: "Reduces enemy movement speed by 20%",
         description: "Hurls sharp stone fragments at enemies",
         target: "single-enemy",
+        castTime: 0.7,
       },
       {
         name: "Molten Boulder",
@@ -134,6 +143,7 @@ export const AllSoulBeast = {
         effect: "25% chance to knock down for 1 second",
         description: "Launches a massive burning rock projectile",
         target: "single-enemy",
+        castTime: 2.3,
       },
       {
         name: "Bone Armor",
@@ -144,6 +154,7 @@ export const AllSoulBeast = {
         effect: "Reduces all damage by 50% for 6 seconds",
         description: "Summons protective bone plating from the earth",
         target: "self",
+        castTime: 1.5,
       },
       {
         name: "Ancient Eruption",
@@ -155,6 +166,7 @@ export const AllSoulBeast = {
         description: "Calls forth an ancient volcanic eruption",
         initiationTime: 9,
         target: "all-enemy",
+        castTime: 3.8,
       },
     ],
   },
@@ -176,6 +188,7 @@ export const AllSoulBeast = {
         effect: "30% chance to poison for 8 damage over 4 seconds",
         description: "Releases toxic spores from mushroom cap",
         target: "single-enemy",
+        castTime: 0.9,
       },
       {
         name: "Mycelium Network",
@@ -186,6 +199,7 @@ export const AllSoulBeast = {
         effect: "Spreads to nearby enemies, damage increases per target hit",
         description: "Underground fungal network damages connected foes",
         target: "all-enemy",
+        castTime: 2.4,
       },
       {
         name: "Soul Absorb",
@@ -197,6 +211,7 @@ export const AllSoulBeast = {
         description: "Mushroom feeds on enemy soul energy to grow stronger",
         initiationTime: 3,
         target: "single-enemy",
+        castTime: 1.9,
       },
       {
         name: "Fungal Nightmare",
@@ -209,6 +224,7 @@ export const AllSoulBeast = {
         description: "Psychedelic spores invade enemy mind, causing chaos",
         initiationTime: 12,
         target: "single-enemy",
+        castTime: 3.6,
       },
     ],
   },
@@ -230,6 +246,7 @@ export const AllSoulBeast = {
         effect: "Heals self for 8 HP",
         description: "Bestial attack that splashes healing waters",
         target: "single-enemy",
+        castTime: 0.7,
       },
       {
         name: "Dimensional Bite",
@@ -241,6 +258,7 @@ export const AllSoulBeast = {
         description: "Phases through dimensions to deliver a devastating bite",
         initiationTime: 3,
         target: "single-enemy",
+        castTime: 2.1,
       },
       {
         name: "Terror Howl",
@@ -251,6 +269,7 @@ export const AllSoulBeast = {
         effect: "Reverses enemy controls for 3 seconds",
         description: "Horrifying roar that disorients and terrifies",
         target: "all-enemy",
+        castTime: 1.7,
       },
       {
         name: "Void Tsunami",
@@ -262,6 +281,7 @@ export const AllSoulBeast = {
         description: "Summons dimensional water that tears reality apart",
         initiationTime: 10,
         target: "all-enemy",
+        castTime: 3.2,
       },
     ],
   },
@@ -283,6 +303,7 @@ export const AllSoulBeast = {
         effect: "Reduces enemy accuracy by 25% for 4 seconds",
         description: "Psychic attack that disrupts enemy focus",
         target: "single-enemy",
+        castTime: 0.8,
       },
       {
         name: "Bestial Surge",
@@ -293,6 +314,7 @@ export const AllSoulBeast = {
         effect: "Reduces ability cooldowns by 20% for 5 seconds",
         description: "Channels primal instincts for rapid ability casting",
         target: "self",
+        castTime: 1.6,
       },
       {
         name: "Abyssal Drain",
@@ -304,6 +326,7 @@ export const AllSoulBeast = {
         description: "Drains life force through demonic waters",
         initiationTime: 3,
         target: "single-enemy",
+        castTime: 2.0,
       },
       {
         name: "Mind Break",
@@ -315,6 +338,7 @@ export const AllSoulBeast = {
         description: "Shatters enemy psyche, disrupting their abilities",
         initiationTime: 8,
         target: "single-enemy",
+        castTime: 3.4,
       },
     ],
   },
@@ -336,6 +360,7 @@ export const AllSoulBeast = {
         effect: "Ignores 100% of enemy armor",
         description: "Wind infused with void energy that bypasses armor",
         target: "single-enemy",
+        castTime: 0.9,
       },
       {
         name: "Divine Punishment",
@@ -347,6 +372,7 @@ export const AllSoulBeast = {
         description: "Holy power that especially harms demonic foes",
         initiationTime: 3,
         target: "single-enemy",
+        castTime: 1.6,
       },
       {
         name: "Stellar Dash",
@@ -357,6 +383,7 @@ export const AllSoulBeast = {
         effect: "Becomes invulnerable during cast",
         description: "Dashes at light speed, avoiding all attacks",
         target: "single-enemy",
+        castTime: 2.1,
       },
       {
         name: "Paradox Storm",
@@ -368,6 +395,7 @@ export const AllSoulBeast = {
         description: "Creates a storm of contradictory energies",
         initiationTime: 12,
         target: "all-enemy",
+        castTime: 3.2,
       },
     ],
   },
@@ -389,6 +417,7 @@ export const AllSoulBeast = {
         effect: "Burns for 4 damage over 4 seconds",
         description: "Pure fire blast that ignites the target",
         target: "single-enemy",
+        castTime: 0.9,
       },
       {
         name: "Molten Claw",
@@ -400,6 +429,7 @@ export const AllSoulBeast = {
         description: "Bestial claws superheated to melting point",
         initiationTime: 2,
         target: "single-enemy",
+        castTime: 1.5,
       },
       {
         name: "Dawn's Embrace",
@@ -410,6 +440,7 @@ export const AllSoulBeast = {
         effect: "Heals 50 HP over 5 seconds",
         description: "Channels the healing power of dawn's first light",
         target: "self",
+        castTime: 1.5,
       },
       {
         name: "Solar Apocalypse",
@@ -421,6 +452,7 @@ export const AllSoulBeast = {
         description: "Brings forth the fury of a dying star",
         initiationTime: 15,
         target: "all-enemy",
+        castTime: 3.2,
       },
     ],
   },
@@ -442,6 +474,7 @@ export const AllSoulBeast = {
         effect: "Heals self for 5 HP",
         description: "Divine energy that harms foes and heals the righteous",
         target: "single-enemy",
+        castTime: 0.5,
       },
       {
         name: "Wind of Judgment",
@@ -453,6 +486,7 @@ export const AllSoulBeast = {
         description: "Divine wind that strips away false enhancements",
         initiationTime: 3,
         target: "all-enemy",
+        castTime: 2.5,
       },
       {
         name: "Nature's Sanctuary",
@@ -463,6 +497,7 @@ export const AllSoulBeast = {
         effect: "Reduces damage by 75% for 3 seconds",
         description: "Creates a sacred grove of protection",
         target: "self",
+        castTime: 2,
       },
       {
         name: "Final Judgment",
@@ -474,6 +509,7 @@ export const AllSoulBeast = {
         description: "Divine wrath that grows stronger against the wounded",
         initiationTime: 11,
         target: "single-enemy",
+        castTime: 3.2,
       },
     ],
   },
@@ -495,6 +531,7 @@ export const AllSoulBeast = {
         effect: "Increases enemy ability cooldowns by 30% for 3 seconds",
         description: "Chilling bite that numbs and slows the target's reflexes",
         target: "single-enemy",
+        castTime: 0.8,
       },
       {
         name: "Silent Strike",
@@ -506,6 +543,7 @@ export const AllSoulBeast = {
         description: "Moves like the wind to deliver an unavoidable strike",
         initiationTime: 2,
         target: "single-enemy",
+        castTime: 2.3,
       },
       {
         name: "Predator's Focus",
@@ -516,6 +554,7 @@ export const AllSoulBeast = {
         effect: "Next ability deals triple damage",
         description: "Focuses hunting instincts for a devastating attack",
         target: "self",
+        castTime: 2.3,
       },
       {
         name: "Absolute Zero",
@@ -525,9 +564,10 @@ export const AllSoulBeast = {
         damage: 70,
         effect: "Freezes enemy for 3 seconds",
         description:
-          "Brings the temperature to absolute zero, freezing everything",
+          "Brings the temperature to absolute zero",
         initiationTime: 10,
         target: "single-enemy",
+        castTime: 4,
       },
     ],
   },
@@ -549,6 +589,7 @@ export const AllSoulBeast = {
         effect: "Restores 6 HP",
         description: "Gentle starlight that heals while harming enemies",
         target: "single-enemy",
+        castTime: 0.6,
       },
       {
         name: "Cosmic Winds",
@@ -559,6 +600,7 @@ export const AllSoulBeast = {
         effect: "Increases ability speed by 50%",
         description: "Rides stellar winds for enhanced agility",
         target: "self",
+        castTime: 1.9,
       },
       {
         name: "Life Web",
@@ -570,6 +612,7 @@ export const AllSoulBeast = {
         description: "Creates a mystical bond that shares pain",
         initiationTime: 4,
         target: "single-enemy",
+        castTime: 1.7,
       },
       {
         name: "Galaxy Dance",
@@ -581,6 +624,7 @@ export const AllSoulBeast = {
         description: "Dances through space-time, striking multiple times",
         initiationTime: 13,
         target: "single-enemy",
+        castTime: 3.8,
       },
     ],
   },
@@ -602,6 +646,7 @@ export const AllSoulBeast = {
         effect: "Ignores 50% of enemy armor",
         description: "Molten metal strike that pierces defenses",
         target: "single-enemy",
+        castTime: 0.5,
       },
       {
         name: "Forge Strike",
@@ -613,6 +658,7 @@ export const AllSoulBeast = {
         description: "Massive double blow that leaves enemies dazed",
         initiationTime: 3,
         target: "single-enemy",
+        castTime: 2.5,
       },
       {
         name: "Demon Steel",
@@ -623,6 +669,7 @@ export const AllSoulBeast = {
         effect: "Gains 30 armor and reflects 25% damage for 8 seconds",
         description: "Skin becomes like demonic steel, reflecting attacks",
         target: "self",
+        castTime: 2.1,
       },
       {
         name: "Molten Titan",
@@ -634,6 +681,7 @@ export const AllSoulBeast = {
         description: "Transforms into a colossal burning titan",
         initiationTime: 14,
         target: "self",
+        castTime: 3.8,
       },
     ],
   },
@@ -655,6 +703,7 @@ export const AllSoulBeast = {
         effect: "Random elemental effect each cast",
         description: "Crystalline projectile with unpredictable properties",
         target: "single-enemy",
+        castTime: 0.9,
       },
       {
         name: "Divine Corruption",
@@ -666,6 +715,7 @@ export const AllSoulBeast = {
         description: "Twisted blessing that heals before destroying",
         initiationTime: 3,
         target: "single-enemy",
+        castTime: 1.7,
       },
       {
         name: "Geometric Prison",
@@ -676,6 +726,7 @@ export const AllSoulBeast = {
         effect: "Traps enemy for 4 seconds",
         description: "Creates an inescapable geometric prison",
         target: "single-enemy",
+        castTime: 2,
       },
       {
         name: "Chaos Singularity",
@@ -687,6 +738,7 @@ export const AllSoulBeast = {
         description: "Creates a point of pure chaos that affects everything",
         initiationTime: 9,
         target: "all-enemy",
+        castTime: 4,
       },
     ],
   },
@@ -708,6 +760,7 @@ export const AllSoulBeast = {
         effect: "Heals 10 HP",
         description: "Gentle stream of water and sakura petals",
         target: "single-enemy",
+        castTime: 1,
       },
       {
         name: "Dream Shield",
@@ -718,6 +771,7 @@ export const AllSoulBeast = {
         effect: "Absorbs next 60 damage, then heals for absorbed amount",
         description: "Creates a shield that converts damage to healing",
         target: "self",
+        castTime: 2,
       },
       {
         name: "Nature's Embrace",
@@ -729,6 +783,7 @@ export const AllSoulBeast = {
         description: "Vines embrace and hold the enemy while healing",
         initiationTime: 3,
         target: "single-enemy",
+        castTime: 2.3,
       },
       {
         name: "Sakura Storm",
@@ -740,6 +795,7 @@ export const AllSoulBeast = {
         description: "Divine sakura petals that heal and purify",
         initiationTime: 8,
         target: "all-enemy",
+        castTime: 3.4,
       },
     ],
   },
@@ -761,6 +817,7 @@ export const AllSoulBeast = {
         effect: "Pulls enemy closer",
         description: "Thorny vine that lashes and drags enemies",
         target: "single-enemy",
+        castTime: 0.7,
       },
       {
         name: "Wind Seed",
@@ -771,6 +828,7 @@ export const AllSoulBeast = {
         effect: "Plants grow over 5 seconds, dealing damage each second",
         description: "Seeds carried by wind that grow into damaging plants",
         target: "single-enemy",
+        castTime: 1.5,
       },
       {
         name: "Feral Instinct",
@@ -781,6 +839,7 @@ export const AllSoulBeast = {
         effect: "Next 3 abilities have 50% reduced cooldown",
         description: "Awakens primal instincts for rapid ability use",
         target: "self",
+        castTime: 1.6,
       },
       {
         name: "Midnight Bloom",
@@ -792,6 +851,7 @@ export const AllSoulBeast = {
           "Creates area of darkness, +50% damage in darkness for 8 seconds",
         description: "Garden blooms in eternal night, empowering attacks",
         target: "all-enemy",
+        castTime: 3.8,
       },
     ],
   },
@@ -813,6 +873,7 @@ export const AllSoulBeast = {
         effect: "Burns for 6 damage over 3 seconds",
         description: "Dark fire that burns the soul itself",
         target: "single-enemy",
+        castTime: 0.6,
       },
       {
         name: "Butterfly Swarm",
@@ -823,6 +884,7 @@ export const AllSoulBeast = {
         effect: "Each butterfly hit increases next ability damage by 10%",
         description: "Summons demonic butterflies that enhance power",
         target: "all-enemy",
+        castTime: 1.5,
       },
       {
         name: "Reaper's Wind",
@@ -833,6 +895,7 @@ export const AllSoulBeast = {
         effect: "Damage increases based on enemy's current HP",
         description: "Wind that grows stronger against healthy enemies",
         target: "single-enemy",
+        castTime: 1.9,
       },
       {
         name: "Soul Harvest",
@@ -843,6 +906,7 @@ export const AllSoulBeast = {
         effect: "Deals 50% more damage if enemy below 30% HP",
         description: "Reaps weakened souls with devastating power",
         target: "single-enemy",
+        castTime: 4,
       },
     ],
   },

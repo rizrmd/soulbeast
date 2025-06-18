@@ -33,6 +33,8 @@ export class BattleEngine {
       currentTime: Date.now(),
       isActive: false,
       winner: undefined,
+      countdownActive: false,
+      countdownTimeRemaining: 0,
     };
   }
 
@@ -117,15 +119,25 @@ export class BattleEngine {
     this.state.players.set("player1", player1State);
     this.state.players.set("player2", player2State);
 
-    this.state.isActive = true;
+    // Start countdown instead of battle
+    this.state.countdownActive = true;
+    this.state.countdownTimeRemaining = 5.0; // 5 seconds countdown
+    this.state.isActive = false; // Battle is not active during countdown
     this.state.startTime = Date.now();
     this.state.currentTime = Date.now();
 
     this.addEvent({
       timestamp: Date.now(),
-      type: "ability_used",
+      type: "system",
       source: "system",
-      message: `Battle initialized: Player 1 (${player1Cards.length} ${player1Cards.length === 1 ? "card" : "cards"}) vs Player 2 (${player2Cards.length} ${player2Cards.length === 1 ? "card" : "cards"})`,
+      message: `Battle countdown started: Player 1 (${player1Cards.length} ${player1Cards.length === 1 ? "card" : "cards"}) vs Player 2 (${player2Cards.length} ${player2Cards.length === 1 ? "card" : "cards"})`,
+    });
+
+    this.addEvent({
+      timestamp: Date.now(),
+      type: "system",
+      source: "system",
+      message: "Battle begins in 5 seconds...",
     });
 
     return true;
@@ -157,10 +169,49 @@ export class BattleEngine {
   }
 
   public update(deltaTime: number): void {
-    if (!this.state.isActive) return;
-
     this.state.currentTime = Date.now();
     const dt = deltaTime / 1000; // Convert to seconds
+
+    // Handle countdown phase
+    if (this.state.countdownActive) {
+      this.state.countdownTimeRemaining -= dt;
+      
+      // Check for countdown events (at 4, 3, 2, 1 seconds)
+      const remainingSeconds = Math.ceil(this.state.countdownTimeRemaining);
+      if (remainingSeconds <= 4 && remainingSeconds >= 1) {
+        const lastEvent = this.state.events[this.state.events.length - 1];
+        const expectedMessage = `${remainingSeconds}...`;
+        
+        // Only add countdown event if it's different from the last one
+        if (!lastEvent || !lastEvent.message.includes(expectedMessage)) {
+          this.addEvent({
+            timestamp: Date.now(),
+            type: "system",
+            source: "system",
+            message: expectedMessage,
+          });
+        }
+      }
+      
+      // Countdown finished, start the actual battle
+      if (this.state.countdownTimeRemaining <= 0) {
+        this.state.countdownActive = false;
+        this.state.countdownTimeRemaining = 0;
+        this.state.isActive = true;
+        
+        this.addEvent({
+          timestamp: Date.now(),
+          type: "system",
+          source: "system",
+          message: "FIGHT!",
+        });
+      }
+      
+      return; // Don't update entities during countdown
+    }
+
+    // Normal battle update logic
+    if (!this.state.isActive) return;
 
     // Update all entities
     for (const entity of this.state.entities.values()) {
@@ -172,7 +223,13 @@ export class BattleEngine {
   }
 
   private updateEntity(entity: BattleEntity, deltaTime: number): void {
-    if (!entity.isAlive) return;
+    if (!entity.isAlive) {
+      // Clear any casting for dead entities
+      if (entity.currentCast) {
+        entity.currentCast = undefined;
+      }
+      return;
+    }
 
     // Update ability cooldowns
     for (const [abilityName, cooldown] of entity.abilityCooldowns.entries()) {
@@ -228,6 +285,8 @@ export class BattleEngine {
 
     // Start cooldown
     entity.abilityCooldowns.set(ability.name, ability.cooldown);
+    
+    // Clear current cast
     entity.currentCast = undefined;
   }
 
@@ -274,6 +333,7 @@ export class BattleEngine {
     // Check if target dies
     if (target.hp <= 0) {
       target.isAlive = false;
+      target.currentCast = undefined; // Clear any ongoing cast when entity dies
       this.addEvent({
         timestamp: Date.now(),
         type: "death",
@@ -465,38 +525,25 @@ export class BattleEngine {
       return false;
     }
 
-    // Start casting
+    // Start casting - all abilities require casting, even instant ones
     const castTime = ability.castTime || 0;
 
-    if (castTime > 0) {
-      entity.currentCast = {
-        ability,
-        timeRemaining: castTime,
-        target: action.targetId,
-      };
+    entity.currentCast = {
+      ability,
+      timeRemaining: castTime,
+      target: action.targetId,
+    };
 
-      this.addEvent({
-        timestamp: Date.now(),
-        type: "cast_start",
-        source: entity.id,
-        target: action.targetId,
-        ability: ability.name,
-        message: `${entity.character.name} begins casting ${ability.name} (${castTime}s)`,
-      });
-    } else {
-      // Instant cast
-      this.executeAbility(entity, ability, action.targetId);
-      entity.abilityCooldowns.set(ability.name, ability.cooldown);
-
-      this.addEvent({
-        timestamp: Date.now(),
-        type: "ability_used",
-        source: entity.id,
-        target: action.targetId,
-        ability: ability.name,
-        message: `${entity.character.name} uses ${ability.name}`,
-      });
-    }
+    this.addEvent({
+      timestamp: Date.now(),
+      type: "cast_start",
+      source: entity.id,
+      target: action.targetId,
+      ability: ability.name,
+      message: castTime > 0 
+        ? `${entity.character.name} begins casting ${ability.name} (${castTime}s)`
+        : `${entity.character.name} begins casting ${ability.name} (instant)`,
+    });
 
     return true;
   }
@@ -530,7 +577,7 @@ export class BattleEngine {
         this.state.winner = "player1";
         this.addEvent({
           timestamp: Date.now(),
-          type: "ability_used",
+          type: "system",
           source: "system",
           message: `Player 1 wins the battle! (${player1AliveCards.length} ${player1AliveCards.length === 1 ? "card" : "cards"} remaining)`,
         });
@@ -538,14 +585,14 @@ export class BattleEngine {
         this.state.winner = "player2";
         this.addEvent({
           timestamp: Date.now(),
-          type: "ability_used",
+          type: "system",
           source: "system",
           message: `Player 2 wins the battle! (${player2AliveCards.length} ${player2AliveCards.length === 1 ? "card" : "cards"} remaining)`,
         });
       } else {
         this.addEvent({
           timestamp: Date.now(),
-          type: "ability_used",
+          type: "system",
           source: "system",
           message: "Battle ended in a draw!",
         });
@@ -574,7 +621,19 @@ export class BattleEngine {
   }
 
   public isActive(): boolean {
-    return this.state.isActive;
+    return this.state.isActive || this.state.countdownActive;
+  }
+
+  public isBattleRunning(): boolean {
+    return this.state.isActive && !this.state.countdownActive;
+  }
+
+  public isCountdownActive(): boolean {
+    return this.state.countdownActive;
+  }
+
+  public getCountdownTimeRemaining(): number {
+    return this.state.countdownTimeRemaining;
   }
 
   public getWinner(): string | undefined {

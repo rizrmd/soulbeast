@@ -2,9 +2,10 @@ import { motion } from "motion/react";
 import { FC, useEffect } from "react";
 import { DataLoader } from "../../engine/DataLoader";
 import { useLocal } from "../../lib/use-local";
-import { BattleEntity, SoulBeastUI } from "../../types";
+import { BattleEntity, SoulBeastUI, Ability } from "../../types";
 import { useSnapshot } from "valtio";
 import { gameStore } from "../../store/game-store";
+import AbilityInfo from "./AbilityInfo";
 
 export const EnemyCard: FC<{
   idx: number;
@@ -25,6 +26,8 @@ export const EnemyCard: FC<{
       lastTick: Date.now(),
       abilityStartTime: {} as Record<string, number>,
       abilityCastTime: {} as Record<string, number>,
+      selectedAbility: null as null | Ability,
+      showAbilityInfo: false,
     },
     () => {
       local.init = true;
@@ -60,6 +63,7 @@ export const EnemyCard: FC<{
   const cardName = entity.character.name;
   const hp = { current: entity.hp, max: entity.maxHp };
 
+  const casting = entity.currentCast;
   if (!local.image) return null;
 
   const cardEvents = {
@@ -84,13 +88,7 @@ export const EnemyCard: FC<{
       transition={{ duration: 0.8, delay: idx * 0.5, ease: "easeOut" }}
       className={cn("flex flex-col flex-1 relative")}
     >
-      <motion.div
-        animate={{
-          scale: local.hover.card ? 0.9 : 1,
-          opacity: local.hover.card ? 0.8 : 1,
-        }}
-        {...cardEvents}
-      >
+      <div {...cardEvents}>
         <div
           className={cn(
             "h-[80px] overflow-hidden pointer-events-none skew-x-[-10deg]  pl-[10px]"
@@ -104,7 +102,7 @@ export const EnemyCard: FC<{
             )}
           />
         </div>
-      </motion.div>
+      </div>
       <div className="absolute h-[80px] w-full bg-gradient-to-t from-black/90 from-10% to-40% to-black/0 pointer-events-none z-10"></div>
       <div className="absolute z-20 left-[15px] top-[55px] w-full flex flex-col">
         <div
@@ -143,7 +141,7 @@ export const EnemyCard: FC<{
         <div className="h-[36px] self-stretch -ml-3 mr-7 mt-3 flex items-stretch gap-1">
           {card?.abilities.map((ability, index) => {
             let cooldown = 0;
-            let casting = 0;
+            let castTime = 0;
 
             if (entity.abilityCooldowns.has(ability.name)) {
               cooldown = entity.abilityCooldowns.get(ability.name)!;
@@ -165,19 +163,19 @@ export const EnemyCard: FC<{
               setTimeout(() => local.render());
             }
 
-            if (entity.currentCast?.ability.name === ability.name) {
-              casting = entity.currentCast.timeRemaining;
+            if (casting?.ability.name === ability.name) {
+              castTime = casting.timeRemaining;
             }
 
-            if (casting && !local.abilityCastTime[ability.name]) {
-              local.abilityCastTime[ability.name] = casting;
+            if (castTime && !local.abilityCastTime[ability.name]) {
+              local.abilityCastTime[ability.name] = castTime;
             }
 
-            if (!casting) {
+            if (!castTime) {
               delete local.abilityCastTime[ability.name];
             }
 
-            if (casting && !local.tick) {
+            if (castTime && !local.tick) {
               local.tick = true;
               setTimeout(() => local.render());
             }
@@ -197,6 +195,8 @@ export const EnemyCard: FC<{
                 onPointerUp={(e) => {
                   e.stopPropagation();
                   local.hover.ability = "";
+                  local.selectedAbility = ability;
+                  local.showAbilityInfo = true;
                   local.render();
                 }}
                 onPointerLeave={(e) => {
@@ -213,7 +213,7 @@ export const EnemyCard: FC<{
                   animate={{ opacity: 1, y: 0 }}
                   initial={{ opacity: 0, y: -20 }}
                   transition={{
-                    delay: 1 + 1 * idx + index * 0.15,
+                    delay: 0.5 + 1 * idx + index * 0.15,
                     ease: "easeOut",
                   }}
                   className="w-full h-full flex"
@@ -225,11 +225,12 @@ export const EnemyCard: FC<{
                         background-size: 100%;
                         background-repeat: no-repeat;
                       `,
-                      "skew-x-[-10deg] border-b-2 w-full h-full flex flex-col items-end py-[2px] px-[2px] relative",
-                      cooldown ? "border-b-transparent" : "border-b-white",
+                      "skew-x-[-10deg] w-full h-full flex flex-col items-end py-[2px] px-[2px] relative",
+                      cooldown && !maxCasting && "border-b-2 border-b-white",
                       local.hover.ability === ability.emoji
                         ? "border border-blue-50"
-                        : ""
+                        : "",
+                      maxCasting && "border-4 border-amber-400"
                     )}
                   >
                     {maxCooldown && (
@@ -246,20 +247,14 @@ export const EnemyCard: FC<{
                             initial={{ width: "100%" }}
                           ></motion.div>
                         )}
-                        {casting && (
-                          <motion.div
-                            className={cn(
-                              "bg-amber-500 h-full absolute left-0 top-0 bottom-0"
-                            )}
-                            animate={{
-                              width: `${Math.round((casting / maxCasting) * 100)}%`,
-                            }}
-                            initial={{ width: "100%" }}
-                          ></motion.div>
-                        )}
 
-                        <div className="absolute bottom-0 right-0 text-black text-xs bg-white/50 w-full flex items-center justify-center leading-0 h-[15px] pb-1">
-                          {Math.round(cooldown * 10) / 10}
+                        <div
+                          className={cn(
+                            "absolute bottom-0 right-0 text-black text-xs bg-white/50 w-full flex flex-col items-center justify-center pb-1",
+                            "h-[15px] leading-0 "
+                          )}
+                        >
+                          <>{Math.round(cooldown * 10) / 10}</>
                         </div>
                       </>
                     )}
@@ -269,7 +264,53 @@ export const EnemyCard: FC<{
             );
           })}
         </div>
+        <div className="font-megrim lowercase -ml-[16px] mr-8 mt-1 relative">
+          {casting && (
+            <>
+              <motion.div
+                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, y: -30 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="flex justify-between items-center mb-1"
+              >
+                <div className="font-bold leading-4">
+                  {casting.ability.name}
+                </div>
+                <div className="text-xs font-texturina min-w-[30px] text-right ">
+                  {Math.round(casting.timeRemaining * 10) / 10}
+                </div>
+              </motion.div>
+              <motion.div
+                className={cn("bg-amber-400  h-[2px] absolute left-0 bottom-0")}
+                animate={{
+                  width: `${100 - Math.round((casting.timeRemaining / local.abilityCastTime[casting.ability.name]) * 100)}%`,
+                }}
+                initial={{ width: "0%" }}
+              ></motion.div>
+            </>
+          )}
+        </div>
       </div>
+      <AbilityInfo
+        ability={local.selectedAbility}
+        isSelected={local.showAbilityInfo}
+        isHovered={false}
+        className={css`
+          > div {
+            position: fixed !important;
+            width: 90vw;
+            height: 80vh;
+            top: 45px;
+            left: 5vw;
+            z-index: 100;
+          }
+        `}
+        onClose={() => {
+          local.showAbilityInfo = false;
+          local.selectedAbility = null;
+          local.render();
+        }}
+      />
     </motion.div>
   );
 };
