@@ -65,15 +65,7 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
 
   const cardEvents = {
     onPointerDown: () => {
-      local.hover.card = true;
-      local.render();
-    },
-    onPointerUp: () => {
-      local.hover.card = false;
-      local.render();
-    },
-    onPointerLeave: () => {
-      local.hover.card = false;
+      local.hover.card = !local.hover.card;
       local.render();
     },
   };
@@ -88,6 +80,15 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
 
   return (
     <>
+      {local.hover.card && (
+        <div
+          className="fixed inset-0 z-50"
+          onPointerUp={() => {
+            local.hover.card = false;
+            local.render();
+          }}
+        ></div>
+      )}
       <div className={cn("flex flex-col mb-4")}>
         <div className="hidden">{game.battleState?.events.length}</div>
         <div className="flex items-end mb-2" {...cardEvents}>
@@ -104,7 +105,12 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
                   ></motion.div>
                 </div>
               </div>
-              <div className="flex justify-between absolute z-[3] -right-[42px] -bottom-[7px]">
+              <div
+                className={cn(
+                  "flex justify-between absolute -right-[42px] -bottom-[7px]",
+                  local.hover.card ? "z-[22]" : "z-[3] "
+                )}
+              >
                 <div></div>
                 <div className="text-white flex leading-0">
                   <sup className="text-xs pr-1 w-[23px] text-right">
@@ -136,7 +142,8 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
           >
             <div
               className={cn(
-                "absolute inset-0 z-[2]",
+                "absolute inset-0",
+                local.hover.card ? "z-[21]" : "z-[2]",
                 css`
                   background: linear-gradient(
                     to top right,
@@ -152,7 +159,10 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
             <svg
               width={cornerWidth}
               height="50"
-              className="absolute inset-0 z-[2]"
+              className={cn(
+                "absolute inset-0",
+                local.hover.card ? "z-[21]" : "z-[2]"
+              )}
               viewBox={`0 0 ${cornerWidth} 50`}
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -163,7 +173,7 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
           <div className={cn("flex-1 border-b relative border-[#f9daab]")}>
             <div
               className={cn(
-                "absolute z-[1] flex items-end justify-end right-0 top-0 bottom-0 h-[65px] -mt-[65px] w-full bg-gradient-to-b from-black to-black/0 from-18% to-40%",
+                "absolute z-[1] flex items-end justify-end right-0 top-0 bottom-0 h-[58px] -mt-[58px] w-full bg-gradient-to-b from-black to-black/0 from-5% to-40%",
                 css`
                   width: calc(100% + ${cornerWidth}px);
                 `
@@ -171,18 +181,34 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
             ></div>
             <div
               className={cn(
-                "absolute z-0 flex items-start justify-start right-0 top-0 bottom-0 h-[65px] -mt-[65px] w-full overflow-hidden",
+                "absolute z-0 flex w-full",
                 css`
                   width: calc(100% + ${cornerWidth}px);
-                `
+                `,
+                local.hover.card
+                  ? "h-[207px] -mt-[58px] z-20 items-end justify-start right-0 bottom-0"
+                  : "h-[58px] -mt-[58px] items-start justify-start top-0 right-0 bottom-0 overflow-hidden"
               )}
             >
+              <img
+                src={local.image}
+                className={cn(
+                  "w-full absolute left-0 bottom-0 right-2 object-cover transition-all duration-300 border border-[#f9daab] border-b-0",
+                  !local.hover.card ? "opacity-0 translate-y-3 scale-95" : "opacity-100"
+                )}
+              />
               <motion.img
                 src={local.image}
-                className="w-full object-cover"
-                animate={{ y: local.hover.card ? "-50%" : 0 }}
+                className={cn(
+                  "w-full object-cover rounded",
+                  local.hover.card && "hidden"
+                )}
+                animate={{ y: 0 }}
+                initial={{ y: "-50%" }}
                 transition={{
-                  duration: 1,
+                  duration: 50,
+                  repeat: Infinity,
+                  repeatType: "reverse",
                   ease: "easeOut",
                 }}
               />

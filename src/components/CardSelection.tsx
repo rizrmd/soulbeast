@@ -32,8 +32,8 @@ const CardSelection = () => {
     },
     () => {
       gameActions.selectRandomCards("player2");
-      // gameActions.selectRandomCards("player1");
-      // gameActions.startBattle();
+      gameActions.selectRandomCards("player1");
+      gameActions.startBattle();
     }
   );
   const card = local.selected.card;
