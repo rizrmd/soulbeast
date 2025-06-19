@@ -11,6 +11,8 @@ import {
   StatusEffect,
 } from "../types";
 import { DataLoader } from "./DataLoader";
+import { abilityRegistry } from "../abilities";
+import { AbilityContext } from "../abilities/types";
 
 export class BattleEngine {
   private config: BattleConfig;
@@ -295,43 +297,146 @@ export class BattleEngine {
     ability: Ability,
     targetId?: string
   ): void {
-    const target = targetId ? this.state.entities.get(targetId) : null;
+    let targets: BattleEntity[] = [];
 
-    // Apply damage
-    if (ability.damage > 0 && target && target.isAlive) {
-      this.dealDamage(caster, target, ability);
+    // Determine targets based on ability target type
+    if (ability.target === "self") {
+      targets = [caster];
+    } else if (ability.target === "single-enemy") {
+      const target = targetId ? this.state.entities.get(targetId) : null;
+      if (target && target.isAlive) {
+        targets = [target];
+      }
+    } else if (ability.target === "all-enemy") {
+      // Get all living enemies
+      const casterTeam = caster.id.startsWith("player1_") ? "player1" : "player2";
+      const enemyTeam = casterTeam === "player1" ? "player2" : "player1";
+      
+      targets = Array.from(this.state.entities.values()).filter(
+        entity => entity.id.startsWith(enemyTeam + "_") && entity.isAlive
+      );
+    } else if (ability.target === "single-friend") {
+      const target = targetId ? this.state.entities.get(targetId) : null;
+      if (target && target.isAlive) {
+        targets = [target];
+      }
+    } else if (ability.target === "all-friend") {
+      // Get all living allies
+      const casterTeam = caster.id.startsWith("player1_") ? "player1" : "player2";
+      
+      targets = Array.from(this.state.entities.values()).filter(
+        entity => entity.id.startsWith(casterTeam + "_") && entity.isAlive && entity.id !== caster.id
+      );
     }
 
-    // Apply special effects based on ability description
-    this.applyAbilityEffects(caster, ability, target);
+    // Check if we have a custom implementation for this ability
+    const abilityImplementation = abilityRegistry[ability.name];
+    
+    if (abilityImplementation) {
+      // Use the custom ability implementation
+      const context: AbilityContext = {
+        caster,
+        targets,
+        allEntities: this.state.entities,
+        getCurrentTime: () => Date.now(),
+        addEvent: (event) => this.addEvent(event),
+        applyStatusEffect: (entity, effect) => this.applyStatusEffect(entity, effect),
+        dealDamage: (attacker, target, damage) => this.dealDamageAmount(attacker, target, damage),
+        heal: (entity, amount) => this.heal(entity, amount),
+      };
+      
+      abilityImplementation.execute(context);
+    } else {
+      // No custom implementation found - log a warning
+      console.warn(`No custom implementation found for ability: ${ability.name}. This ability will have no effect.`);
+      
+      this.addEvent({
+        timestamp: Date.now(),
+        type: "system",
+        source: caster.id,
+        message: `${ability.name} has no implementation - no effect`,
+      });
+    }
   }
 
-  private dealDamage(
+  private dealDamageAmount(
     attacker: BattleEntity,
     target: BattleEntity,
-    ability: Ability
+    damage: number
   ): void {
-    let damage = ability.damage * attacker.damageMultiplier;
+    let finalDamage = damage * attacker.damageMultiplier;
 
-    // Apply armor reduction
-    const armorReduction = target.armor / (target.armor + 100);
-    damage = damage * (1 - armorReduction);
+    // Apply damage multiplier buffs (consumed on use)
+    const damageBoostEffects = attacker.statusEffects.filter(
+      effect => effect.type === "buff" && effect.value > 1.0
+    );
+    
+    for (const effect of damageBoostEffects) {
+      if (effect.name.includes("Focus")) {
+        finalDamage *= effect.value; // Multiplicative for focus effects
+      } else {
+        finalDamage += damage * (effect.value - 1.0); // Additive for other boosts
+      }
+      
+      // Remove consumed buffs (those with duration 999 are one-time use)
+      if (effect.duration >= 999) {
+        attacker.statusEffects = attacker.statusEffects.filter(e => e !== effect);
+      }
+    }
 
-    // Apply damage
-    target.hp = Math.max(0, target.hp - damage);
+    // Apply damage reduction effects on target
+    let shieldAbsorbed = 0;
+    const shieldEffects = target.statusEffects.filter(
+      effect => effect.type === "buff" && effect.name.includes("Shield")
+    );
+    
+    for (const shield of shieldEffects) {
+      const absorbed = Math.min(finalDamage, shield.value);
+      finalDamage = Math.max(0, finalDamage - absorbed);
+      shieldAbsorbed += absorbed;
+      shield.value -= absorbed;
+      
+      if (shield.value <= 0) {
+        // Shield broken - convert absorbed damage to healing for Dream Shield
+        if (shield.name.includes("Dream")) {
+          this.heal(target, shieldAbsorbed);
+        }
+        target.statusEffects = target.statusEffects.filter(e => e !== shield);
+      }
+    }
+    
+    // Apply damage reduction multipliers
+    const damageReductionEffects = target.statusEffects.filter(
+      effect => effect.type === "buff" && effect.value < 1.0 && effect.value > 0 && !effect.name.includes("Shield")
+    );
+    
+    for (const effect of damageReductionEffects) {
+      finalDamage *= effect.value; // Apply damage reduction multiplier
+    }
+
+    // Apply debuff effects on attacker that reduce damage output
+    const attackDebuffs = attacker.statusEffects.filter(
+      effect => effect.type === "debuff" && effect.name === "Fear"
+    );
+    
+    for (const effect of attackDebuffs) {
+      finalDamage *= effect.value; // Apply damage reduction from debuffs
+    }
+
+    finalDamage = Math.max(0, finalDamage - target.armor);
+    target.hp = Math.max(0, target.hp - finalDamage);
 
     this.addEvent({
       timestamp: Date.now(),
       type: "damage",
       source: attacker.id,
       target: target.id,
-      ability: ability.name,
-      value: damage,
-      message: `${attacker.character.name} deals ${Math.round(damage)} damage to ${target.character.name} with ${ability.name}`,
+      value: finalDamage,
+      message: `${attacker.character.name} deals ${Math.round(finalDamage)} damage to ${target.character.name}`,
     });
 
-    // Check if target dies
-    if (target.hp <= 0) {
+    // Check if target died
+    if (target.hp <= 0 && target.isAlive) {
       target.isAlive = false;
       target.currentCast = undefined; // Clear any ongoing cast when entity dies
       this.addEvent({
@@ -352,63 +457,6 @@ export class BattleEngine {
         source: target.id,
         message: `${target.character.name}'s cast was interrupted by damage`,
       });
-    }
-  }
-
-  private applyAbilityEffects(
-    caster: BattleEntity,
-    ability: Ability,
-    target?: BattleEntity | null
-  ): void {
-    const effect = ability.effect.toLowerCase();
-
-    // Healing effects
-    if (effect.includes("heal")) {
-      const healMatch = effect.match(/heals?\s+(?:self\s+for\s+|)(\d+)/);
-      if (healMatch) {
-        const healAmount = parseInt(healMatch[1]);
-        this.heal(caster, healAmount);
-      }
-    }
-
-    // Status effects
-    if (effect.includes("slow") && target) {
-      this.applyStatusEffect(target, {
-        name: "Slow",
-        type: "debuff",
-        duration: 2.0,
-        value: 0.7, // 30% speed reduction
-      });
-    }
-
-    if (effect.includes("stun") && target) {
-      const stunMatch = effect.match(/stuns?\s+.*?for\s+([\d.]+)/);
-      const duration = stunMatch ? parseFloat(stunMatch[1]) : 1.5;
-      this.applyStatusEffect(target, {
-        name: "Stun",
-        type: "debuff",
-        duration,
-        value: 0,
-      });
-    }
-
-    // Damage over time effects
-    if (effect.includes("burn") && target) {
-      const burnMatch = effect.match(
-        /burns?\s+for\s+(\d+)\s+damage\s+over\s+(\d+)/
-      );
-      if (burnMatch) {
-        const damage = parseInt(burnMatch[1]);
-        const duration = parseInt(burnMatch[2]);
-        this.applyStatusEffect(target, {
-          name: "Burn",
-          type: "dot",
-          duration,
-          value: damage,
-          tickInterval: 1.0,
-          remainingTicks: duration,
-        });
-      }
     }
   }
 

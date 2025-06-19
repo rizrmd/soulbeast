@@ -12,20 +12,6 @@ export const BattleArena: FC = () => {
 
   return (
     <div className="flex flex-col items-stretch h-full">
-      {game.battleState?.countdownActive && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-          <div className="text-center">
-            <div className="text-6xl font-black text-white font-megrim animate-pulse">
-              {Math.ceil(game.battleState.countdownTimeRemaining)}
-            </div>
-            <div className="text-xl text-gray-300 font-rocker">
-              {game.battleState.countdownTimeRemaining > 2
-                ? "Battle Starting"
-                : "Get Ready!"}
-            </div>
-          </div>
-        </div>
-      )}
       <div
         className={cn(
           "absolute z-[1] max-w-[3%] top-[0px] left-[0px] pointer-events-none opacity-60"
@@ -43,15 +29,6 @@ export const BattleArena: FC = () => {
           <EnemyCard key={e.id} idx={idx} />
         ))}
       </div>
-      {/* <div className="flex flex-col items-stretch px-4 font-mono text-[11px] whitespace-pre-wrap overflow-auto">
-        {game.battleState?.events.map((e, idx) => {
-          return (
-            <div key={idx}>
-              {e.source.substring(12)} {e.type} {e.ability} {e.target} {e.value}
-            </div>
-          );
-        })}
-      </div> */}
       <div className="flex-1 relative">
         <div
           className={cn(
@@ -65,6 +42,20 @@ export const BattleArena: FC = () => {
           <div className="h-[150px] bg-gradient-to-b from-black from-20% to-100% to-black/0"></div>
           <div className="h-[150px] bg-gradient-to-t from-black from-10% to-100% to-black/0"></div>
         </div>
+        {game.battleState?.countdownActive && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-[1]">
+            <div className="text-center">
+              <div className="text-6xl font-black text-white font-megrim animate-pulse">
+                {Math.ceil(game.battleState.countdownTimeRemaining)}
+              </div>
+              <div className="text-xl text-gray-300 font-rocker">
+                {game.battleState.countdownTimeRemaining > 2
+                  ? "Battle Starting"
+                  : "Get Ready!"}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       <div className="flex flex-col">
         {p1.map((_, idx) => {

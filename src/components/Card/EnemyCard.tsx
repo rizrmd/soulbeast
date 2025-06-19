@@ -103,6 +103,12 @@ export const EnemyCard: FC<{
           />
         </div>
       </div>
+
+      <div className="absolute ml-2 text-[9px]  w-full flex justify-center">
+        <div className="flex text-black bg-white">
+          {JSON.stringify(entity.statusEffects)}
+        </div>
+      </div>
       <div className="absolute h-[80px] w-full bg-gradient-to-t from-black/90 from-10% to-40% to-black/0 pointer-events-none z-10"></div>
       <div className="absolute z-20 left-[15px] top-[55px] w-full flex flex-col">
         <div
@@ -298,10 +304,9 @@ export const EnemyCard: FC<{
         className={css`
           > div {
             position: fixed !important;
-            width: 90vw;
             height: 80vh;
             top: 45px;
-            left: 5vw;
+            margin: 0px 10px;
             z-index: 100;
           }
         `}

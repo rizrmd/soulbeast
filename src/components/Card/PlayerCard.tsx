@@ -11,7 +11,7 @@ const cornerWidth = 50;
 export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
   const game = useSnapshot(gameStore);
   const entity = game.battleState!.entities.get(
-    `player1_card${idx}`
+    `player1_card${idx}`,
   ) as BattleEntity;
 
   const local = useLocal(
@@ -31,7 +31,7 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
     () => {
       local.init = true;
       local.render();
-    }
+    },
   );
   useEffect(() => {
     if (entity.character.name) {
@@ -96,11 +96,13 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
             <div className="font-rocker px-2 text-lg pt-2 pb-1">
               {card.name}
             </div>
-            <div className="flex gap-p px-2 flex-col items-stretch w-[130px]">
+            <div className="flex gap-p px-2 flex-col items-stretch w-[150px]">
               <div className="flex-1 mr-1 skew-x-[50deg]">
                 <div className="border-[#f9daab] border p-[2px]">
                   <motion.div
-                    animate={{ width: `${(hp.current / hp.max) * 100}%` }}
+                    animate={{
+                      width: `${(Math.ceil(hp.current) / Math.ceil(hp.max)) * 100}%`,
+                    }}
                     className="bg-[#f9daab] h-[2px] rounded-full "
                   ></motion.div>
                 </div>
@@ -108,7 +110,7 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
               <div
                 className={cn(
                   "flex justify-between absolute -right-[42px] -bottom-[7px]",
-                  local.hover.card ? "z-[22]" : "z-[3] "
+                  local.hover.card ? "z-[22]" : "z-[3] ",
                 )}
               >
                 <div></div>
@@ -137,7 +139,7 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
               "self-stretch relative",
               css`
                 width: ${cornerWidth}px;
-              `
+              `,
             )}
           >
             <div
@@ -153,7 +155,7 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
                     rgba(0, 0, 0, 0) calc(50% + 0.8px),
                     rgba(0, 0, 0, 0) 100%
                   );
-                `
+                `,
               )}
             ></div>
             <svg
@@ -161,7 +163,7 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
               height="50"
               className={cn(
                 "absolute inset-0",
-                local.hover.card ? "z-[21]" : "z-[2]"
+                local.hover.card ? "z-[21]" : "z-[2]",
               )}
               viewBox={`0 0 ${cornerWidth} 50`}
               fill="none"
@@ -176,7 +178,7 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
                 "absolute z-[1] flex items-end justify-end right-0 top-0 bottom-0 h-[58px] -mt-[58px] w-full bg-gradient-to-b from-black to-black/0 from-5% to-40%",
                 css`
                   width: calc(100% + ${cornerWidth}px);
-                `
+                `,
               )}
             ></div>
             <div
@@ -187,21 +189,23 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
                 `,
                 local.hover.card
                   ? "h-[207px] -mt-[58px] z-20 items-end justify-start right-0 bottom-0"
-                  : "h-[58px] -mt-[58px] items-start justify-start top-0 right-0 bottom-0 overflow-hidden"
+                  : "h-[58px] -mt-[58px] items-start justify-start top-0 right-0 bottom-0 overflow-hidden",
               )}
             >
               <img
                 src={local.image}
                 className={cn(
                   "w-full absolute left-0 bottom-0 right-2 object-cover transition-all duration-300 border border-[#f9daab] border-b-0",
-                  !local.hover.card ? "opacity-0 translate-y-3 scale-95" : "opacity-100"
+                  !local.hover.card
+                    ? "opacity-0 translate-y-3 scale-95"
+                    : "opacity-100",
                 )}
               />
               <motion.img
                 src={local.image}
                 className={cn(
                   "w-full object-cover rounded",
-                  local.hover.card && "hidden"
+                  local.hover.card && "hidden",
                 )}
                 animate={{ y: 0 }}
                 initial={{ y: "-50%" }}
@@ -212,16 +216,29 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
                   ease: "easeOut",
                 }}
               />
+
+              <div
+                className={cn(
+                  "absolute z-[2] bottom-0 text-[9px]  w-full flex justify-center",
+                  css`
+                    margin-left: ${cornerWidth / 2}px;
+                  `,
+                )}
+              >
+                <div className="flex text-black bg-white">
+                  {JSON.stringify(entity.statusEffects)}
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="flex-1 flex ">
+        <div className="flex h-[75px] mt-2">
           {card.abilities.map((ability, index) => {
             return (
-              <motion.div
+              <div
                 key={index}
-                className="flex-1 p-2"
+                className="flex-1 p-2 relative"
                 onClick={() => {
                   local.selectedAbility = ability;
                   local.showAbilityInfo = true;
@@ -239,19 +256,43 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
                   local.hover.ability = "";
                   local.render();
                 }}
-                animate={{
-                  scale: local.hover.ability === ability.emoji ? 0.9 : 1,
-                }}
               >
-                <img
+                <motion.img
+                  animate={{
+                    scale: local.hover.ability === ability.emoji ? 0.9 : 1,
+                  }}
                   src={`/img/abilities/${ability.emoji}.webp`}
-                  className="rounded-2xl"
+                  className="w-full h-full object-cover"
                 />
-              </motion.div>
+                <BoxCorner />
+              </div>
             );
           })}
         </div>
       </div>
+    </>
+  );
+};
+
+const BoxCorner = () => {
+  return (
+    <>
+      <img
+        src="/img/battle/boxsq/box-tl.webp"
+        className="absolute pointer-events-none top-[3px] left-[3px] w-[30px] h-[30px]"
+      />
+      <img
+        src="/img/battle/boxsq/box-tr.webp"
+        className="absolute pointer-events-none top-[3px] right-[3px] w-[30px] h-[30px]"
+      />
+      <img
+        src="/img/battle/boxsq/box-bl.webp"
+        className="absolute pointer-events-none bottom-[3px] left-[3px] w-[30px] h-[30px]"
+      />
+      <img
+        src="/img/battle/boxsq/box-br.webp"
+        className="absolute pointer-events-none bottom-[3px] right-[3px] w-[30px] h-[30px]"
+      />
     </>
   );
 };
