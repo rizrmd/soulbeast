@@ -26,7 +26,12 @@ export interface Ability {
   damage: number;
   effect: string;
   description: string;
-  target: "single-enemy" | "all-enemy" | "single-friend" | "all-friend" | "self";
+  target:
+    | "single-enemy"
+    | "all-enemy"
+    | "single-friend"
+    | "all-friend"
+    | "self";
   castTime?: number; // in seconds
   initiationTime?: number; // initial delay before first use (in seconds)
 }
@@ -59,6 +64,10 @@ export interface BattleEntity {
   armor: number;
   damageMultiplier: number;
   statusEffects: StatusEffect[];
+  reaction: Partial<{
+    shout: "",
+    hurt: "",
+  }>;
   abilityCooldowns: Map<string, number>;
   abilityInitiationTimes: Map<string, number>; // tracks when abilities become available for first use
   currentCast?: {

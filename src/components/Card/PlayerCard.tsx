@@ -262,7 +262,7 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
                     scale: local.hover.ability === ability.emoji ? 0.9 : 1,
                   }}
                   src={`/img/abilities/${ability.emoji}.webp`}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover pointer-events-none rounded-xl"
                 />
                 <BoxCorner />
               </div>

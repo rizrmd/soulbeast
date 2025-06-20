@@ -497,7 +497,7 @@ export const AllSoulBeast = {
         effect: "Reduces damage by 75% for 3 seconds",
         description: "Creates a sacred grove of protection",
         target: "self",
-        castTime: 2,
+        castTime: 0,
       },
       {
         name: "Final Judgment",
