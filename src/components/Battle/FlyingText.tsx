@@ -42,7 +42,7 @@ export const useFlyingText = (arg: {
       if (!arg.div.current) return;
 
       const rect = arg.div.current.getBoundingClientRect();
-      const id = Math.random().toString(36).substr(2, 9);
+      const id = Math.random().toString(36).substring(2, 9);
 
       const item: FlyingTextItem = {
         id,
@@ -68,16 +68,16 @@ const dist = 30;
 const FlyingTextItem: React.FC<{ item: FlyingTextItem }> = ({ item }) => {
   const local = useLocal({ done: false });
   useEffect(() => {
-    const timer = setTimeout(() => {
-      removeFlyingTextItem(item.id);
-    }, 4000);
-    return () => clearTimeout(timer);
+    // const timer = setTimeout(() => {
+    //   removeFlyingTextItem(item.id);
+    // }, 4000);
+    // return () => clearTimeout(timer);
   }, [item.id]);
 
   return (
     <div
       className={cn(
-        "fixed z-[3] flex",
+        "absolute z-[7] flex",
         css`
           left: ${item.x}px;
           top: ${item.y}px;

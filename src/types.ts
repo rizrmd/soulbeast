@@ -55,6 +55,23 @@ export interface StatusEffect {
   tickInterval?: number;
   remainingTicks?: number;
   ability?: Ability;
+  // Hook functions for custom behavior
+  onApply?: (entity: BattleEntity, effect: StatusEffect) => void;
+  onRemove?: (entity: BattleEntity, effect: StatusEffect) => void;
+  onTick?: (entity: BattleEntity, effect: StatusEffect) => void;
+  onDamageDealt?: (attacker: BattleEntity, target: BattleEntity, damage: number, effect: StatusEffect) => number;
+  onDamageReceived?: (attacker: BattleEntity, target: BattleEntity, damage: number, effect: StatusEffect) => number;
+  onHeal?: (healer: BattleEntity, target: BattleEntity, amount: number, effect: StatusEffect) => number;
+  // Behavioral flags to replace hardcoded name checks
+  behaviors?: {
+    isShield?: boolean;
+    isDreamShield?: boolean;
+    isFocus?: boolean;
+    preventsActions?: boolean;
+    damageReduction?: boolean;
+    damageBoost?: boolean;
+    oneTimeUse?: boolean;
+  };
 }
 
 export interface BattleEntity {
@@ -91,13 +108,22 @@ export interface BattleEvent {
     | "status_applied"
     | "status_removed"
     | "death"
-    | "system";
+    | "system"
+    | "before_damage"
+    | "after_damage"
+    | "before_heal"
+    | "after_heal"
+    | "turn_start"
+    | "turn_end";
   source: string;
   target?: string;
   ability?: Ability;
   value?: number;
   statusEffect?: StatusEffect;
   message: string;
+  // Allow events to be modified by listeners
+  preventDefault?: boolean;
+  modifiedValue?: number;
 }
 
 export interface BattleState {

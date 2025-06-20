@@ -154,12 +154,13 @@ export const EnemyCard: FC<{
         <div className="flex gap-1 mr-5 items-center -ml-2" {...cardEvents}>
           <div className="flex-1 mr-1">
             <div className="border-[#f9daab] border p-[2px] skew-x-[-12deg]">
-              <div
-                className="bg-[#f9daab] h-[2px] rounded-full"
-                style={{
-                  width: `${(hp.current / hp.max) * 100}%`,
+              <motion.div
+                animate={{
+                  width: `${(Math.ceil(hp.current) / Math.ceil(hp.max)) * 100}%`,
                 }}
-              ></div>
+                className="bg-[#f9daab] h-[2px] rounded-full"
+                transition={{ duration: 0.7 }}
+              ></motion.div>
             </div>
           </div>
           <div className="text-white flex leading-0">

@@ -85,18 +85,13 @@ export class SoulAbsorb extends BaseAbility {
     if (!target || !target.isAlive) return;
     
     // Deal damage
-    context.dealDamage(context.caster, target, damage);
+    const actualDamageDealt = context.dealDamage(context.caster, target, damage);
 
     // Heal for 100% of damage dealt
-    this.applyHeal(context, damage, true);
+    this.applyHeal(context, actualDamageDealt, true);
 
     // Gain 20% damage boost
-    this.applyStatusToCaster(context, {
-      name: "Soul Power",
-      type: "buff",
-      duration: 10.0,
-      value: 1.2, // 20% damage boost
-    });
+    this.applyStatusToCaster(context, this.createDamageBoostEffect("Soul Power", 1.2, 10.0));
 
     context.addEvent({
       timestamp: context.getCurrentTime(),

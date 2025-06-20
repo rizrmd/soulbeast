@@ -129,6 +129,7 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
                     animate={{
                       width: `${(Math.ceil(hp.current) / Math.ceil(hp.max)) * 100}%`,
                     }}
+                    transition={{ duration: 0.7 }}
                     className="bg-[#f9daab] h-[2px] rounded-full "
                   ></motion.div>
                 </div>

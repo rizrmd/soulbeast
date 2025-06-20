@@ -146,8 +146,11 @@ export class BattleEngine {
   }
 
   private createEntity(id: string, character: SoulBeast): BattleEntity {
-    const eventListeners = new Map<BattleEvent['type'], Array<(event: BattleEvent) => void>>();
-    
+    const eventListeners = new Map<
+      BattleEvent["type"],
+      Array<(event: BattleEvent) => void>
+    >();
+
     const entity: BattleEntity = {
       id,
       character,
@@ -161,13 +164,19 @@ export class BattleEngine {
       isAlive: true,
       position: { x: 0, y: 0 },
       eventListeners,
-      on: (eventType: BattleEvent['type'], callback: (event: BattleEvent) => void) => {
+      on: (
+        eventType: BattleEvent["type"],
+        callback: (event: BattleEvent) => void
+      ) => {
         if (!eventListeners.has(eventType)) {
           eventListeners.set(eventType, []);
         }
         eventListeners.get(eventType)!.push(callback);
       },
-      off: (eventType: BattleEvent['type'], callback: (event: BattleEvent) => void) => {
+      off: (
+        eventType: BattleEvent["type"],
+        callback: (event: BattleEvent) => void
+      ) => {
         const listeners = eventListeners.get(eventType);
         if (listeners) {
           const index = listeners.indexOf(callback);
@@ -179,13 +188,13 @@ export class BattleEngine {
       emit: (event: BattleEvent) => {
         const listeners = eventListeners.get(event.type);
         if (listeners) {
-          listeners.forEach(callback => callback(event));
+          listeners.forEach((callback) => callback(event));
         }
-      }
+      },
     };
 
     // Initialize ability initiation times
-    character.abilities.forEach(ability => {
+    character.abilities.forEach((ability) => {
       if (ability.initiationTime && ability.initiationTime > 0) {
         entity.abilityInitiationTimes.set(ability.name, ability.initiationTime);
       }
@@ -201,13 +210,13 @@ export class BattleEngine {
     // Handle countdown phase
     if (this.state.countdownActive) {
       this.state.countdownTimeRemaining -= dt;
-      
+
       // Check for countdown events (at 4, 3, 2, 1 seconds)
       const remainingSeconds = Math.ceil(this.state.countdownTimeRemaining);
       if (remainingSeconds <= 4 && remainingSeconds >= 1) {
         const lastEvent = this.state.events[this.state.events.length - 1];
         const expectedMessage = `${remainingSeconds}...`;
-        
+
         // Only add countdown event if it's different from the last one
         if (!lastEvent || !lastEvent.message.includes(expectedMessage)) {
           this.addEvent({
@@ -218,13 +227,13 @@ export class BattleEngine {
           });
         }
       }
-      
+
       // Countdown finished, start the actual battle
       if (this.state.countdownTimeRemaining <= 0) {
         this.state.countdownActive = false;
         this.state.countdownTimeRemaining = 0;
         this.state.isActive = true;
-        
+
         this.addEvent({
           timestamp: Date.now(),
           type: "system",
@@ -232,7 +241,7 @@ export class BattleEngine {
           message: "FIGHT!",
         });
       }
-      
+
       return; // Don't update entities during countdown
     }
 
@@ -268,7 +277,10 @@ export class BattleEngine {
     }
 
     // Update ability initiation times
-    for (const [abilityName, initiationTime] of entity.abilityInitiationTimes.entries()) {
+    for (const [
+      abilityName,
+      initiationTime,
+    ] of entity.abilityInitiationTimes.entries()) {
       const newInitiationTime = Math.max(0, initiationTime - deltaTime);
       if (newInitiationTime === 0) {
         entity.abilityInitiationTimes.delete(abilityName);
@@ -311,7 +323,7 @@ export class BattleEngine {
 
     // Start cooldown
     entity.abilityCooldowns.set(ability.name, ability.cooldown);
-    
+
     // Clear current cast
     entity.currentCast = undefined;
   }
@@ -333,11 +345,13 @@ export class BattleEngine {
       }
     } else if (ability.target === "all-enemy") {
       // Get all living enemies
-      const casterTeam = caster.id.startsWith("player1_") ? "player1" : "player2";
+      const casterTeam = caster.id.startsWith("player1_")
+        ? "player1"
+        : "player2";
       const enemyTeam = casterTeam === "player1" ? "player2" : "player1";
-      
+
       targets = Array.from(this.state.entities.values()).filter(
-        entity => entity.id.startsWith(enemyTeam + "_") && entity.isAlive
+        (entity) => entity.id.startsWith(enemyTeam + "_") && entity.isAlive
       );
     } else if (ability.target === "single-friend") {
       const target = targetId ? this.state.entities.get(targetId) : null;
@@ -346,16 +360,21 @@ export class BattleEngine {
       }
     } else if (ability.target === "all-friend") {
       // Get all living allies
-      const casterTeam = caster.id.startsWith("player1_") ? "player1" : "player2";
-      
+      const casterTeam = caster.id.startsWith("player1_")
+        ? "player1"
+        : "player2";
+
       targets = Array.from(this.state.entities.values()).filter(
-        entity => entity.id.startsWith(casterTeam + "_") && entity.isAlive && entity.id !== caster.id
+        (entity) =>
+          entity.id.startsWith(casterTeam + "_") &&
+          entity.isAlive &&
+          entity.id !== caster.id
       );
     }
 
     // Check if we have a custom implementation for this ability
     const abilityImplementation = abilityRegistry[ability.name];
-    
+
     if (abilityImplementation) {
       // Use the custom ability implementation
       const context: AbilityContext = {
@@ -364,16 +383,20 @@ export class BattleEngine {
         allEntities: this.state.entities,
         getCurrentTime: () => Date.now(),
         addEvent: (event) => this.addEvent(event),
-        applyStatusEffect: (entity, effect) => this.applyStatusEffect(entity, { ...effect, ability }),
-        dealDamage: (attacker, target, damage) => this.dealDamageAmount(attacker, target, damage, ability),
+        applyStatusEffect: (entity, effect) =>
+          this.applyStatusEffect(entity, { ...effect, ability }),
+        dealDamage: (attacker, target, damage) =>
+          this.dealDamageAmount(attacker, target, damage, ability),
         heal: (entity, amount) => this.heal(entity, amount, ability),
       };
-      
+
       abilityImplementation.execute(context);
     } else {
       // No custom implementation found - log a warning
-      console.warn(`No custom implementation found for ability: ${ability.name}. This ability will have no effect.`);
-      
+      console.warn(
+        `No custom implementation found for ability: ${ability.name}. This ability will have no effect.`
+      );
+
       this.addEvent({
         timestamp: Date.now(),
         type: "system",
@@ -388,68 +411,118 @@ export class BattleEngine {
     target: BattleEntity,
     damage: number,
     ability?: Ability
-  ): void {
-    let finalDamage = damage * attacker.damageMultiplier;
-
-    // Apply damage multiplier buffs (consumed on use)
-    const damageBoostEffects = attacker.statusEffects.filter(
-      effect => effect.type === "buff" && effect.value > 1.0
-    );
+  ): number {
+    // Emit before_damage event
+    const beforeDamageEvent: BattleEvent = {
+      timestamp: Date.now(),
+      type: "before_damage",
+      source: attacker.id,
+      target: target.id,
+      value: damage,
+      message: `${attacker.character.name} is about to deal ${damage} damage to ${target.character.name}`,
+    };
     
+    // Allow entities to modify damage through event listeners
+    attacker.emit(beforeDamageEvent);
+    target.emit(beforeDamageEvent);
+    
+    let finalDamage = (beforeDamageEvent.modifiedValue ?? damage) * attacker.damageMultiplier;
+
+    // Apply damage boost effects on attacker
+    const damageBoostEffects = attacker.statusEffects.filter(
+      (effect) => effect.behaviors?.damageBoost
+    );
+
     for (const effect of damageBoostEffects) {
-      if (effect.name.includes("Focus")) {
-        finalDamage *= effect.value; // Multiplicative for focus effects
+      // Call onDamageDealt hook if present
+      if (effect.onDamageDealt) {
+        finalDamage = effect.onDamageDealt(attacker, target, finalDamage, effect);
       } else {
-        finalDamage += damage * (effect.value - 1.0); // Additive for other boosts
+        // Default behavior
+        if (effect.behaviors?.isFocus) {
+          finalDamage = damage * effect.value; // Apply focus multiplier to base damage only
+        } else {
+          finalDamage += damage * (effect.value - 1.0); // Additive for other boosts
+        }
       }
       
-      // Remove consumed buffs (those with duration 999 are one-time use)
-      if (effect.duration >= 999) {
-        attacker.statusEffects = attacker.statusEffects.filter(e => e !== effect);
+      // Remove consumed buffs (one-time use)
+      if (effect.behaviors?.oneTimeUse) {
+        attacker.statusEffects = attacker.statusEffects.filter(
+          (e) => e !== effect
+        );
       }
     }
 
-    // Apply damage reduction effects on target
+    // Apply shield effects on target
     let shieldAbsorbed = 0;
     const shieldEffects = target.statusEffects.filter(
-      effect => effect.type === "buff" && effect.name.includes("Shield")
+      (effect) => effect.behaviors?.isShield
     );
-    
+
     for (const shield of shieldEffects) {
       const absorbed = Math.min(finalDamage, shield.value);
       finalDamage = Math.max(0, finalDamage - absorbed);
       shieldAbsorbed += absorbed;
       shield.value -= absorbed;
-      
+
+      // Track absorbed damage for dream shields
+      if (shield.behaviors?.isDreamShield) {
+        (shield as any).absorbedDamage = ((shield as any).absorbedDamage || 0) + absorbed;
+      }
+
       if (shield.value <= 0) {
-        // Shield broken - convert absorbed damage to healing for Dream Shield
-        if (shield.name.includes("Dream")) {
-          this.heal(target, shieldAbsorbed);
+        // Call onRemove hook if present (handles dream shield healing)
+        if (shield.onRemove) {
+          shield.onRemove(target, shield);
         }
-        target.statusEffects = target.statusEffects.filter(e => e !== shield);
+        target.statusEffects = target.statusEffects.filter((e) => e !== shield);
       }
     }
-    
-    // Apply damage reduction multipliers
+
+    // Apply damage reduction multipliers on target
     const damageReductionEffects = target.statusEffects.filter(
-      effect => effect.type === "buff" && effect.value < 1.0 && effect.value > 0 && !effect.name.includes("Shield")
+      (effect) => effect.behaviors?.damageReduction && effect.type === "buff"
     );
-    
+
     for (const effect of damageReductionEffects) {
-      finalDamage *= effect.value; // Apply damage reduction multiplier
+      // Call onDamageReceived hook if present
+      if (effect.onDamageReceived) {
+        finalDamage = effect.onDamageReceived(attacker, target, finalDamage, effect);
+      } else {
+        finalDamage *= effect.value; // Apply damage reduction multiplier
+      }
     }
 
     // Apply debuff effects on attacker that reduce damage output
     const attackDebuffs = attacker.statusEffects.filter(
-      effect => effect.type === "debuff" && effect.name === "Fear"
+      (effect) => effect.behaviors?.damageReduction && effect.type === "debuff"
     );
-    
+
     for (const effect of attackDebuffs) {
-      finalDamage *= effect.value; // Apply damage reduction from debuffs
+      // Call onDamageDealt hook if present
+      if (effect.onDamageDealt) {
+        finalDamage = effect.onDamageDealt(attacker, target, finalDamage, effect);
+      } else {
+        finalDamage *= effect.value; // Apply damage reduction from debuffs
+      }
     }
 
     finalDamage = Math.max(0, finalDamage - target.armor);
     target.hp = Math.max(0, target.hp - finalDamage);
+
+    // Emit after_damage event
+    const afterDamageEvent: BattleEvent = {
+      timestamp: Date.now(),
+      type: "after_damage",
+      source: attacker.id,
+      target: target.id,
+      value: finalDamage,
+      message: `${attacker.character.name} dealt ${finalDamage.toFixed(1)} damage to ${target.character.name}`,
+    };
+    
+    attacker.emit(afterDamageEvent);
+    target.emit(afterDamageEvent);
 
     this.addEvent({
       timestamp: Date.now(),
@@ -484,31 +557,90 @@ export class BattleEngine {
         message: `${target.character.name}'s cast was interrupted by damage`,
       });
     }
+    
+    return finalDamage;
   }
 
-  private heal(entity: BattleEntity, amount: number, ability?: Ability): void {
-    const healAmount = Math.min(amount, entity.maxHp - entity.hp);
+  public heal(entity: BattleEntity, amount: number, ability?: Ability): void {
+    if (!entity.isAlive || amount <= 0) {
+      return;
+    }
+
+    // Emit before_heal event
+    const beforeHealEvent: BattleEvent = {
+      timestamp: Date.now(),
+      type: "before_heal",
+      source: entity.id,
+      target: entity.id,
+      value: amount,
+      message: `${entity.character.name} is about to heal for ${amount} HP`,
+    };
+    
+    entity.emit(beforeHealEvent);
+    
+    let finalAmount = beforeHealEvent.modifiedValue ?? amount;
+    
+    // Apply heal modification effects
+    const healModifiers = entity.statusEffects.filter(
+      (effect) => effect.onHeal
+    );
+    
+    for (const effect of healModifiers) {
+      if (effect.onHeal) {
+        finalAmount = effect.onHeal(entity, entity, finalAmount, effect);
+      }
+    }
+
+    const oldHp = entity.hp;
+    const healAmount = Math.min(finalAmount, entity.maxHp - entity.hp);
     entity.hp += healAmount;
+    const actualHealing = entity.hp - oldHp;
+
+    // Emit after_heal event
+    const afterHealEvent: BattleEvent = {
+      timestamp: Date.now(),
+      type: "after_heal",
+      source: entity.id,
+      target: entity.id,
+      value: actualHealing,
+      message: `${entity.character.name} healed for ${actualHealing.toFixed(1)} HP`,
+    };
+    
+    entity.emit(afterHealEvent);
 
     this.addEvent({
       timestamp: Date.now(),
       type: "heal",
       source: entity.id,
       target: entity.id,
-      value: healAmount,
+      value: actualHealing,
       ability: ability,
-      message: `${entity.character.name} heals for ${healAmount} HP`,
+      message: `${entity.character.name} heals for ${actualHealing} HP`,
     });
   }
 
-  private applyStatusEffect(entity: BattleEntity, effect: StatusEffect): void {
-    // Remove existing effect of same name
+  public applyStatusEffect(entity: BattleEntity, effect: StatusEffect): void {
+    // Remove existing effect with same name
     entity.statusEffects = entity.statusEffects.filter(
       (e) => e.name !== effect.name
     );
 
-    // Add new effect
-    entity.statusEffects.push({ ...effect });
+    const newEffect = { ...effect };
+    
+    // Initialize remainingTicks for DOT/HOT effects
+    if (
+      (effect.type === "dot" || effect.type === "hot") &&
+      effect.tickInterval
+    ) {
+      newEffect.remainingTicks = effect.tickInterval;
+    }
+
+    entity.statusEffects.push(newEffect);
+
+    // Call onApply hook if present
+    if (newEffect.onApply) {
+      newEffect.onApply(entity, newEffect);
+    }
 
     this.addEvent({
       timestamp: Date.now(),
@@ -533,19 +665,25 @@ export class BattleEngine {
         effect.remainingTicks = (effect.remainingTicks || 0) - deltaTime;
 
         if (effect.remainingTicks <= 0) {
-          if (effect.type === "dot") {
-            entity.hp = Math.max(0, entity.hp - effect.value);
-            this.addEvent({
-              timestamp: Date.now(),
-              type: "damage",
-              source: entity.id,
-              target: entity.id,
-              value: effect.value,
-              ability: effect.ability,
-              message: `${entity.character.name} takes ${effect.value} damage from ${effect.name}`,
-            });
-          } else if (effect.type === "hot") {
-            this.heal(entity, effect.value, effect.ability);
+          // Call onTick hook if present
+          if (effect.onTick) {
+            effect.onTick(entity, effect);
+          } else {
+            // Default behavior
+            if (effect.type === "dot") {
+              entity.hp = Math.max(0, entity.hp - effect.value);
+              this.addEvent({
+                timestamp: Date.now(),
+                type: "damage",
+                source: entity.id,
+                target: entity.id,
+                value: effect.value,
+                ability: effect.ability,
+                message: `${entity.character.name} takes ${effect.value} damage from ${effect.name}`,
+              });
+            } else if (effect.type === "hot") {
+              this.heal(entity, effect.value, effect.ability);
+            }
           }
 
           effect.remainingTicks = effect.tickInterval;
@@ -554,6 +692,11 @@ export class BattleEngine {
 
       // Remove expired effects
       if (effect.duration <= 0) {
+        // Call onRemove hook if present
+        if (effect.onRemove) {
+          effect.onRemove(entity, effect);
+        }
+        
         entity.statusEffects.splice(i, 1);
         this.addEvent({
           timestamp: Date.now(),
@@ -573,8 +716,8 @@ export class BattleEngine {
       return false;
     }
 
-    // Check if entity is stunned
-    if (entity.statusEffects.some((e) => e.name === "Stun")) {
+    // Check if entity is prevented from taking actions
+    if (entity.statusEffects.some((e) => e.behaviors?.preventsActions)) {
       return false;
     }
 
@@ -616,9 +759,10 @@ export class BattleEngine {
       source: entity.id,
       target: action.targetId,
       ability: ability,
-      message: castTime > 0 
-        ? `${entity.character.name} begins casting ${ability.name} (${castTime}s)`
-        : `${entity.character.name} begins casting ${ability.name} (instant)`,
+      message:
+        castTime > 0
+          ? `${entity.character.name} begins casting ${ability.name} (${castTime}s)`
+          : `${entity.character.name} begins casting ${ability.name} (instant)`,
     });
 
     return true;
@@ -698,7 +842,7 @@ export class BattleEngine {
 
     // For system events or events that affect all entities, emit to all
     if (event.type === "system" || event.source === "system") {
-      this.state.entities.forEach(entity => {
+      this.state.entities.forEach((entity) => {
         entity.emit(event);
       });
     }

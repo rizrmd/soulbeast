@@ -7,7 +7,7 @@ export interface AbilityContext {
   getCurrentTime: () => number;
   addEvent: (event: any) => void;
   applyStatusEffect: (entity: BattleEntity, effect: StatusEffect) => void;
-  dealDamage: (attacker: BattleEntity, target: BattleEntity, damage: number) => void;
+  dealDamage: (attacker: BattleEntity, target: BattleEntity, damage: number) => number;
   heal: (entity: BattleEntity, amount: number) => void;
 }
 

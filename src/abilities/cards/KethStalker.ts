@@ -14,12 +14,7 @@ export class NightmareFrost extends BaseAbility {
     this.applyDamage(context, damage);
 
     // Apply slow effect for 2 seconds
-    this.applyStatusToTargets(context, {
-      name: "Slow",
-      type: "debuff",
-      duration: 2.0,
-      value: 0.7, // 30% speed reduction
-    });
+    this.applyStatusToTargets(context, this.createDamageReductionEffect("Slow", 0.7, 2.0));
 
     context.addEvent({
       timestamp: context.getCurrentTime(),
@@ -106,12 +101,7 @@ export class NightmareHunt extends BaseAbility {
     }
 
     // Apply cooldown reduction effect to caster (next 2 abilities have 50% reduced cooldown)
-    this.applyStatusToCaster(context, {
-      name: "Nightmare Hunt Boost",
-      type: "buff",
-      duration: 10.0, // Duration to apply the cooldown reduction
-      value: 0.5, // 50% cooldown reduction
-    });
+    this.applyStatusToCaster(context, this.createDamageBoostEffect("Nightmare Hunt Boost", 0.5, 10.0));
 
     context.addEvent({
       timestamp: context.getCurrentTime(),

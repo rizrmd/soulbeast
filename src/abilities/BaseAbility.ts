@@ -60,6 +60,90 @@ export abstract class BaseAbility implements AbilityImplementation {
     context.applyStatusEffect(context.caster, effect);
   }
 
+  // Helper methods for creating status effects with behaviors
+  protected createShieldEffect(name: string, value: number, duration: number, isDreamShield: boolean = false): StatusEffect {
+    return {
+      name,
+      type: "buff",
+      duration,
+      value,
+      behaviors: {
+        isShield: true,
+        isDreamShield,
+      },
+      onRemove: isDreamShield ? (entity: BattleEntity, effect: StatusEffect) => {
+        // Dream shield converts absorbed damage to healing
+        const absorbedDamage = (effect as any).absorbedDamage || 0;
+        if (absorbedDamage > 0) {
+          entity.hp = Math.min(entity.maxHp, entity.hp + absorbedDamage);
+        }
+      } : undefined,
+    };
+  }
+
+  protected createFocusEffect(name: string, multiplier: number, duration: number): StatusEffect {
+    return {
+      name,
+      type: "buff",
+      duration,
+      value: multiplier,
+      behaviors: {
+        isFocus: true,
+        damageBoost: true,
+        oneTimeUse: duration >= 999,
+      },
+    };
+  }
+
+  protected createStunEffect(name: string, duration: number): StatusEffect {
+    return {
+      name,
+      type: "debuff",
+      duration,
+      value: 0,
+      behaviors: {
+        preventsActions: true,
+      },
+    };
+  }
+
+  protected createDamageReductionEffect(name: string, reductionMultiplier: number, duration: number): StatusEffect {
+    return {
+      name,
+      type: "buff",
+      duration,
+      value: reductionMultiplier,
+      behaviors: {
+        damageReduction: true,
+      },
+    };
+  }
+
+  protected createDamageBoostEffect(name: string, boostMultiplier: number, duration: number): StatusEffect {
+    return {
+      name,
+      type: "buff",
+      duration,
+      value: boostMultiplier,
+      behaviors: {
+        damageBoost: true,
+        oneTimeUse: duration >= 999,
+      },
+    };
+  }
+
+  protected createFearEffect(name: string, damageReduction: number, duration: number): StatusEffect {
+    return {
+      name,
+      type: "debuff",
+      duration,
+      value: damageReduction,
+      behaviors: {
+        damageReduction: true,
+      },
+    };
+  }
+
   protected getEnemyTeam(context: AbilityContext): BattleEntity[] {
     const casterTeam = context.caster.id.startsWith("player1_") ? "player1" : "player2";
     const enemyTeam = casterTeam === "player1" ? "player2" : "player1";

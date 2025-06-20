@@ -1,10 +1,9 @@
 import { FC } from "react";
 import { useSnapshot } from "valtio";
+import { cn } from "../lib/cn";
 import { gameStore } from "../store/game-store";
 import { EnemyCard } from "./Card/EnemyCard";
 import { PlayerCard } from "./Card/PlayerCard";
-import { cn } from "../lib/cn";
-import { FlyingTextRoot } from "./Battle/FlyingText";
 export const BattleArena: FC = () => {
   const game = useSnapshot(gameStore);
   const entities = [...game.battleState!.entities.values()];
@@ -67,7 +66,6 @@ export const BattleArena: FC = () => {
           return <PlayerCard idx={idx} key={idx} />;
         })}
       </div>
-      <FlyingTextRoot />
     </div>
   );
 };
