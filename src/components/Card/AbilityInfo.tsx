@@ -33,7 +33,7 @@ const AbilityInfo: FC<AbilityInfoProps> = ({
           scale: isHovered ? 0.96 : 1,
         }}
         className={cn(
-          "absolute border border-amber-200 min-h-[550px] h-[60vh] bottom-[10px] left-2 right-2 bg-gradient-to-t from-black from-40% to-black/60 z-100",
+          "absolute border border-amber-200 pb-[20px] bottom-[10px] left-2 right-2 bg-gradient-to-t from-black from-40% to-black/60 z-100",
           !ability && "pointer-events-none"
         )}
       >

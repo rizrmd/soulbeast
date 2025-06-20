@@ -123,7 +123,7 @@ export class BattleEngine {
 
     // Start countdown instead of battle
     this.state.countdownActive = true;
-    this.state.countdownTimeRemaining = 5.0; // 5 seconds countdown
+    this.state.countdownTimeRemaining = 0.0; // 5 seconds countdown
     this.state.isActive = false; // Battle is not active during countdown
     this.state.startTime = Date.now();
     this.state.currentTime = Date.now();
@@ -146,6 +146,8 @@ export class BattleEngine {
   }
 
   private createEntity(id: string, character: SoulBeast): BattleEntity {
+    const eventListeners = new Map<BattleEvent['type'], Array<(event: BattleEvent) => void>>();
+    
     const entity: BattleEntity = {
       id,
       character,
@@ -158,6 +160,28 @@ export class BattleEngine {
       abilityInitiationTimes: new Map(),
       isAlive: true,
       position: { x: 0, y: 0 },
+      eventListeners,
+      on: (eventType: BattleEvent['type'], callback: (event: BattleEvent) => void) => {
+        if (!eventListeners.has(eventType)) {
+          eventListeners.set(eventType, []);
+        }
+        eventListeners.get(eventType)!.push(callback);
+      },
+      off: (eventType: BattleEvent['type'], callback: (event: BattleEvent) => void) => {
+        const listeners = eventListeners.get(eventType);
+        if (listeners) {
+          const index = listeners.indexOf(callback);
+          if (index > -1) {
+            listeners.splice(index, 1);
+          }
+        }
+      },
+      emit: (event: BattleEvent) => {
+        const listeners = eventListeners.get(event.type);
+        if (listeners) {
+          listeners.forEach(callback => callback(event));
+        }
+      }
     };
 
     // Initialize ability initiation times
@@ -278,7 +302,7 @@ export class BattleEngine {
       type: "cast_complete",
       source: entity.id,
       target: targetId,
-      ability: ability.name,
+      ability: ability,
       message: `${entity.character.name} completed casting ${ability.name}`,
     });
 
@@ -340,9 +364,9 @@ export class BattleEngine {
         allEntities: this.state.entities,
         getCurrentTime: () => Date.now(),
         addEvent: (event) => this.addEvent(event),
-        applyStatusEffect: (entity, effect) => this.applyStatusEffect(entity, effect),
-        dealDamage: (attacker, target, damage) => this.dealDamageAmount(attacker, target, damage),
-        heal: (entity, amount) => this.heal(entity, amount),
+        applyStatusEffect: (entity, effect) => this.applyStatusEffect(entity, { ...effect, ability }),
+        dealDamage: (attacker, target, damage) => this.dealDamageAmount(attacker, target, damage, ability),
+        heal: (entity, amount) => this.heal(entity, amount, ability),
       };
       
       abilityImplementation.execute(context);
@@ -362,7 +386,8 @@ export class BattleEngine {
   private dealDamageAmount(
     attacker: BattleEntity,
     target: BattleEntity,
-    damage: number
+    damage: number,
+    ability?: Ability
   ): void {
     let finalDamage = damage * attacker.damageMultiplier;
 
@@ -432,6 +457,7 @@ export class BattleEngine {
       source: attacker.id,
       target: target.id,
       value: finalDamage,
+      ability: ability,
       message: `${attacker.character.name} deals ${Math.round(finalDamage)} damage to ${target.character.name}`,
     });
 
@@ -460,7 +486,7 @@ export class BattleEngine {
     }
   }
 
-  private heal(entity: BattleEntity, amount: number): void {
+  private heal(entity: BattleEntity, amount: number, ability?: Ability): void {
     const healAmount = Math.min(amount, entity.maxHp - entity.hp);
     entity.hp += healAmount;
 
@@ -470,6 +496,7 @@ export class BattleEngine {
       source: entity.id,
       target: entity.id,
       value: healAmount,
+      ability: ability,
       message: `${entity.character.name} heals for ${healAmount} HP`,
     });
   }
@@ -514,10 +541,11 @@ export class BattleEngine {
               source: entity.id,
               target: entity.id,
               value: effect.value,
+              ability: effect.ability,
               message: `${entity.character.name} takes ${effect.value} damage from ${effect.name}`,
             });
           } else if (effect.type === "hot") {
-            this.heal(entity, effect.value);
+            this.heal(entity, effect.value, effect.ability);
           }
 
           effect.remainingTicks = effect.tickInterval;
@@ -587,7 +615,7 @@ export class BattleEngine {
       type: "cast_start",
       source: entity.id,
       target: action.targetId,
-      ability: ability.name,
+      ability: ability,
       message: castTime > 0 
         ? `${entity.character.name} begins casting ${ability.name} (${castTime}s)`
         : `${entity.character.name} begins casting ${ability.name} (instant)`,
@@ -653,6 +681,26 @@ export class BattleEngine {
     // Keep only last 100 events to prevent memory issues
     if (this.state.events.length > 100) {
       this.state.events.shift();
+    }
+
+    // Emit event to relevant entities
+    const sourceEntity = this.state.entities.get(event.source);
+    if (sourceEntity) {
+      sourceEntity.emit(event);
+    }
+
+    if (event.target && event.target !== event.source) {
+      const targetEntity = this.state.entities.get(event.target);
+      if (targetEntity) {
+        targetEntity.emit(event);
+      }
+    }
+
+    // For system events or events that affect all entities, emit to all
+    if (event.type === "system" || event.source === "system") {
+      this.state.entities.forEach(entity => {
+        entity.emit(event);
+      });
     }
   }
 

@@ -54,6 +54,7 @@ export interface StatusEffect {
   value: number;
   tickInterval?: number;
   remainingTicks?: number;
+  ability?: Ability;
 }
 
 export interface BattleEntity {
@@ -64,10 +65,6 @@ export interface BattleEntity {
   armor: number;
   damageMultiplier: number;
   statusEffects: StatusEffect[];
-  reaction: Partial<{
-    shout: "",
-    hurt: "",
-  }>;
   abilityCooldowns: Map<string, number>;
   abilityInitiationTimes: Map<string, number>; // tracks when abilities become available for first use
   currentCast?: {
@@ -77,6 +74,10 @@ export interface BattleEntity {
   };
   isAlive: boolean;
   position: { x: number; y: number };
+  eventListeners: Map<BattleEvent['type'], Array<(event: BattleEvent) => void>>;
+  on: (eventType: BattleEvent['type'], callback: (event: BattleEvent) => void) => void;
+  off: (eventType: BattleEvent['type'], callback: (event: BattleEvent) => void) => void;
+  emit: (event: BattleEvent) => void;
 }
 
 export interface BattleEvent {
@@ -93,7 +94,7 @@ export interface BattleEvent {
     | "system";
   source: string;
   target?: string;
-  ability?: string;
+  ability?: Ability;
   value?: number;
   statusEffect?: StatusEffect;
   message: string;

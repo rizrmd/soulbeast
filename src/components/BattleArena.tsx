@@ -4,6 +4,7 @@ import { gameStore } from "../store/game-store";
 import { EnemyCard } from "./Card/EnemyCard";
 import { PlayerCard } from "./Card/PlayerCard";
 import { cn } from "../lib/cn";
+import { FlyingTextRoot } from "./Battle/FlyingText";
 export const BattleArena: FC = () => {
   const game = useSnapshot(gameStore);
   const entities = [...game.battleState!.entities.values()];
@@ -24,19 +25,23 @@ export const BattleArena: FC = () => {
           className="mt-[5px] ml-[0px]"
         />
       </div>
-      <div className={cn("gap-1 px-6 flex min-h-[0px]")}>
+      <div className={cn("gap-1 px-6 flex")}>
         {p2.map((e, idx) => (
           <EnemyCard key={e.id} idx={idx} />
         ))}
       </div>
-      <div className="flex-1 relative">
+      <div
+        className={cn(
+          "flex-1 relative",
+          css`
+            background-image: url("/img/place/swamp.webp");
+            background-size: cover;
+          `
+        )}
+      >
         <div
           className={cn(
-            "absolute inset-0 z-0 pointer-events-none flex flex-col justify-between",
-            css`
-              background-image: url("/img/place/swamp.webp");
-              background-size: cover;
-            `
+            "absolute inset-0 z-0 pointer-events-none flex flex-col justify-between"
           )}
         >
           <div className="h-[150px] bg-gradient-to-b from-black from-20% to-100% to-black/0"></div>
@@ -62,6 +67,7 @@ export const BattleArena: FC = () => {
           return <PlayerCard idx={idx} key={idx} />;
         })}
       </div>
+      <FlyingTextRoot />
     </div>
   );
 };

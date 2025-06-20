@@ -52,8 +52,8 @@ const ResultsScreen: React.FC = () => {
   const stats = getBattleStats();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800">
-      <div className="w-full max-w-5xl bg-gray-900 rounded-xl shadow-lg p-8 flex flex-col gap-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800 ">
+      <div className="w-full max-w-5xl bg-gray-900 rounded-xl shadow-lg p-8 flex flex-col gap-8 h-screen overflow-auto">
         <div className="flex flex-col items-center gap-2 mb-6">
           <h1 className="text-4xl font-bold text-white mb-2">{getWinnerText()}</h1>
           <div className="text-6xl" style={{ color: getWinnerColor() }}>

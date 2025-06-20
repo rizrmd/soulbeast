@@ -1,10 +1,13 @@
+import { css } from "goober";
 import { motion } from "motion/react";
-import { FC, useEffect } from "react";
-import { DataLoader } from "../../engine/DataLoader";
-import { useLocal } from "../../lib/use-local";
-import { BattleEntity, SoulBeastUI, Ability } from "../../types";
+import { FC, useEffect, useRef } from "react";
 import { useSnapshot } from "valtio";
+import { DataLoader } from "../../engine/DataLoader";
+import { cn } from "../../lib/cn";
+import { useLocal } from "../../lib/use-local";
 import { gameStore } from "../../store/game-store";
+import { Ability, BattleEntity, SoulBeastUI } from "../../types";
+import { useFlyingText } from "../Battle/FlyingText";
 import AbilityInfo from "./AbilityInfo";
 
 export const EnemyCard: FC<{
@@ -14,6 +17,9 @@ export const EnemyCard: FC<{
   const entity = game.battleState!.entities.get(
     `player2_card${idx}`
   ) as BattleEntity;
+  const hpRef = useRef<HTMLDivElement>(null);
+
+  const flyingText = useFlyingText({ div: hpRef, direction: "down" });
 
   const local = useLocal(
     {
@@ -32,6 +38,24 @@ export const EnemyCard: FC<{
     () => {
       local.init = true;
       local.render();
+
+      entity.on("damage", (event) => {
+        if (event.target === `player2_card${idx}`)
+          flyingText.add({
+            color: "#ff4444",
+            text: `${event.value}`,
+            icon: `/img/abilities/${event.ability?.emoji}.webp`,
+          });
+      });
+
+      entity.on("heal", (event) => {
+        if (event.target === `player2_card${idx}`)
+          flyingText.add({
+            color: "#08ab08",
+            text: `${event.value}`,
+            icon: `/img/abilities/${event.ability?.emoji}.webp`,
+          });
+      });
     }
   );
   useEffect(() => {
@@ -82,36 +106,44 @@ export const EnemyCard: FC<{
   };
 
   return (
-    <motion.div
-      animate={{ opacity: 1, x: 0 }}
-      initial={{ opacity: 0, x: -100 }}
-      transition={{ duration: 0.8, delay: idx * 0.5, ease: "easeOut" }}
-      className={cn("flex flex-col flex-1 relative")}
-    >
-      <div {...cardEvents}>
-        <div
-          className={cn(
-            "h-[80px] overflow-hidden pointer-events-none skew-x-[-10deg]  pl-[10px]"
-          )}
-        >
-          <img
-            src={local.image}
+    <div className={cn("flex flex-col flex-1 relative enemy-card")}>
+      <motion.div
+        animate={{ opacity: 1, x: 0 }}
+        initial={{ opacity: 0, x: -100 }}
+        transition={{ duration: 0.8, delay: idx * 0.5, ease: "easeOut" }}
+        className="flex flex-col flex-1"
+      >
+        <div {...cardEvents}>
+          <div
             className={cn(
-              "w-full transition-all duration-[2s] ease-out",
-              local.hover.card && "-mt-[100px]"
+              "h-[80px] overflow-hidden pointer-events-none skew-x-[-10deg]  pl-[10px]"
             )}
-          />
+          >
+            <img
+              src={local.image}
+              className={cn(
+                "w-full transition-all duration-[2s] ease-out",
+                local.hover.card && "-mt-[100px]"
+              )}
+            />
+          </div>
         </div>
-      </div>
+        <div className="absolute ml-2 text-[9px]  w-full flex justify-center z-[2]">
+          <div className="flex text-black bg-white">
+            {/* {JSON.stringify(entity.statusEffects)} */}
+          </div>
+        </div>
+        <div className="absolute h-[80px] w-full bg-gradient-to-t from-black/90 from-10% to-40% to-black/0 pointer-events-none z-[2]"></div>
+      </motion.div>
 
-      <div className="absolute ml-2 text-[9px]  w-full flex justify-center">
-        <div className="flex text-black bg-white">
-          {JSON.stringify(entity.statusEffects)}
-        </div>
-      </div>
-      <div className="absolute h-[80px] w-full bg-gradient-to-t from-black/90 from-10% to-40% to-black/0 pointer-events-none z-10"></div>
-      <div className="absolute z-20 left-[15px] top-[55px] w-full flex flex-col">
+      <motion.div
+        animate={{ opacity: 1, x: 0 }}
+        initial={{ opacity: 0, x: -100 }}
+        transition={{ duration: 0.8, delay: idx * 0.5, ease: "easeOut" }}
+        className="absolute z-[4] left-[15px] top-[55px] w-full flex flex-col"
+      >
         <div
+          ref={hpRef}
           className="text-white text-[18px] text-shadow-lg text-shadow-black font-rocker h-[30px] -mt-[10px]"
           {...cardEvents}
         >
@@ -144,6 +176,8 @@ export const EnemyCard: FC<{
             <sub className="text-xs"> {hp.max}</sub>
           </div>
         </div>
+      </motion.div>
+      <div className="absolute z-[4] ml-[15px] top-[90px] w-full flex flex-col">
         <div className="h-[36px] self-stretch -ml-3 mr-7 mt-3 flex items-stretch gap-1">
           {card?.abilities.map((ability, index) => {
             let cooldown = 0;
@@ -297,6 +331,7 @@ export const EnemyCard: FC<{
           )}
         </div>
       </div>
+
       <AbilityInfo
         ability={local.selectedAbility}
         isSelected={local.showAbilityInfo}
@@ -316,6 +351,6 @@ export const EnemyCard: FC<{
           local.render();
         }}
       />
-    </motion.div>
+    </div>
   );
 };

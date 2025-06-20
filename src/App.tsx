@@ -1,10 +1,12 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { useSnapshot } from "valtio";
 import BattleArena from "./components/BattleArena";
 import CardSelection from "./components/CardSelection";
 import MainMenu from "./components/MainMenu";
 import ResultsScreen from "./components/ResultsScreen";
 import { gameActions, gameStore } from "./store/game-store";
+import { FlyingTextRoot } from "./components/Battle/FlyingText";
+import { cn } from "./lib/cn";
 
 const App = () => {
   const state = useSnapshot(gameStore);
@@ -54,6 +56,7 @@ const App = () => {
       >
         {renderCurrentScreen()}
       </div>
+      <FlyingTextRoot />
     </div>
   );
 };
