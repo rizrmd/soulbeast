@@ -5,6 +5,7 @@ import { useLocal } from "../../lib/use-local";
 interface FlyingTextItem {
   id: string;
   text: string;
+  title?: string;
   icon?: string;
   color: string;
   x: number;
@@ -32,7 +33,12 @@ export const useFlyingText = (arg: {
   direction: "down" | "up";
 }) => {
   const flying = {
-    add: (params: { icon?: string; text: string; color?: string }) => {
+    add: (params: {
+      icon?: string;
+      title?: string;
+      value: string;
+      color?: string;
+    }) => {
       if (!arg.div.current) return;
 
       const rect = arg.div.current.getBoundingClientRect();
@@ -40,7 +46,8 @@ export const useFlyingText = (arg: {
 
       const item: FlyingTextItem = {
         id,
-        text: params.text,
+        text: params.value,
+        title: params.title,
         icon: params.icon,
         color: params.color || "#ffffff",
         x: rect.left + rect.width / 2,
@@ -61,16 +68,16 @@ const dist = 30;
 const FlyingTextItem: React.FC<{ item: FlyingTextItem }> = ({ item }) => {
   const local = useLocal({ done: false });
   useEffect(() => {
-    // const timer = setTimeout(() => {
-    //   removeFlyingTextItem(item.id);
-    // }, 2000);
-    // return () => clearTimeout(timer);
+    const timer = setTimeout(() => {
+      removeFlyingTextItem(item.id);
+    }, 4000);
+    return () => clearTimeout(timer);
   }, [item.id]);
 
   return (
     <div
       className={cn(
-        "fixed z-10 flex",
+        "fixed z-[3] flex",
         css`
           left: ${item.x}px;
           top: ${item.y}px;
@@ -98,18 +105,27 @@ const FlyingTextItem: React.FC<{ item: FlyingTextItem }> = ({ item }) => {
             }, 500);
           },
         }}
-        className={cn(
-          "flex gap-2 items-center skew-x-[-10deg] pr-2",
-          css`
-            background-color: ${item.color};
-            color: white;
-          `
-        )}
+        className={cn("flex flex-col ")}
       >
-        {item.icon && (
-          <img src={item.icon} className="w-[25px] h-[25px] -ml-2" />
+        {item.title && (
+          <div className="font-megrim text-xs font-black skew-x-[-10deg] bg-black ml-1 px-1 whitespace-nowrap text-white">
+            {item.title.toLowerCase()}
+          </div>
         )}
-        <div className="font-megrim text-base font-black">{item.text}</div>
+        <div className="flex flex-row skew-x-[-10deg]">
+          {item.icon && <img src={item.icon} className="w-[25px] h-[25px]" />}
+          <div
+            className={cn(
+              "font-megrim text-base font-black px-2",
+              css`
+                background-color: ${item.color};
+                color: white;
+              `
+            )}
+          >
+            {item.text}
+          </div>
+        </div>
       </motion.div>
     </div>
   );

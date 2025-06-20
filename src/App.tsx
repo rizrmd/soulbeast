@@ -54,9 +54,9 @@ const App = () => {
           `max-w-[500px] w-full shadow-sm shadow-gray-600 contain-content`
         )}
       >
+        <FlyingTextRoot />
         {renderCurrentScreen()}
       </div>
-      <FlyingTextRoot />
     </div>
   );
 };

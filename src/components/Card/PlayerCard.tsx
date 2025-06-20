@@ -42,7 +42,8 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
         if (event.target === `player1_card${idx}`)
           flyingText.add({
             color: "#ff4444",
-            text: `${event.value}`,
+            value: `${event.value}`,
+            title: event.ability?.name,
             icon: `/img/abilities/${event.ability?.emoji}.webp`,
           });
       });
@@ -51,7 +52,8 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
         if (event.target === `player1_card${idx}`)
           flyingText.add({
             color: "#08ab08",
-            text: `${event.value}`,
+            value: `${event.value}`,
+            title: event.ability?.name,
             icon: `/img/abilities/${event.ability?.emoji}.webp`,
           });
       });
