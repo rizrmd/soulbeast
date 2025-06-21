@@ -11,7 +11,13 @@ export const BattleArena: FC = () => {
   const p1 = entities.filter((e) => e.id.startsWith("player1"));
 
   return (
-    <div className="flex flex-col items-stretch h-full">
+    <div
+      className="flex flex-col items-stretch h-full"
+      onClick={() => {
+        gameStore.selectedEntity = null;
+        gameStore.selectedAbility = null;
+      }}
+    >
       <div
         className={cn(
           "absolute z-[1] max-w-[3%] top-[0px] left-[0px] pointer-events-none opacity-60"

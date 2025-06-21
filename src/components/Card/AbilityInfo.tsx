@@ -54,74 +54,76 @@ const AbilityInfo: FC<AbilityInfoProps> = ({
 
             <div className="border-t self-stretch border-t-amber-200/50 mt-3 pt-2 px-4  flex-1 flex flex-col">
               <div className="text-center">{ability.effect}</div>
-
-              <table
-                className={cn(
-                  "border border-amber-200/50 m-3",
-                  css`
-                    td {
-                      padding: 0px 6px;
-                      font-size: 14px;
-                      padding-bottom: 2px;
-
-                      &.font-mono {
-                        font-size: 12px;
-                        padding-top: 4px;
-                      }
-                    }
-                  `
-                )}
-              >
-                <tbody>
-                  <tr className="border-b border-amber-200/50">
-                    <td className="text-left border-r min-w-[110px] border-amber-200/50 pr-2">
-                      Initiation Time
-                    </td>
-                    <td className="text-left pl-2 w-full font-mono">
-                      {ability.initiationTime
-                        ? `${ability.initiationTime}s`
-                        : "Instant"}
-                    </td>
-                  </tr>
-                  <tr className="border-b border-amber-200/50">
-                    <td className="text-left border-r border-amber-200/50 pr-2">
-                      Cast Time
-                    </td>
-                    <td className="text-left pl-2 w-full font-mono">
-                      {ability.castTime ? `${ability.castTime}s` : "Instant"}
-                    </td>
-                  </tr>
-                  <tr className="border-b border-amber-200/50">
-                    <td className="text-left border-r border-amber-200/50 pr-2">
-                      Cooldown
-                    </td>
-                    <td className="text-left pl-2 w-full font-mono">
-                      {ability.cooldown}s
-                    </td>
-                  </tr>
-                  <tr className="border-b border-amber-200/50">
-                    <td className="text-left border-r border-amber-200/50 pr-2">
-                      Damage
-                    </td>
-                    <td className="text-left pl-2 w-full font-mono">
-                      {ability.damage}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="text-left border-r border-amber-200/50 pr-2">
-                      Target
-                    </td>
-                    <td className="text-left pl-2 w-full font-mono capitalize">
-                      {ability.target.split("-").join(" ")}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
             </div>
+
+            <AbilityTable ability={ability} />
           </div>
         )}
       </motion.div>
     </div>
+  );
+};
+
+export const AbilityTable: FC<{ ability: Ability }> = ({ ability }) => {
+  return (
+    <table
+      className={cn(
+        "border border-amber-200/50 m-3",
+        css`
+          td {
+            padding: 0px 6px;
+            font-size: 14px;
+            padding-bottom: 2px;
+
+            &.font-mono {
+              font-size: 12px;
+              padding-top: 4px;
+            }
+          }
+        `
+      )}
+    >
+      <tbody>
+        <tr className="border-b border-amber-200/50">
+          <td className="text-left border-r min-w-[110px] border-amber-200/50 pr-2">
+            Initiation Time
+          </td>
+          <td className="text-left pl-2 w-full font-mono">
+            {ability.initiationTime ? `${ability.initiationTime}s` : "Instant"}
+          </td>
+        </tr>
+        <tr className="border-b border-amber-200/50">
+          <td className="text-left border-r border-amber-200/50 pr-2">
+            Cast Time
+          </td>
+          <td className="text-left pl-2 w-full font-mono">
+            {ability.castTime ? `${ability.castTime}s` : "Instant"}
+          </td>
+        </tr>
+        <tr className="border-b border-amber-200/50">
+          <td className="text-left border-r border-amber-200/50 pr-2">
+            Cooldown
+          </td>
+          <td className="text-left pl-2 w-full font-mono">
+            {ability.cooldown}s
+          </td>
+        </tr>
+        <tr className="border-b border-amber-200/50">
+          <td className="text-left border-r border-amber-200/50 pr-2">
+            Damage
+          </td>
+          <td className="text-left pl-2 w-full font-mono">{ability.damage}</td>
+        </tr>
+        <tr>
+          <td className="text-left border-r border-amber-200/50 pr-2">
+            Target
+          </td>
+          <td className="text-left pl-2 w-full font-mono capitalize">
+            {ability.target.split("-").join(" ")}
+          </td>
+        </tr>
+      </tbody>
+    </table>
   );
 };
 

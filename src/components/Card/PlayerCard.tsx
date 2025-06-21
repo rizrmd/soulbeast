@@ -1,13 +1,14 @@
+import { css } from "goober";
 import { motion } from "motion/react";
 import { FC, useEffect, useRef } from "react";
 import { useSnapshot } from "valtio";
 import { DataLoader } from "../../engine/DataLoader";
-import { useLocal } from "../../lib/use-local";
-import { gameStore } from "../../store/game-store";
-import { Ability, BattleEntity, SoulBeastUI } from "../../types";
 import { cn } from "../../lib/cn";
-import { css } from "goober";
+import { useLocal } from "../../lib/use-local";
+import { gameActions, gameStore } from "../../store/game-store";
+import { BattleEntity, SoulBeastUI } from "../../types";
 import { useFlyingText } from "../Battle/FlyingText";
+import { PlayerTarget } from "../Battle/PlayerTarget";
 
 const cornerWidth = 50;
 
@@ -31,8 +32,6 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
       lastTick: Date.now(),
       abilityStartTime: {} as Record<string, number>,
       abilityCastTime: {} as Record<string, number>,
-      selectedAbility: null as null | Ability,
-      showAbilityInfo: false,
     },
     () => {
       local.init = true;
@@ -116,6 +115,9 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
         ></div>
       )}
       <div className={cn("flex flex-col mb-4 relative player-card")}>
+        {game.selectedEntity === entity.id && (
+          <PlayerTarget card={local.card!} />
+        )}
         <div className="hidden">{game.battleState?.events.length}</div>
         <div className="flex items-end mb-2" {...cardEvents}>
           <div className="border-t border-[#f9daab] relative">
@@ -262,16 +264,21 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
 
         <div className="flex h-[75px] mt-2">
           {card.abilities.map((ability, index) => {
+            const selected = game.selectedAbility === ability.name;
             return (
               <div
                 key={index}
-                className="flex-1 p-2 relative"
-                onClick={() => {
-                  local.selectedAbility = ability;
-                  local.showAbilityInfo = true;
-                  local.render();
+                className={cn("flex-1 p-2 relative")}
+                onClick={(e) => {
+                  e.stopPropagation();
                 }}
                 onPointerDown={() => {
+                  if (gameStore.selectedAbility === ability.name) {
+                    gameStore.selectedAbility = "";
+                  } else {
+                    gameStore.selectedAbility = ability.name;
+                  }
+                  gameStore.selectedEntity = entity.id;
                   local.hover.ability = ability.emoji;
                   local.render();
                 }}
@@ -284,14 +291,36 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
                   local.render();
                 }}
               >
+                {selected && (
+                  <motion.div
+                    animate={{ y: 0, opacity: 1 }}
+                    initial={{ y: -10, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="absolute pointer-events-none text-[#f9daab] top-[-18px] left-0 right-0 flex justify-center"
+                  >
+                    ▼
+                  </motion.div>
+                )}
+
+                <div
+                  className={cn(
+                    "absolute inset-0 m-1",
+                    selected && "border rounded-lg border-[#f9daab]"
+                  )}
+                ></div>
                 <motion.img
                   animate={{
-                    scale: local.hover.ability === ability.emoji ? 0.9 : 1,
+                    scale:
+                      local.hover.ability === ability.emoji || selected
+                        ? 0.9
+                        : 1,
                   }}
                   src={`/img/abilities/${ability.emoji}.webp`}
-                  className="w-full h-full object-cover pointer-events-none rounded-xl"
+                  className={cn(
+                    "w-full h-full object-cover pointer-events-none",
+                    !selected && "rounded-xl"
+                  )}
                 />
-                <BoxCorner />
               </div>
             );
           })}

@@ -68,16 +68,16 @@ const dist = 30;
 const FlyingTextItem: React.FC<{ item: FlyingTextItem }> = ({ item }) => {
   const local = useLocal({ done: false });
   useEffect(() => {
-    // const timer = setTimeout(() => {
-    //   removeFlyingTextItem(item.id);
-    // }, 4000);
-    // return () => clearTimeout(timer);
+    const timer = setTimeout(() => {
+      removeFlyingTextItem(item.id);
+    }, 4000);
+    return () => clearTimeout(timer);
   }, [item.id]);
 
   return (
     <div
       className={cn(
-        "absolute z-[7] flex",
+        "absolute z-[7] flex pointer-events-none",
         css`
           left: ${item.x}px;
           top: ${item.y}px;

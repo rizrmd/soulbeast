@@ -8,6 +8,7 @@ import { useLocal } from "../../lib/use-local";
 import { gameStore } from "../../store/game-store";
 import { Ability, BattleEntity, SoulBeastUI } from "../../types";
 import { useFlyingText } from "../Battle/FlyingText";
+
 import AbilityInfo from "./AbilityInfo";
 
 export const EnemyCard: FC<{

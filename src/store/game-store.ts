@@ -19,7 +19,6 @@ interface GameStore {
   // Battle UI state
   selectedEntity: string | null;
   targetEntity: string | null;
-  showAbilities: boolean;
   selectedAbility: string | null;
 
   // Game flow
@@ -58,7 +57,6 @@ export const gameStore = proxy<GameStore>({
 
   selectedEntity: null,
   targetEntity: null,
-  showAbilities: false,
   selectedAbility: null,
 
   isLoading: true,
@@ -254,7 +252,6 @@ export const gameActions = {
       gameStore.selectedEntity = null;
       gameStore.selectedAbility = null;
       gameStore.targetEntity = null;
-      gameStore.showAbilities = false;
     }
   },
 
@@ -284,7 +281,7 @@ export const gameActions = {
     if (gameStore.battleEngine?.isCountdownActive()) {
       return;
     }
-    
+
     gameStore.selectedEntity = entityId;
     gameStore.selectedAbility = abilityName;
     gameStore.targetEntity = null;
@@ -295,7 +292,7 @@ export const gameActions = {
     if (gameStore.battleEngine?.isCountdownActive()) {
       return;
     }
-    
+
     if (gameStore.selectedEntity && gameStore.selectedAbility) {
       gameActions.executeAbility(
         gameStore.selectedEntity,
@@ -535,7 +532,6 @@ export const gameActions = {
     gameStore.selectedEntity = null;
     gameStore.selectedAbility = null;
     gameStore.targetEntity = null;
-    gameStore.showAbilities = false;
     gameStore.winner = null;
     gameStore.error = null;
   },
