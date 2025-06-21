@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import { useSnapshot } from "valtio";
 import { DataLoader } from "../../engine/DataLoader";
 import { cn } from "../../lib/cn";
@@ -111,6 +111,7 @@ export const PlayerTarget: FC<{ card: SoulBeastUI }> = ({ card }) => {
                 <Portrait
                   key={idx}
                   entity={e}
+                  hp={e.hp}
                   className={cn(idx >= 1 && "border-l border-[#f9daab]")}
                   onClick={() => {
                     gameActions.executeAbility(
@@ -129,6 +130,7 @@ export const PlayerTarget: FC<{ card: SoulBeastUI }> = ({ card }) => {
                 <Portrait
                   key={idx}
                   entity={e}
+                  hp={e.hp}
                   className={cn(idx >= 1 && "border-l border-[#f9daab]")}
                   onClick={() => {
                     gameActions.executeAbility(
@@ -144,6 +146,7 @@ export const PlayerTarget: FC<{ card: SoulBeastUI }> = ({ card }) => {
           {ability.target === "self" && (
             <Portrait
               entity={self!}
+              hp={self!.hp}
               onClick={() => {
                 gameActions.executeAbility(
                   game.selectedEntity!,
@@ -163,6 +166,7 @@ export const PlayerTarget: FC<{ card: SoulBeastUI }> = ({ card }) => {
 
 const Portrait: FC<{
   entity: BattleEntity;
+  hp: number;
   className?: string;
   onClick?: () => void;
 }> = ({ entity, className, onClick }) => {
@@ -209,7 +213,9 @@ const Portrait: FC<{
             </div>
           </div>
           <div className="text-white flex leading-0">
-            <sup className="text-xs -mt-[3px] pr-1">{Math.ceil(hp.current)}</sup>
+            <sup className="text-xs -mt-[3px] pr-1">
+              {Math.ceil(hp.current)}
+            </sup>
             <svg
               width="25"
               height="15"

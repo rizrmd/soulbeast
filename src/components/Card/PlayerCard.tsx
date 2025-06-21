@@ -38,30 +38,31 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
       local.render();
 
       entity.on("damage", (event) => {
-        if (event.target === `player1_card${idx}`)
+        if (event.target === `player1_card${idx}`) {
           flyingText.add({
             color: "#ff4444",
             value: `${event.value}`,
             title: event.ability?.name,
             icon: `/img/abilities/${event.ability?.emoji}.webp`,
           });
+        }
+        local.render();
       });
 
       entity.on("heal", (event) => {
-        if (event.target === `player1_card${idx}`)
+        if (event.target === `player1_card${idx}`) {
           flyingText.add({
             color: "#08ab08",
             value: `${event.value}`,
             title: event.ability?.name,
             icon: `/img/abilities/${event.ability?.emoji}.webp`,
           });
+        }
+        local.render();
       });
 
-      entity.on("ability_used", (e) => {
-        if (e.source === `player1_card${idx}`) {
-          console.log(e.source, e.ability);
-        }
-      });
+      entity.on("status_applied", local.render);
+      entity.on("status_removed", local.render);
     }
   );
   useEffect(() => {
@@ -263,7 +264,6 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
                 )}
               >
                 <div className="mb-1 flex text-black bg-white/90 skew-x-[-10deg] items-end justify-start">
-                 
                   {/* {JSON.stringify(entity.statusEffects)} */}
                 </div>
               </div>

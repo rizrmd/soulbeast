@@ -8,6 +8,7 @@ import { useLocal } from "../../lib/use-local";
 import { gameStore } from "../../store/game-store";
 import { Ability, BattleEntity, SoulBeastUI } from "../../types";
 import { useFlyingText } from "../Battle/FlyingText";
+import StatusIcon from "../Battle/StatusIcon";
 
 import AbilityInfo from "./AbilityInfo";
 
@@ -40,24 +41,30 @@ export const EnemyCard: FC<{
       local.init = true;
       local.render();
 
+      entity.on("status_applied", local.render);
+      entity.on("status_removed", local.render);
       entity.on("damage", (event) => {
-        if (event.target === `player2_card${idx}`)
+        if (event.target === `player2_card${idx}`) {
           flyingText.add({
             color: "#ff4444",
             value: `${event.value}`,
             title: event.ability?.name,
             icon: `/img/abilities/${event.ability?.emoji}.webp`,
           });
+        }
+        local.render();
       });
 
       entity.on("heal", (event) => {
-        if (event.target === `player2_card${idx}`)
+        if (event.target === `player2_card${idx}`) {
           flyingText.add({
             color: "#08ab08",
             value: `${event.value}`,
             title: event.ability?.name,
             icon: `/img/abilities/${event.ability?.emoji}.webp`,
           });
+        }
+        local.render();
       });
     }
   );
@@ -109,11 +116,13 @@ export const EnemyCard: FC<{
   };
 
   return (
-    <div className={cn("flex flex-col flex-1 relative enemy-card max-w-[200px]")}>
+    <div
+      className={cn("flex flex-col flex-1 relative enemy-card max-w-[200px]")}
+    >
       <motion.div
         animate={{ opacity: 1, x: 0 }}
         initial={{ opacity: 0, x: -100 }}
-        transition={{ duration: 0.8, delay: idx * 0.5, ease: "easeOut" }}
+        transition={{ duration: 0.8, delay: idx * 0.5, ease: "easeInOut" }}
         className="flex flex-col flex-1"
       >
         <div {...cardEvents}>
@@ -131,10 +140,8 @@ export const EnemyCard: FC<{
             />
           </div>
         </div>
-        <div className="absolute ml-2 text-[9px]  w-full flex justify-center z-[2]">
-          <div className="flex text-black bg-white">
-            {/* {JSON.stringify(entity.statusEffects)} */}
-          </div>
+        <div className="absolute ml-2 text-[9px] w-full flex justify-center z-[2]">
+          <StatusIcon entityId={entity.id} className="mt-1 skew-x-[-10deg]" />
         </div>
         <div className="absolute h-[80px] w-full bg-gradient-to-t from-black/90 from-10% to-40% to-black/0 pointer-events-none z-[2]"></div>
       </motion.div>
@@ -142,7 +149,7 @@ export const EnemyCard: FC<{
       <motion.div
         animate={{ opacity: 1, x: 0 }}
         initial={{ opacity: 0, x: -100 }}
-        transition={{ duration: 0.8, delay: idx * 0.5, ease: "easeOut" }}
+        transition={{ duration: 0.8, delay: idx * 0.5, ease: "easeInOut" }}
         className="absolute z-[4] left-[15px] top-[55px] w-full flex flex-col"
       >
         <div
@@ -165,7 +172,9 @@ export const EnemyCard: FC<{
             </div>
           </div>
           <div className="text-white flex leading-0">
-            <sup className="text-xs -mt-[3px] pr-1">{Math.ceil(hp.current)}</sup>
+            <sup className="text-xs -mt-[3px] pr-1">
+              {Math.ceil(hp.current)}
+            </sup>
             <svg
               width="25"
               height="15"
@@ -258,7 +267,7 @@ export const EnemyCard: FC<{
                   initial={{ opacity: 0, y: -20 }}
                   transition={{
                     delay: 0.5 + 1 * idx + index * 0.15,
-                    ease: "easeOut",
+                    ease: "easeInOut",
                   }}
                   className="w-full h-full flex"
                 >
@@ -314,7 +323,7 @@ export const EnemyCard: FC<{
               <motion.div
                 animate={{ opacity: 1, y: 0 }}
                 initial={{ opacity: 0, y: -30 }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
                 className="flex justify-between items-center mb-1"
               >
                 <div className="font-bold leading-4">
