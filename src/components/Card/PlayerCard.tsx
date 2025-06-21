@@ -267,7 +267,7 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
               >
                 <StatusIcon
                   entityId={entity.id}
-                  className="mt-1 skew-x-[-10deg]"
+                  className="mb-1 skew-x-[-10deg]"
                 />
               </div>
             </div>

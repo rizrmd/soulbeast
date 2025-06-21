@@ -100,19 +100,25 @@ const Casting = ({ entityId }: { entityId: string }) => {
       interruptTimeout: null as any,
     },
     () => {
-      entity?.on("cast_interrupted", (event) => {
-        local.interrupted = true;
-        local.interruptedBy = event.source;
-        local.interruptedAbility = event.ability?.name || "";
-        local.render();
-
-        // Clear interrupted state after 1 second
+      entity?.on("cast_start", () => {
         clearTimeout(local.interruptTimeout);
-        local.interruptTimeout = setTimeout(() => {
-          local.interrupted = false;
-          local.castTime = 0;
+        local.interrupted = false;
+        local.render();
+      });
+      entity?.on("cast_interrupted", (event) => {
+        if (event.target === entityId) {
+          local.interrupted = true;
+          local.interruptedBy = event.source;
+          local.interruptedAbility = event.ability?.name || "";
           local.render();
-        }, 2500);
+
+          // Clear interrupted state after 1 second
+          clearTimeout(local.interruptTimeout);
+          local.interruptTimeout = setTimeout(() => {
+            local.interrupted = false;
+            local.render();
+          }, 2500);
+        }
       });
     }
   );
@@ -122,6 +128,11 @@ const Casting = ({ entityId }: { entityId: string }) => {
   useEffect(() => {
     clearTimeout(local.timer);
     if (casting) {
+      // If there's a new cast, clear interrupted state immediately
+      if (local.interrupted) {
+        local.interrupted = false;
+        clearTimeout(local.interruptTimeout);
+      }
       if (!local.castTime) {
         local.castTime = casting?.timeRemaining;
       }
@@ -168,17 +179,15 @@ const Casting = ({ entityId }: { entityId: string }) => {
             </div>
           )}
         </motion.div>
-        <motion.div
-          className={cn(
-            local.interrupted ? "bg-red-400 h-[2px]" : "bg-amber-400 h-[2px]"
-          )}
-          animate={{
-            width: local.interrupted
-              ? "100%"
-              : `${100 - Math.round(((casting?.timeRemaining || local.castTime) / local.castTime) * 100)}%`,
-          }}
-          initial={{ width: "0%" }}
-        ></motion.div>
+        {!local.interrupted && (
+          <motion.div
+            className={cn("bg-amber-400 h-[2px]")}
+            animate={{
+              width: `${100 - Math.round(((casting?.timeRemaining || 0) / local.castTime) * 100)}%`,
+            }}
+            initial={{ width: "0%" }}
+          ></motion.div>
+        )}
       </div>
     </>
   );

@@ -421,12 +421,13 @@ export class BattleEngine {
       value: damage,
       message: `${attacker.character.name} is about to deal ${damage} damage to ${target.character.name}`,
     };
-    
+
     // Allow entities to modify damage through event listeners
     attacker.emit(beforeDamageEvent);
     target.emit(beforeDamageEvent);
-    
-    let finalDamage = (beforeDamageEvent.modifiedValue ?? damage) * attacker.damageMultiplier;
+
+    let finalDamage =
+      (beforeDamageEvent.modifiedValue ?? damage) * attacker.damageMultiplier;
 
     // Apply damage boost effects on attacker
     const damageBoostEffects = attacker.statusEffects.filter(
@@ -436,7 +437,12 @@ export class BattleEngine {
     for (const effect of damageBoostEffects) {
       // Call onDamageDealt hook if present
       if (effect.onDamageDealt) {
-        finalDamage = effect.onDamageDealt(attacker, target, finalDamage, effect);
+        finalDamage = effect.onDamageDealt(
+          attacker,
+          target,
+          finalDamage,
+          effect
+        );
       } else {
         // Default behavior
         if (effect.behaviors?.isFocus) {
@@ -445,7 +451,7 @@ export class BattleEngine {
           finalDamage += damage * (effect.value - 1.0); // Additive for other boosts
         }
       }
-      
+
       // Remove consumed buffs (one-time use)
       if (effect.behaviors?.oneTimeUse) {
         attacker.statusEffects = attacker.statusEffects.filter(
@@ -468,7 +474,8 @@ export class BattleEngine {
 
       // Track absorbed damage for dream shields
       if (shield.behaviors?.isDreamShield) {
-        (shield as any).absorbedDamage = ((shield as any).absorbedDamage || 0) + absorbed;
+        (shield as any).absorbedDamage =
+          ((shield as any).absorbedDamage || 0) + absorbed;
       }
 
       if (shield.value <= 0) {
@@ -488,7 +495,12 @@ export class BattleEngine {
     for (const effect of damageReductionEffects) {
       // Call onDamageReceived hook if present
       if (effect.onDamageReceived) {
-        finalDamage = effect.onDamageReceived(attacker, target, finalDamage, effect);
+        finalDamage = effect.onDamageReceived(
+          attacker,
+          target,
+          finalDamage,
+          effect
+        );
       } else {
         finalDamage *= effect.value; // Apply damage reduction multiplier
       }
@@ -502,7 +514,12 @@ export class BattleEngine {
     for (const effect of attackDebuffs) {
       // Call onDamageDealt hook if present
       if (effect.onDamageDealt) {
-        finalDamage = effect.onDamageDealt(attacker, target, finalDamage, effect);
+        finalDamage = effect.onDamageDealt(
+          attacker,
+          target,
+          finalDamage,
+          effect
+        );
       } else {
         finalDamage *= effect.value; // Apply damage reduction from debuffs
       }
@@ -520,7 +537,7 @@ export class BattleEngine {
       value: finalDamage,
       message: `${attacker.character.name} dealt ${finalDamage.toFixed(1)} damage to ${target.character.name}`,
     };
-    
+
     attacker.emit(afterDamageEvent);
     target.emit(afterDamageEvent);
 
@@ -545,12 +562,19 @@ export class BattleEngine {
         target: target.id,
         message: `${target.character.name} has been defeated!`,
       });
+
+      // Check win conditions immediately after entity death
+      this.checkWinConditions();
     }
 
-    // Interrupt casting if damage interrupts
-    if (this.config.castInterruption && target.currentCast) {
+    // Interrupt casting if damage interrupts (but not if self-inflicted)
+    if (
+      this.config.castInterruption &&
+      target.currentCast &&
+      attacker.id !== target.id
+    ) {
       const interruptedAbility = target.currentCast.ability;
-      
+
       // Emit cast_interrupted event before clearing the cast
       const castInterruptedEvent: BattleEvent = {
         timestamp: Date.now(),
@@ -560,17 +584,17 @@ export class BattleEngine {
         ability: interruptedAbility,
         message: `${target.character.name}'s ${interruptedAbility.name} was interrupted by ${attacker.character.name}`,
       };
-      
+
       // Allow entities to listen for cast interruption
       target.emit(castInterruptedEvent);
       attacker.emit(castInterruptedEvent);
-      
+
       // Clear the current cast
       target.currentCast = undefined;
-      
+
       this.addEvent(castInterruptedEvent);
     }
-    
+
     return finalDamage;
   }
 
@@ -588,16 +612,16 @@ export class BattleEngine {
       value: amount,
       message: `${entity.character.name} is about to heal for ${amount} HP`,
     };
-    
+
     entity.emit(beforeHealEvent);
-    
+
     let finalAmount = beforeHealEvent.modifiedValue ?? amount;
-    
+
     // Apply heal modification effects
     const healModifiers = entity.statusEffects.filter(
       (effect) => effect.onHeal
     );
-    
+
     for (const effect of healModifiers) {
       if (effect.onHeal) {
         finalAmount = effect.onHeal(entity, entity, finalAmount, effect);
@@ -618,7 +642,7 @@ export class BattleEngine {
       value: actualHealing,
       message: `${entity.character.name} healed for ${actualHealing.toFixed(1)} HP`,
     };
-    
+
     entity.emit(afterHealEvent);
 
     this.addEvent({
@@ -639,7 +663,7 @@ export class BattleEngine {
     );
 
     const newEffect = { ...effect };
-    
+
     // Initialize remainingTicks for DOT/HOT effects
     if (
       (effect.type === "dot" || effect.type === "hot") &&
@@ -694,6 +718,22 @@ export class BattleEngine {
                 ability: effect.ability,
                 message: `${entity.character.name} takes ${effect.value} damage from ${effect.name}`,
               });
+
+              // Check if entity died from status effect damage
+              if (entity.hp <= 0 && entity.isAlive) {
+                entity.isAlive = false;
+                entity.currentCast = undefined; // Clear any ongoing cast when entity dies
+                this.addEvent({
+                  timestamp: Date.now(),
+                  type: "death",
+                  source: entity.id,
+                  target: entity.id,
+                  message: `${entity.character.name} has been defeated by ${effect.name}!`,
+                });
+
+                // Check win conditions immediately after entity death
+                this.checkWinConditions();
+              }
             } else if (effect.type === "hot") {
               this.heal(entity, effect.value, effect.ability);
             }
@@ -709,7 +749,7 @@ export class BattleEngine {
         if (effect.onRemove) {
           effect.onRemove(entity, effect);
         }
-        
+
         entity.statusEffects.splice(i, 1);
         this.addEvent({
           timestamp: Date.now(),

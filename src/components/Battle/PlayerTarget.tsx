@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { FC, useEffect } from "react";
+import { FC } from "react";
 import { useSnapshot } from "valtio";
 import { DataLoader } from "../../engine/DataLoader";
 import { cn } from "../../lib/cn";
@@ -108,13 +108,17 @@ export const PlayerTarget: FC<{ card: SoulBeastUI }> = ({ card }) => {
           {ability.target.includes("enemy") &&
             enemy.map((e, idx) => {
               if (e.hp === 0) return null;
+              const total = enemy.filter((e) => e.hp > 0).length;
 
               return (
                 <Portrait
                   key={idx}
                   entity={e}
                   hp={e.hp}
-                  className={cn(idx >= 1 && "border-l border-[#f9daab]")}
+                  className={cn(
+                    total > 1 && idx >= 1 && "border-l border-[#f9daab]",
+                    total <= 1 && "skew-x-[-10deg]"
+                  )}
                   onClick={() => {
                     gameActions.executeAbility(
                       game.selectedEntity!,
@@ -129,12 +133,16 @@ export const PlayerTarget: FC<{ card: SoulBeastUI }> = ({ card }) => {
           {ability.target.includes("friend") &&
             friend.map((e, idx) => {
               if (e.hp === 0) return null;
+              const total = friend.filter((e) => e.hp > 0).length;
               return (
                 <Portrait
                   key={idx}
                   entity={e}
                   hp={e.hp}
-                  className={cn(idx >= 1 && "border-l border-[#f9daab]")}
+                  className={cn(
+                    total > 1 && idx >= 1 && "border-l border-[#f9daab]",
+                    total <= 1 && "skew-x-[-10deg]"
+                  )}
                   onClick={() => {
                     gameActions.executeAbility(
                       game.selectedEntity!,

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useSnapshot } from "valtio";
 import BattleArena from "./components/BattleArena";
 import CardSelection from "./components/CardSelection";
@@ -10,6 +10,7 @@ import { cn } from "./lib/cn";
 
 const App = () => {
   const state = useSnapshot(gameStore);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     gameActions.initialize();
@@ -53,10 +54,11 @@ const App = () => {
         className={cn(
           `max-w-[500px] w-full shadow-sm shadow-gray-600 contain-content`
         )}
+        ref={ref}
       >
+        {ref.current && <FlyingTextRoot parent={ref.current} />}
         {renderCurrentScreen()}
       </div>
-      <FlyingTextRoot />
     </div>
   );
 };

@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, FC } from "react";
 import { motion } from "motion/react";
 import { useLocal } from "../../lib/use-local";
+import { cn } from "../../lib/cn";
+import { css } from "goober";
 
 interface FlyingTextItem {
   id: string;
@@ -28,6 +30,19 @@ const removeFlyingTextItem = (id: string) => {
   flyingTextListeners.forEach((listener) => listener());
 };
 
+const getRelativePosition = (
+  element: HTMLDivElement,
+  parent: HTMLDivElement
+) => {
+  const elementRect = element.getBoundingClientRect();
+  const parentRect = parent.getBoundingClientRect();
+
+  return {
+    x: elementRect.left - parentRect.left + elementRect.width / 2,
+    y: elementRect.top - parentRect.top + elementRect.height / 2,
+  };
+};
+
 export const useFlyingText = (arg: {
   div: React.RefObject<HTMLDivElement | null>;
   direction: "down" | "up";
@@ -41,8 +56,10 @@ export const useFlyingText = (arg: {
     }) => {
       if (!arg.div.current) return;
 
-      const rect = arg.div.current.getBoundingClientRect();
       const id = Math.random().toString(36).substring(2, 9);
+      const rect = arg.div.current.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
 
       const item: FlyingTextItem = {
         id,
@@ -50,8 +67,8 @@ export const useFlyingText = (arg: {
         title: params.title,
         icon: params.icon,
         color: params.color || "#ffffff",
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2,
+        x,
+        y,
         direction: arg.direction,
         startTime: Date.now(),
       };
@@ -65,7 +82,10 @@ export const useFlyingText = (arg: {
 
 const dist = 30;
 
-const FlyingTextItem: React.FC<{ item: FlyingTextItem }> = ({ item }) => {
+const FlyingTextComponent: React.FC<{
+  item: FlyingTextItem;
+  parent: HTMLDivElement;
+}> = ({ item, parent }) => {
   const local = useLocal({ done: false });
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -74,13 +94,18 @@ const FlyingTextItem: React.FC<{ item: FlyingTextItem }> = ({ item }) => {
     return () => clearTimeout(timer);
   }, [item.id]);
 
+  // Calculate relative position based on parent
+  const parentRect = parent.getBoundingClientRect();
+  const relativeX = item.x - parentRect.left;
+  const relativeY = item.y - parentRect.top;
+
   return (
     <div
       className={cn(
         "absolute z-[7] flex pointer-events-none",
         css`
-          left: ${item.x}px;
-          top: ${item.y}px;
+          left: ${relativeX}px;
+          top: ${relativeY}px;
         `
       )}
     >
@@ -131,7 +156,7 @@ const FlyingTextItem: React.FC<{ item: FlyingTextItem }> = ({ item }) => {
   );
 };
 
-export const FlyingTextRoot = () => {
+export const FlyingTextRoot: FC<{ parent: HTMLDivElement }> = ({ parent }) => {
   const [items, setItems] = useState<FlyingTextItem[]>([]);
 
   useEffect(() => {
@@ -151,7 +176,7 @@ export const FlyingTextRoot = () => {
   return (
     <>
       {items.map((item) => (
-        <FlyingTextItem key={item.id} item={item} />
+        <FlyingTextComponent key={item.id} item={item} parent={parent} />
       ))}
     </>
   );
