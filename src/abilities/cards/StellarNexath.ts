@@ -39,12 +39,12 @@ export class CosmicWinds extends BaseAbility {
     // Deal damage
     this.applyDamage(context, damage);
 
-    // Increase ability speed by 50%
+    // Reduce ability cooldowns by 50%
     this.applyStatusToCaster(context, {
-      name: "Cosmic Speed",
+      name: "Cosmic Focus",
       type: "buff",
       duration: 8.0,
-      value: 1.5, // 50% ability speed increase
+      value: 0.5, // 50% cooldown reduction
     });
 
     context.addEvent({

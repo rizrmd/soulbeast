@@ -55,8 +55,8 @@ const App = () => {
         )}
       >
         {renderCurrentScreen()}
-        <FlyingTextRoot />
       </div>
+      <FlyingTextRoot />
     </div>
   );
 };

@@ -107,6 +107,8 @@ export const PlayerTarget: FC<{ card: SoulBeastUI }> = ({ card }) => {
           )}
           {ability.target.includes("enemy") &&
             enemy.map((e, idx) => {
+              if (e.hp === 0) return null;
+
               return (
                 <Portrait
                   key={idx}
@@ -126,6 +128,7 @@ export const PlayerTarget: FC<{ card: SoulBeastUI }> = ({ card }) => {
             })}
           {ability.target.includes("friend") &&
             friend.map((e, idx) => {
+              if (e.hp === 0) return null;
               return (
                 <Portrait
                   key={idx}

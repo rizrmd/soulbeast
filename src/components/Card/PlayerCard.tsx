@@ -9,6 +9,7 @@ import { gameStore } from "../../store/game-store";
 import { BattleEntity, SoulBeastUI } from "../../types";
 import { useFlyingText } from "../Battle/FlyingText";
 import { PlayerTarget } from "../Battle/PlayerTarget";
+import StatusIcon from "../Battle/StatusIcon";
 
 const cornerWidth = 50;
 
@@ -25,6 +26,7 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
     {
       init: false,
       image: "",
+      touched: false,
       hover: { card: false, ability: "" },
       card: null as null | SoulBeastUI,
       tick: false,
@@ -257,15 +259,16 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
 
               <div
                 className={cn(
-                  "absolute z-[2] bottom-0 text-[9px]  w-full flex justify-center",
+                  "absolute z-[2] bottom-0 text-[9px]  w-full flex justify-center items-end",
                   css`
                     margin-left: ${cornerWidth / 2}px;
                   `
                 )}
               >
-                <div className="mb-1 flex text-black bg-white/90 skew-x-[-10deg] items-end justify-start">
-                  {/* {JSON.stringify(entity.statusEffects)} */}
-                </div>
+                <StatusIcon
+                  entityId={entity.id}
+                  className="mt-1 skew-x-[-10deg]"
+                />
               </div>
             </div>
           </div>
@@ -324,22 +327,38 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
                 className={cn("flex-1 p-2 relative")}
                 onClick={(e) => {
                   e.stopPropagation();
-                }}
-                onPointerDown={() => {
+                  if (local.touched) {
+                    local.touched = false;
+                    return;
+                  }
                   if (gameStore.selectedAbility === ability.name) {
                     gameStore.selectedAbility = "";
                   } else {
                     gameStore.selectedAbility = ability.name;
                   }
                   gameStore.selectedEntity = entity.id;
+                }}
+                onTouchStart={() => {
+                  local.touched = true;
+                  if (gameStore.selectedAbility === ability.name) {
+                    gameStore.selectedAbility = "";
+                  } else {
+                    gameStore.selectedAbility = ability.name;
+                  }
+                  gameStore.selectedEntity = entity.id;
+                }}
+                onPointerDown={(e) => {
+                  e.stopPropagation();
                   local.hover.ability = ability.emoji;
                   local.render();
                 }}
-                onPointerUp={() => {
+                onPointerUp={(e) => {
+                  e.stopPropagation();
                   local.hover.ability = "";
                   local.render();
                 }}
-                onPointerLeave={() => {
+                onPointerLeave={(e) => {
+                  e.stopPropagation();
                   local.hover.ability = "";
                   local.render();
                 }}

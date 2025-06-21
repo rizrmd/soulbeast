@@ -74,14 +74,14 @@ export class TerrorHowl extends BaseAbility {
       }
     }
 
-    // Reverse enemy controls for 3 seconds (confusion effect)
+    // Reduce enemy damage output by 50% for 3 seconds (terror effect)
     for (const enemy of enemies) {
       if (enemy.isAlive) {
         context.applyStatusEffect(enemy, {
-          name: "Confusion",
+          name: "Terror",
           type: "debuff",
           duration: 3.0,
-          value: 1.0,
+          value: 0.5,
         });
       }
     }

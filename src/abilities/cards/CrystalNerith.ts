@@ -64,12 +64,12 @@ export class NaturesEmbrace extends BaseAbility {
     // Deal damage
     this.applyDamage(context, damage);
 
-    // Root enemy and heal self over time
+    // Entangle enemy reducing their damage output and heal self over time
     this.applyStatusToTargets(context, {
-      name: "Rooted",
+      name: "Entangled",
       type: "debuff",
       duration: 4.0,
-      value: 0, // Cannot move
+      value: 0.6, // 40% damage reduction
     });
 
     this.applyStatusToCaster(context, {

@@ -13,12 +13,12 @@ export class StoneShard extends BaseAbility {
     // Deal damage
     this.applyDamage(context, damage);
 
-    // Apply slow effect (20% movement speed reduction)
+    // Apply weakening effect (20% damage reduction)
     this.applyStatusToTargets(context, {
-      name: "Stone Slow",
+      name: "Stone Weakness",
       type: "debuff",
       duration: 4.0,
-      value: 0.8, // 20% speed reduction
+      value: 0.8, // 20% damage reduction
     });
 
     context.addEvent({
@@ -44,13 +44,13 @@ export class MoltenBoulder extends BaseAbility {
     // Deal damage
     this.applyDamage(context, damage);
 
-    // 25% chance to knock down for 1 second
+    // 25% chance to daze for 1 second (prevents ability use)
     if (Math.random() < 0.25) {
       this.applyStatusToTargets(context, {
-        name: "Knockdown",
+        name: "Dazed",
         type: "debuff",
         duration: 1.0,
-        value: 0,
+        value: 1,
       });
 
       context.addEvent({
@@ -58,7 +58,7 @@ export class MoltenBoulder extends BaseAbility {
         type: "system",
         source: context.caster.id,
         target: context.targets[0]?.id,
-        message: "KNOCKDOWN! The molten boulder knocks down the enemy!",
+        message: "DAZED! The molten boulder dazes the enemy!",
       });
     }
 

@@ -104,6 +104,7 @@ export interface BattleEvent {
     | "heal"
     | "cast_start"
     | "cast_complete"
+    | "cast_interrupted"
     | "ability_used"
     | "status_applied"
     | "status_removed"

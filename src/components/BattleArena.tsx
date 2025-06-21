@@ -90,10 +90,32 @@ export const BattleArena: FC = () => {
 const Casting = ({ entityId }: { entityId: string }) => {
   const game = useSnapshot(gameStore);
 
-  const local = useLocal({
-    castTime: 0,
-    timer: null as any,
-  });
+  const local = useLocal(
+    {
+      castTime: 0,
+      timer: null as any,
+      interrupted: false,
+      interruptedBy: "",
+      interruptedAbility: "",
+      interruptTimeout: null as any,
+    },
+    () => {
+      entity?.on("cast_interrupted", (event) => {
+        local.interrupted = true;
+        local.interruptedBy = event.source;
+        local.interruptedAbility = event.ability?.name || "";
+        local.render();
+
+        // Clear interrupted state after 1 second
+        clearTimeout(local.interruptTimeout);
+        local.interruptTimeout = setTimeout(() => {
+          local.interrupted = false;
+          local.castTime = 0;
+          local.render();
+        }, 2500);
+      });
+    }
+  );
   const entity = game.battleState?.entities.get(entityId);
   const casting = entity?.currentCast;
 
@@ -106,13 +128,17 @@ const Casting = ({ entityId }: { entityId: string }) => {
       local.timer = setInterval(() => {
         local.render();
       }, 100);
-    } else {
+    } else if (!local.interrupted) {
       local.castTime = 0;
     }
     local.render();
   }, [game.battleState?.events.length]);
 
-  if (!casting || !local.castTime) return null;
+  if (
+    (!casting && !local.interrupted) ||
+    (!local.castTime && !local.interrupted)
+  )
+    return null;
   return (
     <>
       <div className="font-megrim lowercase pl-2">
@@ -120,17 +146,36 @@ const Casting = ({ entityId }: { entityId: string }) => {
           animate={{ opacity: 1, y: 0 }}
           initial={{ opacity: 0, y: 30 }}
           transition={{ duration: 0.3, ease: "easeOut" }}
-          className="flex justify-between items-center mb-1"
+          className={cn(
+            "flex justify-between  mb-1",
+            local.interrupted ? "flex-col" : "items-center"
+          )}
         >
-          <div className="font-bold leading-4">{casting.ability.name}</div>
-          <div className="text-xs font-texturina min-w-[30px] text-right ">
-            {Math.round(casting.timeRemaining * 10) / 10}
+          <div className="font-bold leading-4">
+            {local.interrupted
+              ? local.interruptedAbility
+              : casting?.ability.name}
           </div>
+          {local.interrupted ? (
+            <div className="font-texturina text-sm leading-4 text-red-500 capitalize">
+              Interrupted By{" "}
+              {game.battleState?.entities.get(local.interruptedBy)?.character
+                .name || "unknown"}
+            </div>
+          ) : (
+            <div className="text-xs font-texturina min-w-[30px] text-right ">
+              {casting && Math.round(casting.timeRemaining * 10) / 10}
+            </div>
+          )}
         </motion.div>
         <motion.div
-          className={cn("bg-amber-400  h-[2px]")}
+          className={cn(
+            local.interrupted ? "bg-red-400 h-[2px]" : "bg-amber-400 h-[2px]"
+          )}
           animate={{
-            width: `${100 - Math.round((casting.timeRemaining / local.castTime) * 100)}%`,
+            width: local.interrupted
+              ? "100%"
+              : `${100 - Math.round(((casting?.timeRemaining || local.castTime) / local.castTime) * 100)}%`,
           }}
           initial={{ width: "0%" }}
         ></motion.div>

@@ -15,7 +15,7 @@ export class FrostBite extends BaseAbility {
 
     // Increase enemy ability cooldowns by 30% for 3 seconds
     this.applyStatusToTargets(context, {
-      name: "Frost Slow",
+      name: "Frost Lethargy",
       type: "debuff",
       duration: 3.0,
       value: 1.3, // 30% longer cooldowns

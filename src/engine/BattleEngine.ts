@@ -549,13 +549,26 @@ export class BattleEngine {
 
     // Interrupt casting if damage interrupts
     if (this.config.castInterruption && target.currentCast) {
-      target.currentCast = undefined;
-      this.addEvent({
+      const interruptedAbility = target.currentCast.ability;
+      
+      // Emit cast_interrupted event before clearing the cast
+      const castInterruptedEvent: BattleEvent = {
         timestamp: Date.now(),
-        type: "cast_start",
-        source: target.id,
-        message: `${target.character.name}'s cast was interrupted by damage`,
-      });
+        type: "cast_interrupted",
+        source: attacker.id,
+        target: target.id,
+        ability: interruptedAbility,
+        message: `${target.character.name}'s ${interruptedAbility.name} was interrupted by ${attacker.character.name}`,
+      };
+      
+      // Allow entities to listen for cast interruption
+      target.emit(castInterruptedEvent);
+      attacker.emit(castInterruptedEvent);
+      
+      // Clear the current cast
+      target.currentCast = undefined;
+      
+      this.addEvent(castInterruptedEvent);
     }
     
     return finalDamage;

@@ -19,7 +19,7 @@ export class ChaosShard extends BaseAbility {
       { name: "Freeze", type: "debuff", duration: 2.0, value: 0.5 },
       { name: "Shock", type: "debuff", duration: 1.5, value: 0.8 },
       { name: "Poison", type: "dot", duration: 4.0, value: 3, tickInterval: 1.0 },
-      { name: "Stone Slow", type: "debuff", duration: 3.0, value: 0.7 },
+      { name: "Stone Weakness", type: "debuff", duration: 3.0, value: 0.7 },
     ];
 
     const randomEffect = effects[Math.floor(Math.random() * effects.length)];
@@ -133,7 +133,7 @@ export class ChaosSingularity extends BaseAbility {
       { name: "Burn", type: "dot", duration: 5.0, value: 8, tickInterval: 1.0 },
       { name: "Freeze", type: "debuff", duration: 3.0, value: 0.5 },
       { name: "Poison", type: "dot", duration: 6.0, value: 10, tickInterval: 1.0 },
-      { name: "Confusion", type: "debuff", duration: 4.0, value: 1.0 },
+      { name: "Disorientation", type: "debuff", duration: 4.0, value: 0.6 },
       { name: "Weakness", type: "debuff", duration: 5.0, value: 0.7 },
     ];
 
