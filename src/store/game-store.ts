@@ -104,7 +104,7 @@ export const gameActions = {
   },
 
   // Automatically select random cards for AI (Player 2)
-  selectRandomCards(player: "player1" | "player2") {
+  selectRandomCards(player: "player1" | "player2", totalCards = 2) {
     if (gameStore.availableCards.length <= 1) return;
 
     const playerCards =
@@ -116,7 +116,7 @@ export const gameActions = {
     const availableCardsCopy = [...gameStore.availableCards];
 
     // Select 2 random card for Player 2
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < totalCards; i++) {
       if (availableCardsCopy.length === 0) break;
 
       // Randomly select a card

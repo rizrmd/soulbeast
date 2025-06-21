@@ -31,8 +31,8 @@ const CardSelection = () => {
       pressed: false,
     },
     () => {
-      gameActions.selectRandomCards("player2");
-      gameActions.selectRandomCards("player1");
+      gameActions.selectRandomCards("player2", 2);
+      gameActions.selectRandomCards("player1", 2);
       gameActions.startBattle();
     }
   );
@@ -352,11 +352,6 @@ const CardSelection = () => {
                       local.render();
                     }}
                     onPointerUp={() => {
-                      console.log(
-                        "Ability selected:",
-                        ability.name,
-                        local.ability.hover
-                      );
                       if (local.ability.hover == ability.name) {
                         if (local.ability.selected === ability.name) {
                           local.ability.selected = "";

@@ -109,7 +109,7 @@ export const EnemyCard: FC<{
   };
 
   return (
-    <div className={cn("flex flex-col flex-1 relative enemy-card")}>
+    <div className={cn("flex flex-col flex-1 relative enemy-card max-w-[200px]")}>
       <motion.div
         animate={{ opacity: 1, x: 0 }}
         initial={{ opacity: 0, x: -100 }}
@@ -165,7 +165,7 @@ export const EnemyCard: FC<{
             </div>
           </div>
           <div className="text-white flex leading-0">
-            <sup className="text-xs -mt-[3px] pr-1">{hp.current}</sup>
+            <sup className="text-xs -mt-[3px] pr-1">{Math.ceil(hp.current)}</sup>
             <svg
               width="25"
               height="15"

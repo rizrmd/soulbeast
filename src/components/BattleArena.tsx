@@ -1,9 +1,13 @@
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import { useSnapshot } from "valtio";
 import { cn } from "../lib/cn";
 import { gameStore } from "../store/game-store";
 import { EnemyCard } from "./Card/EnemyCard";
 import { PlayerCard } from "./Card/PlayerCard";
+import { BattleEntity } from "../types";
+import { motion } from "motion/react";
+import { useLocal } from "../lib/use-local";
+
 export const BattleArena: FC = () => {
   const game = useSnapshot(gameStore);
   const entities = [...game.battleState!.entities.values()];
@@ -30,7 +34,7 @@ export const BattleArena: FC = () => {
           className="mt-[5px] ml-[0px]"
         />
       </div>
-      <div className={cn("gap-1 px-6 flex")}>
+      <div className={cn("gap-1 px-6 flex justify-center")}>
         {p2.map((e, idx) => (
           <EnemyCard key={e.id} idx={idx} />
         ))}
@@ -67,12 +71,71 @@ export const BattleArena: FC = () => {
           </div>
         )}
       </div>
-      <div className="flex flex-col">
+      <div className="relative">
+        <div className="absolute left-0 bottom-0 flex mb-2 flex-col gap-1">
+          {p1.map((entity, idx) => {
+            return <Casting entityId={entity.id} key={idx} />;
+          })}
+        </div>
+      </div>
+      <div className="flex flex-col relative">
         {p1.map((_, idx) => {
           return <PlayerCard idx={idx} key={idx} />;
         })}
       </div>
     </div>
+  );
+};
+
+const Casting = ({ entityId }: { entityId: string }) => {
+  const game = useSnapshot(gameStore);
+
+  const local = useLocal({
+    castTime: 0,
+    timer: null as any,
+  });
+  const entity = game.battleState?.entities.get(entityId);
+  const casting = entity?.currentCast;
+
+  useEffect(() => {
+    clearTimeout(local.timer);
+    if (casting) {
+      if (!local.castTime) {
+        local.castTime = casting?.timeRemaining;
+      }
+      local.timer = setInterval(() => {
+        local.render();
+      }, 100);
+    } else {
+      local.castTime = 0;
+    }
+    local.render();
+  }, [game.battleState?.events.length]);
+
+  if (!casting || !local.castTime) return null;
+  return (
+    <>
+      <div className="font-megrim lowercase pl-2">
+        <motion.div
+          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 30 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className="flex justify-between items-center mb-1"
+        >
+          <div className="font-bold leading-4">{casting.ability.name}</div>
+          <div className="text-xs font-texturina min-w-[30px] text-right ">
+            {Math.round(casting.timeRemaining * 10) / 10}
+          </div>
+        </motion.div>
+        <motion.div
+          className={cn("bg-amber-400  h-[2px]")}
+          animate={{
+            width: `${100 - Math.round((casting.timeRemaining / local.castTime) * 100)}%`,
+          }}
+          initial={{ width: "0%" }}
+        ></motion.div>
+      </div>
+    </>
   );
 };
 

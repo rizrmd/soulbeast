@@ -4,7 +4,7 @@ import { useSnapshot } from "valtio";
 import { DataLoader } from "../../engine/DataLoader";
 import { cn } from "../../lib/cn";
 import { useLocal } from "../../lib/use-local";
-import { gameStore } from "../../store/game-store";
+import { gameActions, gameStore } from "../../store/game-store";
 import { BattleEntity, SoulBeastUI } from "../../types";
 import { AbilityTable } from "../Card/AbilityInfo";
 
@@ -21,6 +21,21 @@ export const PlayerTarget: FC<{ card: SoulBeastUI }> = ({ card }) => {
   const enemy = entities.filter((e) => !e.id.startsWith(cur));
   const self = entities.find((e) => e.id === game.selectedEntity);
 
+  let cooldown = false;
+  const casting = self?.currentCast;
+
+  // Check if ability is in cooldown
+  const cooldownState = self?.abilityCooldowns.get(ability.name);
+  if (cooldownState) {
+    cooldown = true;
+  }
+
+  // Check if ability has initial delay
+  const initialState = self?.abilityInitiationTimes.get(ability.name);
+  if (initialState) {
+    cooldown = true;
+  }
+
   return (
     <>
       <motion.div
@@ -33,10 +48,12 @@ export const PlayerTarget: FC<{ card: SoulBeastUI }> = ({ card }) => {
       >
         <div
           className={cn("p-2 flex items-center mb-4")}
-          onClick={(e) => {
-            e.stopPropagation();
+          onPointerDown={(e) => {
             local.detail = !local.detail;
             local.render();
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
           }}
         >
           <img
@@ -67,18 +84,27 @@ export const PlayerTarget: FC<{ card: SoulBeastUI }> = ({ card }) => {
         <div className="h-[1px] mt-[5px] bg-gradient-to-r from-black/0 from-0% via-50% to-100% to-black/0 via-[#f9daab]"></div>
         <div className="relative flex items-center justify-center">
           <div className="absolute bg-black px-2 mt-[-5px] font-rocker font-black capitalize">
-            Pick Target: {ability.target.replace(/W/, ' ')}
+            Pick Target: {ability.target.replace(/W/, " ")}
           </div>
         </div>
         <div
           className={cn(
             !local.detail ? "min-h-[200px]" : " min-h-[150px]",
-            "flex flex-1 mt-5 border-t border-[#f9daab] justify-center transition-all ease-in-out"
+            "relative flex flex-1 mt-5 border-t border-[#f9daab] justify-center transition-all ease-in-out"
           )}
           onClick={(e) => {
             e.stopPropagation();
           }}
         >
+          {(cooldown || casting) && (
+            <div className="absolute inset-0 bg-black/60 flex items-center justify-center px-2 z-[40] font-rocker font-black capitalize">
+              {casting
+                ? "Casting " + casting.ability.name
+                : cooldown
+                  ? "Ability in Cooldown"
+                  : ""}
+            </div>
+          )}
           {ability.target.includes("enemy") &&
             enemy.map((e, idx) => {
               return (
@@ -86,6 +112,14 @@ export const PlayerTarget: FC<{ card: SoulBeastUI }> = ({ card }) => {
                   key={idx}
                   entity={e}
                   className={cn(idx >= 1 && "border-l border-[#f9daab]")}
+                  onClick={() => {
+                    gameActions.executeAbility(
+                      game.selectedEntity!,
+                      game.selectedAbility!,
+                      e.id
+                    );
+                    gameStore.selectedAbility = null;
+                  }}
                 />
               );
             })}
@@ -96,20 +130,42 @@ export const PlayerTarget: FC<{ card: SoulBeastUI }> = ({ card }) => {
                   key={idx}
                   entity={e}
                   className={cn(idx >= 1 && "border-l border-[#f9daab]")}
+                  onClick={() => {
+                    gameActions.executeAbility(
+                      game.selectedEntity!,
+                      game.selectedAbility!,
+                      e.id
+                    );
+                    gameStore.selectedAbility = null;
+                  }}
                 />
               );
             })}
-          {ability.target === "self" && <Portrait entity={self!} />}
+          {ability.target === "self" && (
+            <Portrait
+              entity={self!}
+              onClick={() => {
+                gameActions.executeAbility(
+                  game.selectedEntity!,
+                  game.selectedAbility!,
+                  self!.id
+                );
+                gameStore.selectedAbility = null;
+              }}
+              className="skew-x-[-10deg]"
+            />
+          )}
         </div>
       </motion.div>
     </>
   );
 };
 
-const Portrait: FC<{ entity: BattleEntity; className?: string }> = ({
-  entity,
-  className,
-}) => {
+const Portrait: FC<{
+  entity: BattleEntity;
+  className?: string;
+  onClick?: () => void;
+}> = ({ entity, className, onClick }) => {
   const local = useLocal(
     {
       card: null as null | SoulBeastUI,
@@ -128,8 +184,12 @@ const Portrait: FC<{ entity: BattleEntity; className?: string }> = ({
   return (
     <div
       className={cn("flex-1 overflow-hidden relative max-w-[50%]", className)}
+      onPointerDown={(e) => {
+        e.stopPropagation();
+        onClick?.();
+      }}
     >
-      <img src={card.image} className="absolute inset-0 " />
+      <img src={card.image} className="absolute inset-0 pointer-events-none " />
       <div className="flex flex-col p-2 absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-black/0 ">
         <div className="font-rocker text-shadow-2xs text-shadow-black">
           {card.name}
@@ -137,17 +197,19 @@ const Portrait: FC<{ entity: BattleEntity; className?: string }> = ({
         <div className="flex">
           <div className="flex-1 mr-1">
             <div className="border-[#f9daab] border p-[2px] skew-x-[-12deg]">
-              <motion.div
-                animate={{
-                  width: `${(Math.ceil(hp.current) / Math.ceil(hp.max)) * 100}%`,
-                }}
-                className="bg-[#f9daab] h-[2px] rounded-full"
-                transition={{ duration: 0.7 }}
-              ></motion.div>
+              <div
+                className={cn(
+                  "bg-[#f9daab] h-[2px] rounded-full",
+                  css`
+                    width: ${(Math.ceil(hp.current) / Math.ceil(hp.max)) *
+                    100}%;
+                  `
+                )}
+              ></div>
             </div>
           </div>
           <div className="text-white flex leading-0">
-            <sup className="text-xs -mt-[3px] pr-1">{hp.current}</sup>
+            <sup className="text-xs -mt-[3px] pr-1">{Math.ceil(hp.current)}</sup>
             <svg
               width="25"
               height="15"

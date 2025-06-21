@@ -5,7 +5,7 @@ import { useSnapshot } from "valtio";
 import { DataLoader } from "../../engine/DataLoader";
 import { cn } from "../../lib/cn";
 import { useLocal } from "../../lib/use-local";
-import { gameActions, gameStore } from "../../store/game-store";
+import { gameStore } from "../../store/game-store";
 import { BattleEntity, SoulBeastUI } from "../../types";
 import { useFlyingText } from "../Battle/FlyingText";
 import { PlayerTarget } from "../Battle/PlayerTarget";
@@ -56,6 +56,12 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
             icon: `/img/abilities/${event.ability?.emoji}.webp`,
           });
       });
+
+      entity.on("ability_used", (e) => {
+        if (e.source === `player1_card${idx}`) {
+          console.log(e.source, e.ability);
+        }
+      });
     }
   );
   useEffect(() => {
@@ -103,6 +109,7 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
     );
   }
 
+  const casting = entity.currentCast;
   return (
     <>
       {local.hover.card && (
@@ -114,6 +121,7 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
           }}
         ></div>
       )}
+
       <div className={cn("flex flex-col mb-4 relative player-card")}>
         {game.selectedEntity === entity.id && (
           <PlayerTarget card={local.card!} />
@@ -254,7 +262,8 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
                   `
                 )}
               >
-                <div className="flex text-black bg-white">
+                <div className="mb-1 flex text-black bg-white/90 skew-x-[-10deg] items-end justify-start">
+                 
                   {/* {JSON.stringify(entity.statusEffects)} */}
                 </div>
               </div>
@@ -265,6 +274,50 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
         <div className="flex h-[75px] mt-2">
           {card.abilities.map((ability, index) => {
             const selected = game.selectedAbility === ability.name;
+
+            let cooldown = 0;
+            let castTime = 0;
+
+            if (entity.abilityCooldowns.has(ability.name)) {
+              cooldown = entity.abilityCooldowns.get(ability.name)!;
+            }
+            if (entity.abilityInitiationTimes.has(ability.name)) {
+              cooldown = entity.abilityInitiationTimes.get(ability.name)!;
+            }
+
+            if (!cooldown) {
+              delete local.abilityStartTime[ability.name];
+            }
+
+            if (cooldown && !local.abilityStartTime[ability.name]) {
+              local.abilityStartTime[ability.name] = cooldown;
+            }
+
+            if (cooldown && !local.tick) {
+              local.tick = true;
+              setTimeout(() => local.render());
+            }
+
+            if (casting?.ability.name === ability.name) {
+              castTime = casting.timeRemaining;
+            }
+
+            if (castTime && !local.abilityCastTime[ability.name]) {
+              local.abilityCastTime[ability.name] = castTime;
+            }
+
+            if (!castTime) {
+              delete local.abilityCastTime[ability.name];
+            }
+
+            if (castTime && !local.tick) {
+              local.tick = true;
+              setTimeout(() => local.render());
+            }
+
+            const maxCooldown = local.abilityStartTime[ability.name];
+            const maxCasting = local.abilityCastTime[ability.name];
+
             return (
               <div
                 key={index}
@@ -315,12 +368,44 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
                         ? 0.9
                         : 1,
                   }}
+                  transition={{ duration: 0.2 }}
                   src={`/img/abilities/${ability.emoji}.webp`}
                   className={cn(
-                    "w-full h-full object-cover pointer-events-none",
-                    !selected && "rounded-xl"
+                    "w-full  h-full object-cover pointer-events-none transition-all",
+                    !selected ? "rounded-xl" : "rounded-[4px]",
+                    maxCasting && "border-3 border-amber-400",
+                    maxCooldown && "opacity-50"
                   )}
                 />
+
+                {maxCooldown && (
+                  <>
+                    {cooldown && (
+                      <div
+                        className={cn(
+                          "absolute bottom-[33px] h-[3px] left-2 right-2 flex justify-end "
+                        )}
+                      >
+                        <motion.div
+                          animate={{
+                            width: `calc(${Math.round((cooldown / maxCooldown) * 100)}% )`,
+                          }}
+                          initial={{ width: "100%" }}
+                          className="bg-white  h-full"
+                        ></motion.div>
+                      </div>
+                    )}
+
+                    <div
+                      className={cn(
+                        "absolute  text-black text-xs bg-white/70  flex flex-col items-center justify-center pb-1",
+                        "h-[25px] leading-0 left-2 bottom-2 right-2 rounded-b-xl"
+                      )}
+                    >
+                      <>{Math.round(cooldown * 10) / 10}</>
+                    </div>
+                  </>
+                )}
               </div>
             );
           })}
