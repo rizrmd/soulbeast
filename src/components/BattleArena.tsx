@@ -94,25 +94,40 @@ const Casting = ({ entityId }: { entityId: string }) => {
     {
       castTime: 0,
       timer: null as any,
-      interrupted: false,
-      interruptedBy: "",
-      interruptedAbility: "",
+      interrupted: false as false | { by: string; ability: string },
       interruptTimeout: null as any,
     },
     () => {
-      entity?.on("cast_start", () => {
-        clearTimeout(local.interruptTimeout);
-        local.interrupted = false;
-        local.render();
+      entity?.on("cast_start", (event) => {
+        if (event.source === entityId) {
+          clearTimeout(local.timer);
+          local.castTime = event.ability?.castTime!;
+          local.timer = setInterval(() => {
+            local.render();
+          }, 100);
+          clearTimeout(local.interruptTimeout);
+          local.interrupted = false;
+          local.render();
+        }
+      });
+      entity?.on("cast_complete", (event) => {
+        if (event.source === entityId) {
+          clearTimeout(local.timer);
+          clearTimeout(local.interruptTimeout);
+          local.interrupted = false;
+          local.render();
+        }
       });
       entity?.on("cast_interrupted", (event) => {
         if (event.target === entityId) {
-          local.interrupted = true;
-          local.interruptedBy = event.source;
-          local.interruptedAbility = event.ability?.name || "";
+          local.interrupted = {
+            by: event.source,
+            ability: event.ability?.name || "",
+          };
           local.render();
 
-          // Clear interrupted state after 1 second
+          clearTimeout(local.timer);
+          // Clear interrupted state after 2.5 seconds
           clearTimeout(local.interruptTimeout);
           local.interruptTimeout = setTimeout(() => {
             local.interrupted = false;
@@ -125,31 +140,8 @@ const Casting = ({ entityId }: { entityId: string }) => {
   const entity = game.battleState?.entities.get(entityId);
   const casting = entity?.currentCast;
 
-  useEffect(() => {
-    clearTimeout(local.timer);
-    if (casting) {
-      // If there's a new cast, clear interrupted state immediately
-      if (local.interrupted) {
-        local.interrupted = false;
-        clearTimeout(local.interruptTimeout);
-      }
-      if (!local.castTime) {
-        local.castTime = casting?.timeRemaining;
-      }
-      local.timer = setInterval(() => {
-        local.render();
-      }, 100);
-    } else if (!local.interrupted) {
-      local.castTime = 0;
-    }
-    local.render();
-  }, [game.battleState?.events.length]);
+  if (!casting && !local.interrupted) return null;
 
-  if (
-    (!casting && !local.interrupted) ||
-    (!local.castTime && !local.interrupted)
-  )
-    return null;
   return (
     <>
       <div className="font-megrim lowercase pl-2">
@@ -164,13 +156,13 @@ const Casting = ({ entityId }: { entityId: string }) => {
         >
           <div className="font-bold leading-4">
             {local.interrupted
-              ? local.interruptedAbility
+              ? local.interrupted.ability
               : casting?.ability.name}
           </div>
           {local.interrupted ? (
             <div className="font-texturina text-sm leading-4 text-red-500 capitalize">
               Interrupted By{" "}
-              {game.battleState?.entities.get(local.interruptedBy)?.character
+              {game.battleState?.entities.get(local.interrupted.by)?.character
                 .name || "unknown"}
             </div>
           ) : (
