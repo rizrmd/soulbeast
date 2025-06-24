@@ -59,7 +59,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
     abilities: [
       {
         name: "Nightmare Frost",
-        slug: "❄️",
+        slug: "nightmare-frost",
         type: "quick",
         cooldown: 3,
         damage: 18,
@@ -72,7 +72,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Crystal Prison",
-        slug: "💎",
+        slug: "crystal-prison",
         type: "power",
         cooldown: 8,
         damage: 25,
@@ -85,7 +85,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Abyssal Tide",
-        slug: "🌊",
+        slug: "abyssal-tide",
         type: "power",
         cooldown: 10,
         damage: 35,
@@ -100,7 +100,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Nightmare Hunt",
-        slug: "�",
+        slug: "nightmare-hunt",
         type: "ultimate",
         cooldown: 25,
         damage: 60,
@@ -114,7 +114,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Demonic Haste",
-        slug: "💨",
+        slug: "demonic-haste",
         type: "passive",
         cooldown: 0,
         damage: 0,
@@ -127,7 +127,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Ice Shard",
-        slug: "🧊",
+        slug: "ice-shard",
         type: "quick",
         cooldown: 2,
         damage: 12,
@@ -140,7 +140,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Glacial Armor",
-        slug: "🛡️",
+        slug: "glacial-armor",
         type: "power",
         cooldown: 12,
         damage: 0,
@@ -153,7 +153,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Frozen Wake",
-        slug: "🌊",
+        slug: "frozen-wake",
         type: "power",
         cooldown: 9,
         damage: 28,
@@ -168,7 +168,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Permafrost",
-        slug: "🥶",
+        slug: "permafrost",
         type: "passive",
         cooldown: 0,
         damage: 0,
@@ -181,7 +181,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Shatter",
-        slug: "💥",
+        slug: "shatter",
         type: "power",
         cooldown: 10,
         damage: 50,
@@ -244,7 +244,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
     abilities: [
       {
         name: "Flame Slash",
-        slug: "🔥",
+        slug: "flame-slash",
         type: "quick",
         cooldown: 2,
         damage: 22,
@@ -257,7 +257,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Demonic Roar",
-        slug: "😈",
+        slug: "demonic-roar",
         type: "power",
         cooldown: 9,
         damage: 15,
@@ -270,7 +270,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Infernal Execution",
-        slug: "⚔️",
+        slug: "infernal-execution",
         type: "power",
         cooldown: 12,
         damage: 45,
@@ -284,7 +284,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Rose of Destruction",
-        slug: "🌹",
+        slug: "rose-of-destruction",
         type: "ultimate",
         cooldown: 30,
         damage: 70,
@@ -298,7 +298,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Burning Blood",
-        slug: "🩸",
+        slug: "burning-blood",
         type: "passive",
         cooldown: 0,
         damage: 0,
@@ -312,7 +312,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Cauterize",
-        slug: "🩹",
+        slug: "cauterize",
         type: "quick",
         cooldown: 8,
         damage: 0,
@@ -325,7 +325,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Raging Beast",
-        slug: "👹",
+        slug: "raging-beast",
         type: "power",
         cooldown: 10,
         damage: 0,
@@ -338,7 +338,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Scent of Blood",
-        slug: "👃",
+        slug: "scent-of-blood",
         type: "passive",
         cooldown: 0,
         damage: 0,
@@ -351,7 +351,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Fire Wall",
-        slug: "🧱",
+        slug: "fire-wall",
         type: "power",
         cooldown: 15,
         damage: 15,
@@ -365,7 +365,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Reckless Charge",
-        slug: "🏃",
+        slug: "reckless-charge",
         type: "quick",
         cooldown: 5,
         damage: 30,
@@ -424,7 +424,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
     abilities: [
       {
         name: "Stone Shard",
-        slug: "🪨",
+        slug: "stone-shard",
         type: "quick",
         cooldown: 3,
         damage: 20,
@@ -437,7 +437,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Molten Boulder",
-        slug: "🌋",
+        slug: "molten-boulder",
         type: "power",
         cooldown: 8,
         damage: 40,
@@ -450,7 +450,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Bone Armor",
-        slug: "🦴",
+        slug: "bone-armor",
         type: "power",
         cooldown: 10,
         damage: 0,
@@ -466,7 +466,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Ancient Eruption",
-        slug: "🔴",
+        slug: "ancient-eruption",
         type: "ultimate",
         cooldown: 28,
         damage: 65,
@@ -480,7 +480,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Fossilize",
-        slug: "🗿",
+        slug: "fossilize",
         type: "passive",
         cooldown: 0,
         damage: 0,
@@ -494,7 +494,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Earthquake",
-        slug: "🌍",
+        slug: "earthquake",
         type: "power",
         cooldown: 12,
         damage: 30,
@@ -507,7 +507,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Magma Spit",
-        slug: "🔥",
+        slug: "magma-spit",
         type: "quick",
         cooldown: 4,
         damage: 15,
@@ -520,7 +520,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Petrifying Gaze",
-        slug: "👀",
+        slug: "petrifying-gaze",
         type: "power",
         cooldown: 15,
         damage: 10,
@@ -534,7 +534,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Demonic Core",
-        slug: "😈",
+        slug: "demonic-core",
         type: "passive",
         cooldown: 0,
         damage: 0,
@@ -549,7 +549,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Unearth",
-        slug: "⛏️",
+        slug: "unearth",
         type: "power",
         cooldown: 20,
         damage: 0,
@@ -592,7 +592,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
     abilities: [
       {
         name: "Spore Burst",
-        slug: "🌿",
+        slug: "spore-burst",
         type: "quick",
         cooldown: 3,
         damage: 20,
@@ -605,7 +605,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Mycelium Network",
-        slug: "🕸️",
+        slug: "mycelium-network",
         type: "power",
         cooldown: 9,
         damage: 28,
@@ -618,7 +618,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Soul Absorb",
-        slug: "😈",
+        slug: "soul-absorb",
         type: "power",
         cooldown: 12,
         damage: 25,
@@ -632,7 +632,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Fungal Nightmare",
-        slug: "🧠",
+        slug: "fungal-nightmare",
         type: "ultimate",
         cooldown: 30,
         damage: 70,
@@ -647,7 +647,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Toxic Aura",
-        slug: "☣️",
+        slug: "toxic-aura",
         type: "passive",
         cooldown: 0,
         damage: 0,
@@ -660,7 +660,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Rapid Growth",
-        slug: "🌱",
+        slug: "rapid-growth",
         type: "power",
         cooldown: 10,
         damage: 0,
@@ -676,7 +676,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Hallucinogenic Haze",
-        slug: "😵",
+        slug: "hallucinogenic-haze",
         type: "power",
         cooldown: 14,
         damage: 10,
@@ -690,7 +690,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Parasitic Spore",
-        slug: "🦠",
+        slug: "parasitic-spore",
         type: "quick",
         cooldown: 5,
         damage: 15,
@@ -703,7 +703,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Symbiosis",
-        slug: "🤝",
+        slug: "symbiosis",
         type: "passive",
         cooldown: 0,
         damage: 0,
@@ -717,7 +717,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Decompose",
-        slug: "💀",
+        slug: "decompose",
         type: "power",
         cooldown: 11,
         damage: 20,
@@ -766,7 +766,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
     abilities: [
       {
         name: "Savage Splash",
-        slug: "💦",
+        slug: "savage-splash",
         type: "quick",
         cooldown: 3,
         damage: 19,
@@ -779,7 +779,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Dimensional Bite",
-        slug: "🕳️",
+        slug: "dimensional-bite",
         type: "power",
         cooldown: 9,
         damage: 35,
@@ -793,7 +793,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Terror Howl",
-        slug: "😱",
+        slug: "terror-howl",
         type: "power",
         cooldown: 11,
         damage: 20,
@@ -806,7 +806,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Void Tsunami",
-        slug: "🌊",
+        slug: "void-tsunami",
         type: "ultimate",
         cooldown: 26,
         damage: 75,
@@ -820,7 +820,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Phase Shift",
-        slug: "👻",
+        slug: "phase-shift",
         type: "passive",
         cooldown: 0,
         damage: 0,
@@ -834,7 +834,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Aqua Jet",
-        slug: "💧",
+        slug: "aqua-jet",
         type: "quick",
         cooldown: 4,
         damage: 22,
@@ -847,7 +847,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Regenerative Torpor",
-        slug: "😴",
+        slug: "regenerative-torpor",
         type: "power",
         cooldown: 15,
         damage: 0,
@@ -860,7 +860,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Unstable Rift",
-        slug: "🌀",
+        slug: "unstable-rift",
         type: "power",
         cooldown: 12,
         damage: 30,
@@ -874,7 +874,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Beast of the Depths",
-        slug: "👹",
+        slug: "beast-of-the-depths",
         type: "passive",
         cooldown: 0,
         damage: 0,
@@ -887,7 +887,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Drown",
-        slug: "💀",
+        slug: "drown",
         type: "power",
         cooldown: 10,
         damage: 15,
@@ -930,8 +930,8 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
         name: "Rift Manipulator",
         description:
           "Control the battlefield by displacing and silencing your enemies.",
-        abilities: ["Void Tsunami", "Unstable Rift", "Drown", "Savage Splash"],
-        totalCost: 17,
+        abilities: ["Void Tsunami", "Unstable Rift", "Drown"],
+        totalCost: 15,
       },
     ],
   },
@@ -942,7 +942,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
     abilities: [
       {
         name: "Mind Lash",
-        slug: "🧠",
+        slug: "mind-lash",
         type: "quick",
         cooldown: 3,
         damage: 20,
@@ -955,7 +955,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Bestial Surge",
-        slug: "🐾",
+        slug: "bestial-surge",
         type: "power",
         cooldown: 10,
         damage: 0,
@@ -968,7 +968,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Abyssal Drain",
-        slug: "🩸",
+        slug: "abyssal-drain",
         type: "power",
         cooldown: 10,
         damage: 32,
@@ -982,7 +982,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Mind Break",
-        slug: "💥",
+        slug: "mind-break",
         type: "ultimate",
         cooldown: 24,
         damage: 65,
@@ -996,7 +996,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Psychic Barrier",
-        slug: "🛡️",
+        slug: "psychic-barrier",
         type: "passive",
         cooldown: 0,
         damage: 0,
@@ -1010,7 +1010,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Tidal Slash",
-        slug: "🌊",
+        slug: "tidal-slash",
         type: "quick",
         cooldown: 4,
         damage: 25,
@@ -1023,7 +1023,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Demon's Guile",
-        slug: "😈",
+        slug: "demons-guile",
         type: "power",
         cooldown: 12,
         damage: 0,
@@ -1036,7 +1036,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Mental Fog",
-        slug: "🌫️",
+        slug: "mental-fog",
         type: "power",
         cooldown: 15,
         damage: 15,
@@ -1050,7 +1050,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Calamity Howl",
-        slug: "🐺",
+        slug: "calamity-howl",
         type: "power",
         cooldown: 11,
         damage: 28,
@@ -1063,7 +1063,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Mind Reader",
-        slug: "👁️",
+        slug: "mind-reader",
         type: "passive",
         cooldown: 0,
         damage: 0,
@@ -1090,11 +1090,10 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
         abilities: [
           "Abyssal Drain",
           "Psychic Barrier",
-          "Mind Reader",
           "Demon's Guile",
           "Mind Lash",
         ],
-        totalCost: 16,
+        totalCost: 15,
       },
       {
         name: "Pack Hunter",
@@ -1103,12 +1102,11 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
           "Bestial Surge",
           "Tidal Slash",
           "Mind Lash",
-          "Mind Reader",
           "Calamity Howl",
           "Demon's Guile",
         ],
-        totalCost: 18,
-      }, // Over budget, fixing.
+        totalCost: 16,
+      },
     ],
   },
   Astrix: {
@@ -1118,7 +1116,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
     abilities: [
       {
         name: "Void Wind",
-        slug: "💨",
+        slug: "void-wind",
         type: "quick",
         cooldown: 2,
         damage: 21,
@@ -1131,7 +1129,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Divine Punishment",
-        slug: "⚡",
+        slug: "divine-punishment",
         type: "power",
         cooldown: 9,
         damage: 38,
@@ -1145,7 +1143,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Stellar Dash",
-        slug: "⭐",
+        slug: "stellar-dash",
         type: "power",
         cooldown: 7,
         damage: 25,
@@ -1158,7 +1156,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Paradox Storm",
-        slug: "🌀",
+        slug: "paradox-storm",
         type: "ultimate",
         cooldown: 29,
         damage: 65,
@@ -1172,7 +1170,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Cosmic Balance",
-        slug: "⚖️",
+        slug: "cosmic-balance",
         type: "passive",
         cooldown: 0,
         damage: 0,
@@ -1186,7 +1184,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Starfall",
-        slug: "🌠",
+        slug: "starfall",
         type: "quick",
         cooldown: 5,
         damage: 18,
@@ -1199,7 +1197,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Void Jaunt",
-        slug: "🌌",
+        slug: "void-jaunt",
         type: "power",
         cooldown: 10,
         damage: 0,
@@ -1212,7 +1210,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Zephyr's Blessing",
-        slug: "🍃",
+        slug: "zephyrs-blessing",
         type: "power",
         cooldown: 12,
         damage: 0,
@@ -1225,7 +1223,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Gravity Well",
-        slug: "🕳️",
+        slug: "gravity-well",
         type: "power",
         cooldown: 14,
         damage: 20,
@@ -1238,7 +1236,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Entropic Touch",
-        slug: "💀",
+        slug: "entropic-touch",
         type: "passive",
         cooldown: 0,
         damage: 0,
@@ -1261,17 +1259,16 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
           "Divine Punishment",
           "Starfall",
           "Zephyr's Blessing",
-          "Entropic Touch",
         ],
-        totalCost: 17,
-      }, // Over budget, fixing.
+        totalCost: 13,
+      },
       {
         name: "Balanced Paradox",
         description:
           "Utilizes both Divine and Demonic aspects for a versatile and resilient build.",
-        abilities: ["Paradox Storm", "Cosmic Balance", "Void Wind", "Starfall"],
-        totalCost: 18,
-      }, // Over budget, fixing.
+        abilities: ["Paradox Storm", "Cosmic Balance", "Void Wind"],
+        totalCost: 16,
+      },
       {
         name: "Evasive Striker",
         description:
@@ -1287,6 +1284,4 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
     ],
   },
-  // All other soulbeasts would be filled in here with corrected configurations.
-  // Due to space constraints and to demonstrate the correction process, I will provide the fully corrected file.
 };

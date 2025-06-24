@@ -1,6 +1,19 @@
-# Triarcane Battle - Card Battle Game
+# SoulBeast
 
-A real-time card battle game built with React, TypeScript, and Valtio for state management. Battle with elemental creatures in an interactive arena!
+A real-time card battle game built with React 19, TypeScript, and Valtio.
+
+## Features
+
+- Real-time card battle system
+- Elemental creature combat
+- Advanced ability system
+- AI image generation via MCP server integration
+
+## MCP Server Integration
+
+This project includes an Imagen 3.0 MCP server for AI image generation. See [MCP_SETUP.md](./MCP_SETUP.md) for configuration instructions.
+
+## Additional Features
 
 ## Features
 
