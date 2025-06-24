@@ -45,7 +45,7 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
             color: "#ff4444",
             value: `${event.value}`,
             title: event.ability?.name,
-            icon: `/img/abilities/${event.ability?.emoji}.webp`,
+            icon: `/img/abilities/${event.ability?.slug}.webp`,
           });
         }
         local.render();
@@ -57,7 +57,7 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
             color: "#08ab08",
             value: `${event.value}`,
             title: event.ability?.name,
-            icon: `/img/abilities/${event.ability?.emoji}.webp`,
+            icon: `/img/abilities/${event.ability?.slug}.webp`,
           });
         }
         local.render();
@@ -365,7 +365,7 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
                 }}
                 onPointerDown={(e) => {
                   e.stopPropagation();
-                  local.hover.ability = ability.emoji;
+                  local.hover.ability = ability.slug;
                   local.render();
                 }}
                 onPointerUp={(e) => {
@@ -399,12 +399,12 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
                 <motion.img
                   animate={{
                     scale:
-                      local.hover.ability === ability.emoji || selected
+                      local.hover.ability === ability.slug || selected
                         ? 0.9
                         : 1,
                   }}
                   transition={{ duration: 0.2 }}
-                  src={`/img/abilities/${ability.emoji}.webp`}
+                  src={`/img/abilities/${ability.slug}.webp`}
                   className={cn(
                     "w-full  h-full object-cover pointer-events-none transition-all",
                     !selected ? "rounded-xl" : "rounded-[4px]",

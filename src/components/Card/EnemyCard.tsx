@@ -86,7 +86,7 @@ export const EnemyCard: FC<{
             color: "#ff4444",
             value: `${event.value}`,
             title: event.ability?.name,
-            icon: `/img/abilities/${event.ability?.emoji}.webp`,
+            icon: `/img/abilities/${event.ability?.slug}.webp`,
           });
         }
         local.render();
@@ -98,7 +98,7 @@ export const EnemyCard: FC<{
             color: "#08ab08",
             value: `${event.value}`,
             title: event.ability?.name,
-            icon: `/img/abilities/${event.ability?.emoji}.webp`,
+            icon: `/img/abilities/${event.ability?.slug}.webp`,
           });
         }
         local.render();
@@ -295,7 +295,7 @@ export const EnemyCard: FC<{
                 className={cn(" flex-1")}
                 onPointerDown={(e) => {
                   e.stopPropagation();
-                  local.hover.ability = ability.emoji;
+                  local.hover.ability = ability.slug;
                   local.render();
                 }}
                 onPointerUp={(e) => {
@@ -311,8 +311,8 @@ export const EnemyCard: FC<{
                   local.render();
                 }}
                 animate={{
-                  scale: local.hover.ability === ability.emoji ? 0.9 : 1,
-                  opacity: local.hover.ability === ability.emoji ? 0.8 : 1,
+                  scale: local.hover.ability === ability.slug ? 0.9 : 1,
+                  opacity: local.hover.ability === ability.slug ? 0.8 : 1,
                 }}
               >
                 <motion.div
@@ -327,13 +327,13 @@ export const EnemyCard: FC<{
                   <div
                     className={cn(
                       css`
-                        background-image: url("/img/abilities/${ability.emoji}.webp");
+                        background-image: url("/img/abilities/${ability.slug}.webp");
                         background-size: 100%;
                         background-repeat: no-repeat;
                       `,
                       "skew-x-[-10deg] w-full h-full flex flex-col items-end py-[2px] px-[2px] relative",
                       cooldown && !maxCasting && "border-b-2 border-b-white",
-                      local.hover.ability === ability.emoji
+                      local.hover.ability === ability.slug
                         ? "border border-blue-50"
                         : "",
                       maxCasting && "border-4 border-amber-400"

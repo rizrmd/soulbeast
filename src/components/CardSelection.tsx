@@ -140,7 +140,7 @@ const CardSelection = () => {
                 key={index}
                 onPointerDown={(e) => {
                   e.stopPropagation();
-                  local.hover = card.name;
+                  local.hover = card.name as string;
                   local.render();
                 }}
                 ref={(e) => {
@@ -350,7 +350,7 @@ const CardSelection = () => {
                     }}
                     className={cn(
                       css`
-                        background-image: url("/img/abilities/${ability.emoji}.webp");
+                        background-image: url("/img/abilities/${ability.slug}.webp");
                         background-size: cover;
                       `,
                       "w-full h-full flex-1 rounded-2xl absolute z-[8] border-amber-200"

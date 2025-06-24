@@ -57,7 +57,7 @@ export const PlayerTarget: FC<{ card: SoulBeastUI }> = ({ card }) => {
           }}
         >
           <img
-            src={`/img/abilities/${ability.emoji}.webp`}
+            src={`/img/abilities/${ability.slug}.webp`}
             className="w-[100px] h-[100px] object-cover pointer-events-none rounded-xl"
           />
           <div className={cn("flex-1 flex flex-col", !local.detail && "pl-3")}>

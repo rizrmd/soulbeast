@@ -20,7 +20,7 @@ export interface Character {
 
 export interface Ability {
   name: string;
-  emoji: string;
+  slug: string;
   type: "quick" | "power" | "ultimate";
   cooldown: number;
   damage: number;

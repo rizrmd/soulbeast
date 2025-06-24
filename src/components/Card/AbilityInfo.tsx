@@ -44,7 +44,7 @@ const AbilityInfo: FC<AbilityInfoProps> = ({
             <div className="relative mt-5">
               <BoxCorner />
               <img
-                src={`/img/abilities/${ability.emoji}.webp`}
+                src={`/img/abilities/${ability.slug}.webp`}
                 className="w-[200px] h-[200px] pointer-events-none border border-amber-100"
                 alt={ability.name}
               />

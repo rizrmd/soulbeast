@@ -82,7 +82,7 @@ const StatusIcon: React.FC<StatusIconProps> = ({
             animate={{ opacity: 1, y: 0 }}
           >
             <img
-              src={`/img/abilities/${effect.ability?.emoji}.webp`}
+              src={`/img/abilities/${effect.ability?.slug}.webp`}
               alt={effect.name}
               className="w-6 h-6 object-contain"
             />
