@@ -113,6 +113,8 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
   }
 
   const casting = entity.currentCast;
+  const isDead = entity.hp <= 0;
+
   return (
     <>
       {local.hover.card && (
@@ -136,42 +138,56 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
               {card.name}
             </div>
             <div className="flex gap-p px-2 flex-col items-stretch w-[150px] relative">
-              <div className="flex-1 mr-1 skew-x-[50deg]">
-                <div className="border-[#f9daab] border p-[2px]">
-                  <motion.div
-                    animate={{
-                      width: `${(Math.ceil(hp.current) / Math.ceil(hp.max)) * 100}%`,
-                    }}
-                    transition={{ duration: 0.7 }}
-                    className="bg-[#f9daab] h-[2px] rounded-full "
-                  ></motion.div>
+              {isDead && (
+                <div className="flex flex-col items-stretch w-full">
+                  <div className="h-[1px] mt-[5px] bg-gradient-to-r from-black/0 from-0% via-50% to-100% to-black/0 via-[#f9daab] w-full"></div>
+                  <div className="relative flex items-center justify-center w-full">
+                    <div className="absolute bg-black px-2 mt-[-5px] font-rocker text-[#f9daab] text-sm font-black capitalize">
+                      Dead
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div
-                className={cn(
-                  "flex justify-between absolute -right-[42px] -bottom-[7px]",
-                  local.hover.card ? "z-[22]" : "z-[3] "
-                )}
-              >
-                <div></div>
-                <div className="text-white flex leading-0">
-                  <sup className="text-xs pr-1 w-[23px] text-right">
-                    {Math.ceil(hp.current)}
-                  </sup>
-                  <svg
-                    width="25"
-                    height="15"
-                    viewBox="0 0 25 15"
-                    fill="none"
-                    className="absolute ml-[10px] opacity-55"
-                    xmlns="http://www.w3.org/2000/svg"
+              )}
+              {!isDead && (
+                <>
+                  <div className="flex-1 mr-1 skew-x-[50deg]">
+                    <div className="border-[#f9daab] border p-[2px]">
+                      <motion.div
+                        animate={{
+                          width: `${(Math.ceil(hp.current) / Math.ceil(hp.max)) * 100}%`,
+                        }}
+                        transition={{ duration: 0.7 }}
+                        className="bg-[#f9daab] h-[2px] rounded-full "
+                      ></motion.div>
+                    </div>
+                  </div>
+                  <div
+                    className={cn(
+                      "flex justify-between absolute -right-[42px] -bottom-[7px]",
+                      local.hover.card ? "z-[22]" : "z-[3] "
+                    )}
                   >
-                    <path d="M1 14L24 1" stroke="#f9daab" />
-                  </svg>
+                    <div></div>
+                    <div className="text-white flex leading-0">
+                      <sup className="text-xs pr-1 w-[23px] text-right">
+                        {Math.ceil(hp.current)}
+                      </sup>
+                      <svg
+                        width="25"
+                        height="15"
+                        viewBox="0 0 25 15"
+                        fill="none"
+                        className="absolute ml-[10px] opacity-55"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path d="M1 14L24 1" stroke="#f9daab" />
+                      </svg>
 
-                  <sub className="text-xs"> {hp.max}</sub>
-                </div>
-              </div>
+                      <sub className="text-xs"> {hp.max}</sub>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
           <div

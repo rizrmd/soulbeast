@@ -1,12 +1,11 @@
-import { FC, useEffect } from "react";
+import { motion } from "motion/react";
+import { FC } from "react";
 import { useSnapshot } from "valtio";
 import { cn } from "../lib/cn";
 import { gameStore } from "../store/game-store";
 import { EnemyCard } from "./Card/EnemyCard";
 import { PlayerCard } from "./Card/PlayerCard";
-import { BattleEntity } from "../types";
-import { motion } from "motion/react";
-import { useLocal } from "../lib/use-local";
+import { PlayerCasting } from "./Battle/PlayerCasting";
 
 export const BattleArena: FC = () => {
   const game = useSnapshot(gameStore);
@@ -74,115 +73,30 @@ export const BattleArena: FC = () => {
       <div className="relative">
         <div className="absolute left-0 bottom-0 flex mb-2 flex-col gap-1">
           {p1.map((entity, idx) => {
-            return <Casting entityId={entity.id} key={idx} />;
+            return <PlayerCasting entityId={entity.id} key={idx} />;
           })}
         </div>
       </div>
       <div className="flex flex-col relative">
         {p1.map((_, idx) => {
-          return <PlayerCard idx={idx} key={idx} />;
+          return (
+            <motion.div
+              transition={{
+                delay: idx * 0.5,
+                duration: 1,
+                ease: "circOut",
+              }}
+              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, x: idx != 0 ? -100 : 100 }}
+              className="flex flex-col relative"
+              key={idx}
+            >
+              <PlayerCard idx={idx} />
+            </motion.div>
+          );
         })}
       </div>
     </div>
   );
 };
-
-const Casting = ({ entityId }: { entityId: string }) => {
-  const game = useSnapshot(gameStore);
-
-  const local = useLocal(
-    {
-      castTime: 0,
-      timer: null as any,
-      interrupted: false as false | { by: string; ability: string },
-      interruptTimeout: null as any,
-    },
-    () => {
-      entity?.on("cast_start", (event) => {
-        if (event.source === entityId) {
-          clearTimeout(local.timer);
-          local.castTime = event.ability?.castTime!;
-          local.timer = setInterval(() => {
-            local.render();
-          }, 100);
-          clearTimeout(local.interruptTimeout);
-          local.interrupted = false;
-          local.render();
-        }
-      });
-      entity?.on("cast_complete", (event) => {
-        if (event.source === entityId) {
-          clearTimeout(local.timer);
-          clearTimeout(local.interruptTimeout);
-          local.interrupted = false;
-          local.render();
-        }
-      });
-      entity?.on("cast_interrupted", (event) => {
-        if (event.target === entityId) {
-          local.interrupted = {
-            by: event.source,
-            ability: event.ability?.name || "",
-          };
-          local.render();
-
-          clearTimeout(local.timer);
-          // Clear interrupted state after 2.5 seconds
-          clearTimeout(local.interruptTimeout);
-          local.interruptTimeout = setTimeout(() => {
-            local.interrupted = false;
-            local.render();
-          }, 2500);
-        }
-      });
-    }
-  );
-  const entity = game.battleState?.entities.get(entityId);
-  const casting = entity?.currentCast;
-
-  if (!casting && !local.interrupted) return null;
-
-  return (
-    <>
-      <div className="font-megrim lowercase pl-2">
-        <motion.div
-          animate={{ opacity: 1, y: 0 }}
-          initial={{ opacity: 0, y: 30 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-          className={cn(
-            "flex justify-between  mb-1",
-            local.interrupted ? "flex-col" : "items-center"
-          )}
-        >
-          <div className="font-bold leading-4">
-            {local.interrupted
-              ? local.interrupted.ability
-              : casting?.ability.name}
-          </div>
-          {local.interrupted ? (
-            <div className="font-texturina text-sm leading-4 text-red-500 capitalize">
-              Interrupted By{" "}
-              {game.battleState?.entities.get(local.interrupted.by)?.character
-                .name || "unknown"}
-            </div>
-          ) : (
-            <div className="text-xs font-texturina min-w-[30px] text-right ">
-              {casting && Math.round(casting.timeRemaining * 10) / 10}
-            </div>
-          )}
-        </motion.div>
-        {!local.interrupted && (
-          <motion.div
-            className={cn("bg-amber-400 h-[2px]")}
-            animate={{
-              width: `${100 - Math.round(((casting?.timeRemaining || 0) / local.castTime) * 100)}%`,
-            }}
-            initial={{ width: "0%" }}
-          ></motion.div>
-        )}
-      </div>
-    </>
-  );
-};
-
 export default BattleArena;
