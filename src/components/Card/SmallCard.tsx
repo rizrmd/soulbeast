@@ -4,6 +4,8 @@ import { DataLoader } from "../../engine/DataLoader";
 import { useLocal } from "../../lib/use-local";
 import { SoulBeastName } from "../../types";
 
+const selsize = { w: 0, h: 0 };
+
 export const SmallCard: FC<{
   cardName?: SoulBeastName;
   variant?: "regular" | "radial";
@@ -14,7 +16,6 @@ export const SmallCard: FC<{
   const local = useLocal({
     clicked: false,
     selected: null as unknown as boolean,
-    selsize: { w: 0, h: 0 },
   });
   const card = (cardName && DataLoader.getSoulBeast(cardName)) || {
     abilities: [],
@@ -35,7 +36,7 @@ export const SmallCard: FC<{
   return (
     <motion.div
       className={cn(
-        "flex flex-1 rounded-3xl relative flex-col items-center",
+        "flex flex-1 rounded-3xl relative flex-col items-center max-w-[240px]",
         css`
           background-image: url("${card.image}");
           background-size: cover;
@@ -67,7 +68,7 @@ export const SmallCard: FC<{
         className={cn(
           "absolute top-0 w-[80%] pointer-events-none",
           css`
-            margin-top: -${local.selsize.h / 2}px;
+            margin-top: -${selsize.h / 2}px;
           `
         )}
         animate={{
@@ -79,11 +80,11 @@ export const SmallCard: FC<{
         ref={(e) => {
           let render = false;
           if (e?.offsetHeight) {
-            local.selsize.h = e.offsetHeight;
+            selsize.h = e.offsetHeight;
             render = true;
           }
           if (e?.offsetWidth) {
-            local.selsize.w = e.offsetWidth;
+            selsize.w = e.offsetWidth;
             render = true;
           }
           if (render) {
@@ -96,11 +97,13 @@ export const SmallCard: FC<{
         className={cn(
           "self-stretch flex-1 rounded-3xl flex flex-col items-center justify-end leading-0 pb-5",
           variant === "regular" &&
-            "bg-gradient-to-t from-black/90 from-15% to-80% to-slate-50/0",
+            "bg-gradient-to-t from-black from-15% to-80% to-slate-50/0",
           variant === "radial" && "bg-conic-90 from-black/80 to-black/0"
         )}
       >
-        <div className="font-rocker text-xl leading-4 text-shadow-black text-shadow-sm">{card.name}</div>
+        <div className="font-rocker text-xl leading-4 text-shadow-black text-shadow-sm">
+          {card.name}
+        </div>
         {card.title && (
           <div className="text-[13px] leading-5 ">{card.title}</div>
         )}
@@ -111,7 +114,7 @@ export const SmallCard: FC<{
         className={cn(
           "absolute bottom-0 w-[80%] pointer-events-none",
           css`
-            margin-bottom: -${local.selsize.h / 2}px;
+            margin-bottom: -${selsize.h / 2}px;
           `
         )}
         animate={{

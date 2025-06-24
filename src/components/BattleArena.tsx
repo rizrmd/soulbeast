@@ -21,7 +21,10 @@ export const BattleArena: FC = () => {
         gameStore.selectedAbility = null;
       }}
     >
-      <div
+      <motion.div
+        transition={{ duration: 1, ease: "easeInOut" }}
+        animate={{ opacity: 1 }}
+        initial={{ opacity: 0 }}
         className={cn(
           "absolute z-[1] max-w-[3%] top-[0px] left-[0px] pointer-events-none opacity-60"
         )}
@@ -32,13 +35,16 @@ export const BattleArena: FC = () => {
           width={10}
           className="mt-[5px] ml-[0px]"
         />
-      </div>
+      </motion.div>
       <div className={cn("gap-1 px-6 flex justify-center")}>
         {p2.map((e, idx) => (
           <EnemyCard key={e.id} idx={idx} />
         ))}
       </div>
-      <div
+      <motion.div
+        transition={{ duration: 1, ease: "easeInOut" }}
+        animate={{ opacity: 1 }}
+        initial={{ opacity: 0 }}
         className={cn(
           "flex-1 relative",
           css`
@@ -69,7 +75,7 @@ export const BattleArena: FC = () => {
             </div>
           </div>
         )}
-      </div>
+      </motion.div>
       <div className="relative">
         <div className="absolute left-0 bottom-0 flex mb-2 flex-col gap-1">
           {p1.map((entity, idx) => {

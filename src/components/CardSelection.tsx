@@ -11,6 +11,10 @@ const CardSelection = () => {
   const game = useSnapshot(gameStore);
   const local = useLocal(
     {
+      max: {
+        enemy: 1,
+        player: 1,
+      },
       selected: {
         index: 0,
         cards: { "0": undefined, "1": undefined } as Record<
@@ -31,9 +35,9 @@ const CardSelection = () => {
       pressed: false,
     },
     () => {
-      gameActions.selectRandomCards("player2",1);
-      gameActions.selectRandomCards("player1",1);
-      gameActions.startBattle();
+      gameActions.selectRandomCards("player2", 1);
+      // gameActions.selectRandomCards("player1",1);
+      // gameActions.startBattle();
     }
   );
   const card = local.selected.card;
@@ -49,11 +53,12 @@ const CardSelection = () => {
           className="bg-black absolute inset-0 z-[9]"
         ></motion.div>
       )}
-      <div className="p-3 flex items-stretch gap-3 max-h-[20%] flex-1">
-        <SmallCard cardName={game.player2Cards[0]} />
-        <SmallCard cardName={game.player2Cards[1]} />
+      <div className="p-3 flex items-stretch gap-3 max-h-[20%] flex-1 justify-center">
+        {[...Array(local.max.enemy)].map((_, index) => (
+          <SmallCard key={index} cardName={game.player2Cards[index]} />
+        ))}
       </div>
-      <div className="relative flex items-center justify-center pointer-events-none h-[3%]">
+      <div className="relative flex items-center justify-center pointer-events-none h-[3%] -mt-5 mb-3">
         <motion.img
           src="/img/battle/vs.webp"
           className={cn("absolute w-1/5 z-[10] mb-[10px]")}
@@ -75,12 +80,12 @@ const CardSelection = () => {
         ></motion.img>
         <div className="h-[1px] mt-[5px] bg-gradient-to-r from-black/0 to-black/0 via-[#feac59] absolute w-full z-[7]"></div>
       </div>
-      <div className="p-3 flex items-stretch gap-3 max-h-[15%] flex-1">
-        {["0", "1"].map((index) => {
+      <div className="p-3 flex items-stretch gap-3 max-h-[15%] flex-1 justify-center">
+        {[...Array(local.max.player)].map((_, index) => {
           return (
             <SmallCard
               key={index}
-              selected={local.selected.index === parseInt(index)}
+              selected={local.selected.index === index}
               cardName={local.selected.cards[index]}
               className={
                 local.selected.cards[index]
@@ -88,7 +93,7 @@ const CardSelection = () => {
                   : " "
               }
               onClick={() => {
-                local.selected.index = parseInt(index);
+                local.selected.index = index;
 
                 if (local.selected.cards[index]) {
                   local.selected.card = DataLoader.getSoulBeast(
@@ -112,13 +117,16 @@ const CardSelection = () => {
       </div>
       <div
         className={cn(
-          "overflow-x-auto overflow-y-hidden snap-x snap-mandatory overscroll-x-auto flex h-[40%] px-[10px] gap-[10px] flex-nowrap relative items-stretch mt-3",
+          "overflow-x-auto transition-all overflow-y-hidden snap-x snap-mandatory overscroll-x-auto flex h-[40%] px-[10px] gap-[10px] flex-nowrap relative items-stretch mt-3",
           css`
             scrollbar-color: white black;
           `
         )}
         ref={(el) => {
           if (el) local.scroll = el;
+        }}
+        onWheel={(e) => {
+          e.currentTarget.scrollBy({ left: e.deltaY, behavior: "auto" });
         }}
       >
         {Object.entries(DataLoader.getAllSoulBeasts()).map(
@@ -244,7 +252,7 @@ const CardSelection = () => {
                 onClick={() => {
                   if (
                     Object.values(local.selected.cards).filter((e) => e)
-                      .length < 2
+                      .length < local.max.player
                   ) {
                     local.selected.index = Object.values(
                       local.selected.cards
@@ -256,7 +264,8 @@ const CardSelection = () => {
                     local.render();
                     setTimeout(() => {
                       for (const card of Object.values(local.selected.cards)) {
-                        gameActions.addToPlayer1(card as SoulBeastName);
+                        if (card)
+                          gameActions.addToPlayer1(card as SoulBeastName);
                       }
 
                       gameActions.startBattle();
@@ -264,7 +273,7 @@ const CardSelection = () => {
                   }
                 }}
               >
-                {count === 2 ? "To Battle" : "Next Card"}
+                {count === local.max.player ? "To Battle" : "Next Card"}
               </motion.div>
             </div>
             <AbilityInfo
@@ -380,11 +389,13 @@ const CardSelection = () => {
             className=" flex items-center justify-center self-stretch flex-1 flex-col"
           >
             <div className="font-rocker p-2 pb-0 text-2xl">
-              {count === 1 ? "Select Last Card" : "Card Empty"}
+              {count === local.max.player ? "Select Last Card" : "Card Empty"}
             </div>
             <div className="p-2 pt-0">
               {" "}
-              {count === 1 ? "Choose your final card" : "Select card above"}
+              {count === local.max.player
+                ? "Choose your final card"
+                : "Select card above"}
             </div>
           </motion.div>
         )}
