@@ -24,6 +24,9 @@ model User {
   updatedAt     DateTime
   sessions      Session[]
   accounts      Account[]
+  inventory     Inventory[]
+  soulbeasts    SoulBeast[]
+  battleHistory BattleHistory[]
 
   @@unique([email])
   @@map("user")
@@ -72,4 +75,57 @@ model Verification {
   updatedAt  DateTime?
 
   @@map("verification")
+}
+
+model Inventory {
+  id        String   @id @default(cuid())
+  userId    String
+  itemSlug  String
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, itemSlug])
+  @@map("inventory")
+}
+
+model SoulBeast {
+  id           String   @id @default(cuid())
+  userId       String
+  beastSlug    String
+  name         String?
+  level        Int      @default(1)
+  experience   Int      @default(0)
+  health       Int
+  maxHealth    Int
+  attack       Int
+  defense      Int
+  speed        Int
+  element      String
+  abilities    Json     // Store ability configuration as JSON
+  equipment    Json?    // Store equipped items as JSON
+  isActive     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("soulbeast")
+}
+
+model BattleHistory {
+  id          String   @id @default(cuid())
+  userId      String
+  opponentId  String?
+  battleType  String   // "pve", "pvp", "tournament", etc.
+  result      String   // "win", "loss", "draw"
+  playerTeam  Json     // Store player's team configuration
+  opponentTeam Json?   // Store opponent's team (null for PvE)
+  duration    Int?     // Battle duration in seconds
+  experience  Int      @default(0)
+  rewards     Json?    // Store rewards earned
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("battle_history")
 }
