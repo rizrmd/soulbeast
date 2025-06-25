@@ -2,7 +2,7 @@ import { motion } from "motion/react";
 import { FC } from "react";
 import { useSnapshot } from "valtio";
 import { cn } from "../lib/cn";
-import { gameStore } from "../store/game-store";
+import { gameStore } from "../engine/GameStore";
 import { EnemyCard } from "./Card/EnemyCard";
 import { PlayerCard } from "./Card/PlayerCard";
 import { PlayerCasting } from "./Battle/PlayerCasting";

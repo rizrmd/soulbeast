@@ -4,7 +4,7 @@ import { useSnapshot } from "valtio";
 import { AllSoulBeast, SoulBeastName } from "../../engine/SoulBeast";
 import { cn } from "../../lib/cn";
 import { useLocal } from "../../lib/use-local";
-import { gameActions, gameStore } from "../../store/game-store";
+import { gameActions, gameStore } from "../../engine/GameStore";
 import { BattleEntity, SoulBeast } from "../../types";
 import { AbilityTable } from "../Card/AbilityInfo";
 

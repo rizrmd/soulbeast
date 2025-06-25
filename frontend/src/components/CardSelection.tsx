@@ -2,7 +2,7 @@ import { motion } from "motion/react";
 import { useSnapshot } from "valtio";
 import { AllSoulBeast, SoulBeastName } from "../engine/SoulBeast";
 import { useLocal } from "../lib/use-local";
-import { gameActions, gameStore } from "../store/game-store";
+import { gameActions, gameStore } from "../engine/GameStore";
 import { Ability, SoulBeast } from "../types";
 import AbilityInfo from "./Card/AbilityInfo";
 import { SmallCard } from "./Card/SmallCard";

@@ -7,7 +7,7 @@ import CardSelection from "./components/CardSelection";
 import MainMenu from "./components/MainMenu";
 import ResultsScreen from "./components/ResultsScreen";
 import { Session } from "./lib/auth";
-import { gameActions, gameStore } from "./store/game-store";
+import { gameActions, gameStore } from "./engine/GameStore";
 
 const App: FC<{ session?: Session }> = ({ session }) => {
   const state = useSnapshot(gameStore);

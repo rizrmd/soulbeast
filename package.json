@@ -7,7 +7,9 @@
     "@types/bun": "latest"
   },
   "scripts": {
-    "dev": "bun dev.ts"
+    "dev": "bun dev.ts",
+    "prod": "bun prod.ts",
+    "start": "bun prod.ts"
   },
   "workspaces": [
     "backend",

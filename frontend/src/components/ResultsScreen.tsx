@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSnapshot } from 'valtio';
-import { gameStore, gameActions } from '../store/game-store';
+import { gameStore, gameActions } from '../engine/GameStore';
 
 const ResultsScreen: React.FC = () => {
   const state = useSnapshot(gameStore);

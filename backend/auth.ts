@@ -6,6 +6,13 @@ import { openAPI } from "better-auth/plugins";
 const prisma = new PrismaClient();
 
 export const auth = betterAuth({
+  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3001",
+  trustedOrigins: [
+    process.env.BETTER_AUTH_URL || "http://localhost:3001",
+    process.env.FRONTEND_URL || "http://localhost:3000",
+    "http://localhost:3000",
+    "http://localhost:3001"
+  ],
   database: prismaAdapter(prisma, {
     provider: "sqlite",
   }),

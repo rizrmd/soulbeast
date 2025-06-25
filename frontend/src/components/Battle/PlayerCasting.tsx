@@ -2,7 +2,7 @@ import { getValueTransition, motion } from "motion/react";
 import { useSnapshot } from "valtio";
 import { cn } from "../../lib/cn";
 import { useLocal } from "../../lib/use-local";
-import { gameStore } from "../../store/game-store";
+import { gameStore } from "../../engine/GameStore";
 import { useEffect } from "react";
 
 export const PlayerCasting = ({ entityId }: { entityId: string }) => {
