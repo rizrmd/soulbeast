@@ -2,6 +2,7 @@ import { createAuthClient } from "better-auth/react";
 import type { Session, User } from "better-auth/types";
 
 export const authClient = createAuthClient({
+  
   baseURL:
     process.env.NODE_ENV === "production"
       ? "https://your-production-domain.com" // Replace with your production URL

@@ -1,21 +1,17 @@
-import React, { useRef, useEffect, useState } from "react";
+import { FC, ReactElement, useEffect, useRef } from "react";
 import { useSnapshot } from "valtio";
+import { FlyingTextRoot } from "./components/Battle/FlyingText";
 import BattleArena from "./components/BattleArena";
+import { CardDeck } from "./components/CardDeck";
 import CardSelection from "./components/CardSelection";
 import MainMenu from "./components/MainMenu";
 import ResultsScreen from "./components/ResultsScreen";
+import { Session, useSession } from "./lib/auth";
 import { gameActions, gameStore } from "./store/game-store";
-import { FlyingTextRoot } from "./components/Battle/FlyingText";
-import { cn } from "./lib/cn";
-import { CardDeck } from "./components/CardDeck";
-import Auth from "./components/Auth";
-import { useSession, type User } from "./lib/auth";
 
-const App = () => {
+const App: FC<{ session?: Session }> = ({ session }) => {
   const state = useSnapshot(gameStore);
   const ref = useRef<HTMLDivElement>(null);
-  const { data: session, isPending: authLoading } = useSession();
-  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     gameActions.initialize();
@@ -29,24 +25,11 @@ const App = () => {
     }
   }, []);
 
-  const handleAuthSuccess = (authenticatedUser: User) => {
-    setUser(authenticatedUser);
-  };
-
   const renderCurrentScreen = () => {
-    if (state.isLoading || authLoading) {
+    if (state.isLoading) {
       return (
         <div className="flex items-center justify-center h-screen">
           <div className="text-white text-lg">Loading...</div>
-        </div>
-      );
-    }
-
-    // Show auth screen if user is not authenticated
-    if (!session?.user && !user) {
-      return (
-        <div className="flex items-center justify-center min-h-screen p-4">
-          <Auth onAuthSuccess={handleAuthSuccess} />
         </div>
       );
     }

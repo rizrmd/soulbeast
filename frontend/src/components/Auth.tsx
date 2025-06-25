@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { motion } from "motion/react";
 import { css } from "goober";
+import { motion } from "motion/react";
+import { useEffect, useState } from "react";
 import { authClient, type User } from "../lib/auth";
 
 interface AuthProps {
