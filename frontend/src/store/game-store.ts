@@ -15,7 +15,7 @@ interface CardWithConfiguration {
 
 interface GameStore {
   // Game state
-  currentScreen: "menu" | "cardSelection" | "battle" | "results";
+  currentScreen: "menu" | "cardSelection" | "battle" | "results" | "cardDeck";
   battleEngine: BattleEngine | null;
   battleState: BattleState | null;
 
@@ -97,19 +97,17 @@ export const gameActions = {
       onError: (error) => console.error("Error:", error),
     });
 
-    try {
-      gameStore.availableCards = Object.keys(AllSoulBeast) as SoulBeastName[];
+    gameStore.currentScreen = "cardDeck";
 
-      // Automatically select 2 random cards for Player 2 (AI)
-      gameActions.selectRandomCards("player2");
-
-      gameStore.currentScreen = "cardSelection";
-    } catch (error) {
-      gameStore.error =
-        error instanceof Error ? error.message : "Failed to initialize game";
-    } finally {
-      gameStore.isLoading = false;
-    }
+    // try {
+    //   gameStore.availableCards = Object.keys(AllSoulBeast) as SoulBeastName[];
+    //   gameStore.currentScreen = "cardSelection";
+    // } catch (error) {
+    //   gameStore.error =
+    //     error instanceof Error ? error.message : "Failed to initialize game";
+    // } finally {
+    //   gameStore.isLoading = false;
+    // }
   },
 
   // Automatically select random cards for AI (Player 2)

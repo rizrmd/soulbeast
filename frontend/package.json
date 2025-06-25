@@ -1,0 +1,36 @@
+{
+  "name": "rsbuild-react18-ts",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "rsbuild build",
+    "dev": "rsbuild dev --open",
+    "preview": "rsbuild preview",
+    "simulate": "bun run src/simulator/multiCardBattle.ts",
+    "verify-abilities": "bun run verify-abilities.ts",
+    "verify-abilities:detailed": "bun run verify-abilities-detailed.ts --suggestions",
+    "verify-abilities:full": "bun run verify-abilities-detailed.ts --details --suggestions"
+  },
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.1.10",
+    "@types/node": "^24.0.1",
+    "axios": "^1.10.0",
+    "goober": "^2.1.16",
+    "motion": "^12.18.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "valtio": "^2.1.5"
+  },
+  "devDependencies": {
+    "@rsbuild/core": "^1.3.22",
+    "@rsbuild/plugin-react": "^1.3.2",
+    "@tailwindcss/cli": "^4.1.10",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.5",
+    "tailwindcss": "^4.1.10",
+    "typescript": "^5.8.3"
+  }
+}

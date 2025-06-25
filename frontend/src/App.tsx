@@ -7,6 +7,7 @@ import ResultsScreen from "./components/ResultsScreen";
 import { gameActions, gameStore } from "./store/game-store";
 import { FlyingTextRoot } from "./components/Battle/FlyingText";
 import { cn } from "./lib/cn";
+import { CardDeck } from "./components/CardDeck";
 
 const App = () => {
   const state = useSnapshot(gameStore);
@@ -34,6 +35,8 @@ const App = () => {
         return <MainMenu />;
       case "cardSelection":
         return <CardSelection />;
+      case "cardDeck":
+        return <CardDeck />;
       case "battle":
         return <BattleArena />;
       case "results":
