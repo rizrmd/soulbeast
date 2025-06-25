@@ -1,11 +1,11 @@
 import { motion } from "motion/react";
-import { AllSoulBeast } from "../engine/SoulBeast";
-import { useLocal } from "../lib/use-local";
-import { Ability, SoulBeastName, SoulBeast } from "../types";
-import { SmallCard } from "./Card/SmallCard";
-import { gameActions, gameStore } from "../store/game-store";
 import { useSnapshot } from "valtio";
+import { AllSoulBeast, SoulBeastName } from "../engine/SoulBeast";
+import { useLocal } from "../lib/use-local";
+import { gameActions, gameStore } from "../store/game-store";
+import { Ability, SoulBeast } from "../types";
 import AbilityInfo from "./Card/AbilityInfo";
+import { SmallCard } from "./Card/SmallCard";
 
 const CardSelection = () => {
   const game = useSnapshot(gameStore);
@@ -36,7 +36,8 @@ const CardSelection = () => {
     },
     () => {
       gameActions.selectRandomCards("player2", 1);
-      gameActions.selectRandomCards("player1",1);
+      // gameActions.selectRandomCards("player1", 1);
+      gameActions.addToPlayer1("Bone Thurak", 0);
       gameActions.startBattle();
     }
   );
@@ -55,7 +56,10 @@ const CardSelection = () => {
       )}
       <div className="p-3 flex items-stretch gap-3 max-h-[20%] flex-1 justify-center">
         {[...Array(local.max.enemy)].map((_, index) => (
-          <SmallCard key={index} cardName={game.player2Cards[index]?.cardName} />
+          <SmallCard
+            key={index}
+            cardName={game.player2Cards[index]?.cardName}
+          />
         ))}
       </div>
       <div className="relative flex items-center justify-center pointer-events-none h-[3%] -mt-5 mb-3">

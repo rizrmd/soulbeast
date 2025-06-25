@@ -132,6 +132,16 @@ export abstract class BaseAbility implements AbilityImplementation {
     };
   }
 
+  protected createPermanentEffect(name: string, type: "buff" | "debuff", value: number, behaviors?: any): StatusEffect {
+    return {
+      name,
+      type,
+      duration: -1, // Permanent effect
+      value,
+      behaviors,
+    };
+  }
+
   protected createFearEffect(name: string, damageReduction: number, duration: number): StatusEffect {
     return {
       name,

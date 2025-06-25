@@ -126,6 +126,9 @@ export class DemonicHaste extends BaseAbility {
       type: "buff",
       duration: 999, // Permanent passive
       value: 0.15, // 15% evasion
+      behaviors: {
+        evasion: true,
+      },
     });
 
     context.addEvent({

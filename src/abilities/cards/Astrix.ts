@@ -453,6 +453,9 @@ export class VoidJaunt extends BaseAbility {
       type: "buff",
       duration: 4.0,
       value: 0.5, // 50% evasion
+      behaviors: {
+        evasion: true,
+      },
     });
     
     // Reduce all ability cooldowns by 2 seconds

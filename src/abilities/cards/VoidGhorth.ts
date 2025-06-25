@@ -281,6 +281,9 @@ export class RealityTear extends BaseAbility {
           type: "debuff",
           duration: 8.0,
           value: 0.2, // 20% miss chance
+          behaviors: {
+            accuracyReduction: true,
+          },
         });
       }
     }
@@ -366,6 +369,9 @@ export class PhaseShift extends BaseAbility {
       type: "buff",
       duration: 999, // Permanent passive
       value: 0.2, // 20% evasion chance
+      behaviors: {
+        evasion: true,
+      },
     });
 
     context.addEvent({
@@ -457,6 +463,9 @@ export class UnstableRift extends BaseAbility {
       type: "debuff",
       duration: 4.0,
       value: 0.4, // 40% accuracy reduction
+      behaviors: {
+        accuracyReduction: true,
+      },
     });
 
     context.addEvent({

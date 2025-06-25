@@ -9,7 +9,7 @@ export class StoneShard extends BaseAbility {
   execute(context: AbilityContext): void {
     const abilityData = this.getAbilityData();
     const damage = abilityData?.damage ?? 20; // Fallback to original value
-    
+
     // Deal damage
     this.applyDamage(context, damage);
 
@@ -40,7 +40,7 @@ export class MoltenBoulder extends BaseAbility {
   execute(context: AbilityContext): void {
     const abilityData = this.getAbilityData();
     const damage = abilityData?.damage ?? 40; // Fallback to original value
-    
+
     // Deal damage
     this.applyDamage(context, damage);
 
@@ -107,7 +107,7 @@ export class AncientEruption extends BaseAbility {
     const abilityData = this.getAbilityData();
     const damage = abilityData?.damage ?? 65; // Fallback to original value
     const enemies = this.getEnemyTeam(context);
-    
+
     // Deal massive damage to all enemies
     for (const enemy of enemies) {
       if (enemy.isAlive) {
@@ -147,7 +147,7 @@ export class Earthquake extends BaseAbility {
     const abilityData = this.getAbilityData();
     const damage = abilityData?.damage ?? 30;
     const enemies = this.getEnemyTeam(context);
-    
+
     // Deal damage to all enemies
     for (const enemy of enemies) {
       if (enemy.isAlive) {
@@ -193,7 +193,7 @@ export class BoneSpikes extends BaseAbility {
   execute(context: AbilityContext): void {
     const abilityData = this.getAbilityData();
     const damage = abilityData?.damage ?? 25;
-    
+
     // Deal damage
     this.applyDamage(context, damage);
 
@@ -226,7 +226,7 @@ export class MagmaFlow extends BaseAbility {
     const abilityData = this.getAbilityData();
     const damage = abilityData?.damage ?? 20;
     const enemies = this.getEnemyTeam(context);
-    
+
     // Deal damage to all enemies
     for (const enemy of enemies) {
       if (enemy.isAlive) {
@@ -289,9 +289,9 @@ export class VolcanicRage extends BaseAbility {
 
   execute(context: AbilityContext): void {
     // Passive ability - gain 10% damage for each 10% health lost
-    const healthLost = 1 - (context.caster.hp / context.caster.maxHp);
+    const healthLost = 1 - context.caster.hp / context.caster.maxHp;
     const damageBonus = Math.floor(healthLost * 10) * 0.1; // 10% per 10% health lost
-    
+
     this.applyStatusToCaster(context, {
       name: "Volcanic Rage",
       type: "buff",
@@ -321,7 +321,7 @@ export class MagmaSpit extends BaseAbility {
 
     const abilityData = this.getAbilityData();
     const damage = abilityData?.damage ?? 15;
-    
+
     // Deal initial damage
     this.applyDamage(context, damage);
 
@@ -351,7 +351,7 @@ export class PrimalRoar extends BaseAbility {
 
   execute(context: AbilityContext): void {
     const enemies = this.getEnemyTeam(context);
-    
+
     // Apply fear to all enemies (30% damage reduction for 8 seconds)
     for (const enemy of enemies) {
       if (enemy.isAlive) {
@@ -389,12 +389,12 @@ export class Unearth extends BaseAbility {
 
   execute(context: AbilityContext): void {
     const abilityData = this.getAbilityData();
-    
+
     // Reset cooldowns of all non-ultimate abilities
     // Get all ability names from the caster's character and reset their cooldowns
-    const abilityNames = context.caster.character.abilities.map(a => a.name);
-    abilityNames.forEach(abilityName => {
-      if (abilityName !== 'Unearth') {
+    const abilityNames = context.caster.character.abilities.map((a) => a.name);
+    abilityNames.forEach((abilityName) => {
+      if (abilityName !== "Unearth") {
         context.caster.abilityCooldowns.set(abilityName, 0);
       }
     });
@@ -416,23 +416,28 @@ export class Fossilize extends BaseAbility {
 
   execute(context: AbilityContext): void {
     const abilityData = this.getAbilityData();
-    
-    // This is a passive ability that triggers when HP drops below 30%
-    // Apply permanent damage reduction buff
-    this.applyStatusToCaster(context, {
-      name: "Fossilized Hide",
-      type: "buff",
-      duration: -1, // Permanent
-      value: 10, // 10% damage reduction
-    });
 
-    context.addEvent({
-      timestamp: context.getCurrentTime(),
-      type: "ability_used",
-      source: context.caster.id,
-      ability: abilityData?.name ?? "Fossilize",
-      message: `${context.caster.character.name}'s hide hardens like ancient stone`,
-    });
+    // Check if the effect is already applied to avoid stacking
+    const existingEffect = context.caster.statusEffects.find(
+      (effect) => effect.name === "Fossilize"
+    );
+
+    const hpPercent = (context.caster.hp / context.caster.maxHp) * 100;
+    if (!existingEffect && hpPercent <= 60) {
+      // Apply permanent damage reduction buff
+      this.applyStatusToCaster(
+        context,
+        this.createDamageReductionEffect("Fossilize", 0.8, -1) // 20% damage reduction (0.8 multiplier), permanent
+      );
+
+      context.addEvent({
+        timestamp: context.getCurrentTime(),
+        type: "ability_used",
+        source: context.caster.id,
+        ability: abilityData?.name ?? "Fossilize",
+        message: `${context.caster.character.name}'s hide hardens like ancient stone`,
+      });
+    }
   }
 }
 
@@ -447,7 +452,7 @@ export class PetrifyingGaze extends BaseAbility {
 
     const abilityData = this.getAbilityData();
     const damage = abilityData?.damage ?? 10;
-    
+
     // Deal damage
     this.applyDamage(context, damage);
 
@@ -477,21 +482,21 @@ export class DemonicCore extends BaseAbility {
 
   execute(context: AbilityContext): void {
     const abilityData = this.getAbilityData();
-    
-    // This is a passive ability that triggers when fire abilities are used
-    // Apply a small heal when fire abilities are used
-    const healAmount = 8;
-    context.caster.hp = Math.min(
-      context.caster.hp + healAmount,
-      context.caster.maxHp
-    );
 
-    context.addEvent({
-      timestamp: context.getCurrentTime(),
-      type: "ability_used",
-      source: context.caster.id,
-      ability: abilityData?.name ?? "Demonic Core",
-      message: `${context.caster.character.name}'s demonic heart converts flames to vitality`,
-    });
+    if (true) {
+      const healAmount = 12;
+
+      setTimeout(() => {
+        this.applyHeal(context, 12, true);
+
+        context.addEvent({
+          timestamp: context.getCurrentTime(),
+          type: "ability_used",
+          source: context.caster.id,
+          ability: abilityData?.name ?? "Demonic Core",
+          message: `${context.caster.character.name}'s demonic heart converts flames to vitality (+${healAmount} HP)`,
+        });
+      }, 300);
+    }
   }
 }

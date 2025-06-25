@@ -94,7 +94,7 @@ export const AllSoulBeast = {
         target: "self",
         castTime: 0,
         soulshardCost: 3,
-        activationConditions: [{ type: "at_start" }],
+        activationConditions: [{ type: "on_own_hp_below", value: 60 }],
       },
       {
         name: "Ice Shard",
@@ -452,12 +452,12 @@ export const AllSoulBeast = {
         cooldown: 0,
         damage: 0,
         effect:
-          "Gain 10% damage reduction permanently after falling below 30% HP once.",
+          "Gain 20% damage reduction permanently after falling below 60% HP once.",
         description: "Your hide hardens like ancient stone when near death.",
         target: "self",
         castTime: 0,
         soulshardCost: 4,
-        activationConditions: [{ type: "at_start" }],
+        activationConditions: [{ type: "after_damage_taken" }],
       },
       {
         name: "Earthquake",
@@ -492,7 +492,8 @@ export const AllSoulBeast = {
         cooldown: 15,
         damage: 10,
         effect: "Enemy is slowed by 50% for 3 seconds.",
-        description: "A demonic gaze that turns flesh to stone, hindering actions.",
+        description:
+          "A demonic gaze that turns flesh to stone, hindering actions.",
         target: "single-enemy",
         castTime: 1.8,
         soulshardCost: 3,
@@ -505,13 +506,17 @@ export const AllSoulBeast = {
         cooldown: 0,
         damage: 0,
         effect:
-          "Your fire abilities have a chance to heal you for a small amount.",
+          "After usning fire abilities (Molten Boulder, Ancient Eruption, Magma Spit) heal for 12 HP.",
         description:
           "A demonic heart that thrives on destruction, converting flames to vitality.",
         target: "self",
         castTime: 0,
         soulshardCost: 4,
-        activationConditions: [{ type: "at_start" }],
+        activationConditions: [
+          {
+            type: "after_ability_used",
+          },
+        ],
       },
       {
         name: "Unearth",
@@ -533,7 +538,12 @@ export const AllSoulBeast = {
         name: "Unkillable Tank",
         description:
           "A build focused on extreme survivability through damage reduction. Manual Bone Armor timing is crucial.",
-        abilities: ["Bone Armor", "Fossilize", "Stone Shard", "Demonic Core"],
+        abilities: [
+          "Molten Boulder",
+          "Magma Spit",
+          "Fossilize",
+          "Demonic Core",
+        ],
         totalCost: 15,
       },
       {
@@ -829,8 +839,7 @@ export const AllSoulBeast = {
         cooldown: 12,
         damage: 30,
         effect: "Confuses target, reducing accuracy by 40% for 4 seconds.",
-        description:
-          "Tear a hole in reality that disorients your foe.",
+        description: "Tear a hole in reality that disorients your foe.",
         target: "single-enemy",
         castTime: 2.2,
         soulshardCost: 4,
@@ -1062,7 +1071,8 @@ export const AllSoulBeast = {
       },
       {
         name: "Pack Hunter",
-        description: "Focuses on speed and aggression to overwhelm the enemy. Manual Bestial Surge and Demon's Guile for tactical advantage.",
+        description:
+          "Focuses on speed and aggression to overwhelm the enemy. Manual Bestial Surge and Demon's Guile for tactical advantage.",
         abilities: [
           "Bestial Surge",
           "Tidal Slash",

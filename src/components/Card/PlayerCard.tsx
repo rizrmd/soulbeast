@@ -326,7 +326,7 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
             return (
               <div
                 key={index}
-                className={cn("flex-1 p-2 relative skew-x-[-10deg]")}
+                className={cn("flex-1 p-2 relative skew-x-[-10deg] overflow-hidden")}
                 onClick={(e) => {
                   e.stopPropagation();
                   if (local.touched) {
@@ -384,6 +384,11 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
                       : selected && "border rounded-lg border-[#f9daab]"
                   )}
                 ></div>
+                {ability.type === "passive" && (
+                  <div className="absolute bottom-3 left-3 font-black font-rocker text-sm text-[white] bg-black/50">
+                    Passive
+                  </div>
+                )}
                 {maxCasting && (
                   <div className="absolute top-3 left-3 font-black font-rocker text-sm text-[#febc00]">
                     Casting
@@ -391,7 +396,7 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
                 )}
 
                 {maxCooldown && (
-                  <div className="absolute top-3 left-3 font-black font-rocker text-sm text-[white]">
+                  <div className="absolute top-3 left-3 font-black font-rocker text-xs text-[white]">
                     Cooldown
                   </div>
                 )}
@@ -410,7 +415,8 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
                   src={`/img/abilities/${ability.slug}.webp`}
                   className={cn(
                     "w-full  h-full object-cover pointer-events-none transition-all",
-                    (maxCooldown || maxCasting) && "opacity-50"
+                    (maxCooldown || maxCasting || ability.type === "passive") &&
+                      "opacity-50"
                   )}
                 />
 

@@ -23,10 +23,10 @@ export const BattleArena: FC = () => {
     >
       <motion.div
         transition={{ duration: 1, ease: "easeInOut" }}
-        animate={{ opacity: 1 }}
+        animate={{ opacity: 0.5 }}
         initial={{ opacity: 0 }}
         className={cn(
-          "absolute z-[1] max-w-[3%] top-[0px] left-[0px] pointer-events-none opacity-60"
+          "absolute z-[1] max-w-[3%] top-[0px] left-[0px] pointer-events-none"
         )}
       >
         <img src="/img/battle/orn2.svg" width={20} />

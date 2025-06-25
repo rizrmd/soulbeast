@@ -18,7 +18,10 @@ export class MindLash extends BaseAbility {
       name: "Disrupted Focus",
       type: "debuff",
       duration: 4.0,
-      value: 0.75, // 25% accuracy reduction
+      value: 0.25, // 25% accuracy reduction
+      behaviors: {
+        accuracyReduction: true,
+      },
     });
 
     context.addEvent({
@@ -405,6 +408,9 @@ export class DemonsGuile extends BaseAbility {
       type: "buff",
       duration: 3.0,
       value: 1.0, // 100% evasion
+      behaviors: {
+        evasion: true,
+      },
     });
 
     context.addEvent({
@@ -500,6 +506,9 @@ export class MindReader extends BaseAbility {
       type: "buff",
       duration: 999, // Permanent passive
       value: 0.2, // 20% increased evasion against buffed enemies
+      behaviors: {
+        evasion: true,
+      },
     });
 
     context.addEvent({

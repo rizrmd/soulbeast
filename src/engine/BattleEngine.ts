@@ -39,8 +39,14 @@ export class BattleEngine {
   }
 
   public initializeBattle(
-    player1Cards: { cardName: SoulBeastName; configuration: { name: string; abilities: readonly string[] } }[],
-    player2Cards: { cardName: SoulBeastName; configuration: { name: string; abilities: readonly string[] } }[]
+    player1Cards: {
+      cardName: SoulBeastName;
+      configuration: { name: string; abilities: readonly string[] };
+    }[],
+    player2Cards: {
+      cardName: SoulBeastName;
+      configuration: { name: string; abilities: readonly string[] };
+    }[]
   ): boolean {
     if (player1Cards.length === 0 || player2Cards.length === 0) {
       return false;
@@ -75,7 +81,11 @@ export class BattleEngine {
       }
 
       const entityId = `player1_card${i}`;
-      const entity = this.createEntity(entityId, cardData, cardWithConfig.configuration);
+      const entity = this.createEntity(
+        entityId,
+        cardData,
+        cardWithConfig.configuration
+      );
 
       // Position cards in formation - center single cards
       if (player1Cards.length === 1) {
@@ -101,7 +111,11 @@ export class BattleEngine {
       }
 
       const entityId = `player2_card${i}`;
-      const entity = this.createEntity(entityId, cardData as SoulBeast, cardWithConfig.configuration);
+      const entity = this.createEntity(
+        entityId,
+        cardData as SoulBeast,
+        cardWithConfig.configuration
+      );
 
       // Position cards in formation on opposite side - center single cards
       if (player2Cards.length === 1) {
@@ -145,7 +159,11 @@ export class BattleEngine {
     return true;
   }
 
-  private createEntity(id: string, character: SoulBeast, configuration: { name: string; abilities: readonly string[] }): BattleEntity {
+  private createEntity(
+    id: string,
+    character: SoulBeast,
+    configuration: { name: string; abilities: readonly string[] }
+  ): BattleEntity {
     const eventListeners = new Map<
       BattleEvent["type"],
       Array<(event: BattleEvent) => void>
@@ -194,7 +212,7 @@ export class BattleEngine {
     };
 
     // Filter abilities based on configuration
-    const allowedAbilities = character.abilities.filter(ability => 
+    const allowedAbilities = character.abilities.filter((ability) =>
       configuration.abilities.includes(ability.name)
     );
 
@@ -208,7 +226,7 @@ export class BattleEngine {
     // Create a modified character with only the allowed abilities
     entity.character = {
       ...character,
-      abilities: allowedAbilities
+      abilities: allowedAbilities,
     };
 
     return entity;
@@ -342,7 +360,14 @@ export class BattleEngine {
     entity.abilityCooldowns.set(ability.name, ability.cooldown);
 
     // Trigger after_ability_used abilities
-    this.triggerAfterAbilityUsedAbilities(entity, ability.name);
+    this.triggerAfterAbilityUsedAbilities(entity);
+
+    // Store last cast information
+    entity.lastCast = {
+      ability: ability,
+      timeRemaining: 0, // Cast is complete
+      target: targetId,
+    };
 
     // Clear current cast
     entity.currentCast = undefined;
@@ -445,6 +470,47 @@ export class BattleEngine {
     // Allow entities to modify damage through event listeners
     attacker.emit(beforeDamageEvent);
     target.emit(beforeDamageEvent);
+
+    // Check for miss/evasion mechanics
+    let hitChance = 1.0; // Start with 100% hit chance
+
+    // Check for accuracy reduction debuffs on attacker
+    const accuracyDebuffs = attacker.statusEffects.filter(
+      (effect) =>
+        effect.behaviors?.accuracyReduction && effect.type === "debuff"
+    );
+
+    for (const debuff of accuracyDebuffs) {
+      hitChance *= 1 - debuff.value; // Reduce hit chance by debuff value
+    }
+
+    // Check for evasion buffs on target
+    const evasionBuffs = target.statusEffects.filter(
+      (effect) => effect.behaviors?.evasion && effect.type === "buff"
+    );
+
+    for (const buff of evasionBuffs) {
+      hitChance *= 1 - buff.value; // Reduce hit chance by evasion value
+    }
+
+    // Roll for hit/miss
+    const hitRoll = Math.random();
+    if (hitRoll > hitChance) {
+      // Attack missed!
+      this.addEvent({
+        timestamp: Date.now(),
+        type: "system",
+        source: attacker.id,
+        target: target.id,
+        ability: ability,
+        message: `${attacker.character.name}'s attack missed ${target.character.name}!`,
+      });
+
+      // Trigger after_enemy_dodges abilities
+      this.triggerAfterEnemyDodgesAbilities(attacker);
+
+      return 0; // No damage dealt
+    }
 
     let finalDamage =
       (beforeDamageEvent.modifiedValue ?? damage) * attacker.damageMultiplier;
@@ -592,11 +658,12 @@ export class BattleEngine {
       this.checkWinConditions();
     }
 
-    // Interrupt casting if damage interrupts (but not if self-inflicted)
+    // Interrupt casting if damage interrupts (but not if self-inflicted or passive skill)
     if (
       this.config.castInterruption &&
       target.currentCast &&
-      attacker.id !== target.id
+      attacker.id !== target.id &&
+      target.currentCast.ability.type !== "passive"
     ) {
       const interruptedAbility = target.currentCast.ability;
 
@@ -725,7 +792,11 @@ export class BattleEngine {
   private updateStatusEffects(entity: BattleEntity, deltaTime: number): void {
     for (let i = entity.statusEffects.length - 1; i >= 0; i--) {
       const effect = entity.statusEffects[i];
-      effect.duration -= deltaTime;
+
+      // Skip duration updates for permanent effects (-1 duration)
+      if (effect.duration !== -1) {
+        effect.duration -= deltaTime;
+      }
 
       // Handle DOT/HOT effects
       if (
@@ -776,8 +847,8 @@ export class BattleEngine {
         }
       }
 
-      // Remove expired effects
-      if (effect.duration <= 0) {
+      // Remove expired effects (but not permanent effects with -1 duration)
+      if (effect.duration <= 0 && effect.duration !== -1) {
         // Call onRemove hook if present
         if (effect.onRemove) {
           effect.onRemove(entity, effect);
@@ -790,7 +861,7 @@ export class BattleEngine {
           source: entity.id,
           target: entity.id,
           statusEffect: effect,
-          message: `${effect.name} effect expired on ${entity.character.name}`,
+          message: `${effect.name} effect expired on ${entity.character?.name || entity.id}`,
         });
       }
     }
@@ -830,26 +901,56 @@ export class BattleEngine {
       return false;
     }
 
-    // Start casting - all abilities require casting, even instant ones
-    const castTime = ability.castTime || 0;
+    // Passive skills execute immediately without casting
+    if (ability.type === "passive") {
+      this.addEvent({
+        timestamp: Date.now(),
+        type: "cast_start",
+        source: entity.id,
+        target: action.targetId,
+        ability: ability,
+        message: `${entity.character.name} activates ${ability.name} (passive)`,
+      });
 
-    entity.currentCast = {
-      ability,
-      timeRemaining: castTime,
-      target: action.targetId,
-    };
+      // Execute immediately
+      this.executeAbility(entity, ability, action.targetId);
 
-    this.addEvent({
-      timestamp: Date.now(),
-      type: "cast_start",
-      source: entity.id,
-      target: action.targetId,
-      ability: ability,
-      message:
-        castTime > 0
-          ? `${entity.character.name} begins casting ${ability.name} (${castTime}s)`
-          : `${entity.character.name} begins casting ${ability.name} (instant)`,
-    });
+      // Start cooldown
+      entity.abilityCooldowns.set(ability.name, ability.cooldown);
+
+      // Trigger after_ability_used abilities
+      this.triggerAfterAbilityUsedAbilities(entity);
+
+      this.addEvent({
+        timestamp: Date.now(),
+        type: "cast_complete",
+        source: entity.id,
+        target: action.targetId,
+        ability: ability,
+        message: `${entity.character.name} completed ${ability.name}`,
+      });
+    } else {
+      // Start casting - all non-passive abilities require casting
+      const castTime = ability.castTime || 0;
+
+      entity.currentCast = {
+        ability,
+        timeRemaining: castTime,
+        target: action.targetId,
+      };
+
+      this.addEvent({
+        timestamp: Date.now(),
+        type: "cast_start",
+        source: entity.id,
+        target: action.targetId,
+        ability: ability,
+        message:
+          castTime > 0
+            ? `${entity.character.name} begins casting ${ability.name} (${castTime}s)`
+            : `${entity.character.name} begins casting ${ability.name} (instant)`,
+      });
+    }
 
     return true;
   }
@@ -1186,15 +1287,10 @@ export class BattleEngine {
     }
   }
 
-  public triggerAfterAbilityUsedAbilities(
-    entity: BattleEntity,
-    usedAbilityName: string
-  ): void {
+  public triggerAfterAbilityUsedAbilities(entity: BattleEntity): void {
     for (const ability of entity.character.abilities) {
       const hasAfterAbilityCondition = ability.activationConditions?.some(
-        (condition) =>
-          condition.type === "after_ability_used" &&
-          condition.abilityName === usedAbilityName
+        (condition) => condition.type === "after_ability_used"
       );
 
       if (

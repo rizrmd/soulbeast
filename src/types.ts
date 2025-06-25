@@ -31,7 +31,7 @@ export interface AbilityCondition {
     | "after_ability_used";
   priority?: number; // For 'on_available' to set order
   value?: number; // For HP thresholds
-  abilityName?: string; // For after_ability_used
+  abilityName?: string | string[]; // For after_ability_used
 }
 
 export interface Ability {
@@ -75,9 +75,24 @@ export interface StatusEffect {
   onApply?: (entity: BattleEntity, effect: StatusEffect) => void;
   onRemove?: (entity: BattleEntity, effect: StatusEffect) => void;
   onTick?: (entity: BattleEntity, effect: StatusEffect) => void;
-  onDamageDealt?: (attacker: BattleEntity, target: BattleEntity, damage: number, effect: StatusEffect) => number;
-  onDamageReceived?: (attacker: BattleEntity, target: BattleEntity, damage: number, effect: StatusEffect) => number;
-  onHeal?: (healer: BattleEntity, target: BattleEntity, amount: number, effect: StatusEffect) => number;
+  onDamageDealt?: (
+    attacker: BattleEntity,
+    target: BattleEntity,
+    damage: number,
+    effect: StatusEffect
+  ) => number;
+  onDamageReceived?: (
+    attacker: BattleEntity,
+    target: BattleEntity,
+    damage: number,
+    effect: StatusEffect
+  ) => number;
+  onHeal?: (
+    healer: BattleEntity,
+    target: BattleEntity,
+    amount: number,
+    effect: StatusEffect
+  ) => number;
   // Behavioral flags to replace hardcoded name checks
   behaviors?: {
     isShield?: boolean;
@@ -87,6 +102,8 @@ export interface StatusEffect {
     damageReduction?: boolean;
     damageBoost?: boolean;
     oneTimeUse?: boolean;
+    accuracyReduction?: boolean;
+    evasion?: boolean;
   };
 }
 
@@ -105,11 +122,22 @@ export interface BattleEntity {
     timeRemaining: number;
     target?: string;
   };
+  lastCast?: {
+    ability: Ability;
+    timeRemaining: number;
+    target?: string;
+  };
   isAlive: boolean;
   position: { x: number; y: number };
-  eventListeners: Map<BattleEvent['type'], Array<(event: BattleEvent) => void>>;
-  on: (eventType: BattleEvent['type'], callback: (event: BattleEvent) => void) => void;
-  off: (eventType: BattleEvent['type'], callback: (event: BattleEvent) => void) => void;
+  eventListeners: Map<BattleEvent["type"], Array<(event: BattleEvent) => void>>;
+  on: (
+    eventType: BattleEvent["type"],
+    callback: (event: BattleEvent) => void
+  ) => void;
+  off: (
+    eventType: BattleEvent["type"],
+    callback: (event: BattleEvent) => void
+  ) => void;
   emit: (event: BattleEvent) => void;
 }
 

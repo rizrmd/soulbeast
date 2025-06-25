@@ -211,6 +211,9 @@ export class HallucinogenicHaze extends BaseAbility {
           type: "debuff",
           duration: 5.0,
           value: 0.3, // 30% accuracy reduction
+          behaviors: {
+            accuracyReduction: true,
+          },
         });
       }
     }
