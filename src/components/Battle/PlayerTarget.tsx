@@ -1,14 +1,14 @@
 import { motion } from "motion/react";
 import { FC } from "react";
 import { useSnapshot } from "valtio";
-import { DataLoader } from "../../engine/DataLoader";
+import { AllSoulBeast, SoulBeastName } from "../../engine/SoulBeast";
 import { cn } from "../../lib/cn";
 import { useLocal } from "../../lib/use-local";
 import { gameActions, gameStore } from "../../store/game-store";
-import { BattleEntity, SoulBeastUI } from "../../types";
+import { BattleEntity, SoulBeast } from "../../types";
 import { AbilityTable } from "../Card/AbilityInfo";
 
-export const PlayerTarget: FC<{ card: SoulBeastUI }> = ({ card }) => {
+export const PlayerTarget: FC<{ card: SoulBeast }> = ({ card }) => {
   const local = useLocal({ detail: false });
   const game = useSnapshot(gameStore);
 
@@ -183,10 +183,10 @@ const Portrait: FC<{
 }> = ({ entity, className, onClick }) => {
   const local = useLocal(
     {
-      card: null as null | SoulBeastUI,
+      card: null as null | SoulBeast,
     },
     () => {
-      local.card = DataLoader.getSoulBeast(entity.character.name);
+      local.card = AllSoulBeast[entity.character.name as SoulBeastName];
       local.render();
     }
   );

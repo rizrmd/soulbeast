@@ -1,56 +1,27 @@
-export interface AbilityCondition {
-  type:
-    | "on_available"
-    | "at_start"
-    | "after_damage_taken"
-    | "after_heal"
-    | "on_own_hp_above"
-    | "on_own_hp_below"
-    | "on_enemy_hp_above"
-    | "on_enemy_hp_below"
-    | "after_enemy_dodges"
-    | "after_ability_used";
-  priority?: number; // For 'on_available' to set order
-  value?: number; // For HP thresholds
-  abilityName?: string; // For after_ability_used
-}
+import { Ability, ElementComposition } from "../types";
 
-export interface Ability {
+// SoulBeast interface with typed name
+export interface SoulBeast {
   name: string;
-  slug: string;
-  type: "quick" | "power" | "ultimate" | "passive";
-  cooldown: number;
-  damage: number;
-  effect: string;
-  description: string;
-  target: "single-enemy" | "all-enemy" | "self" | "ally";
-  castTime: number;
-  initiationTime?: number;
-  soulshardCost: number;
-  activationConditions: AbilityCondition[];
+  title: string;
+  composition: ElementComposition;
+  abilities: readonly Ability[];
+  image: string;
+  configurations: readonly SoulbeastConfiguration[];
 }
 
 export interface SoulbeastConfiguration {
   name: string;
   description: string;
-  abilities: string[];
+  abilities: readonly string[];
   totalCost: number;
 }
 
-export interface SoulBeast {
-  name: string;
-  title: string;
-  composition: {
-    [key: string]: number;
-  };
-  abilities: Ability[];
-  configurations: SoulbeastConfiguration[];
-}
-
-export const AllSoulBeast: { [key: string]: SoulBeast } = {
+export const AllSoulBeast = {
   "Keth Stalker": {
     name: "Keth Stalker",
     title: "Crystal Nightmare Hunter",
+    image: "/img/cards/keth-stalker.webp",
     composition: {
       frost: 30,
       demon: 40,
@@ -74,14 +45,14 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
         name: "Crystal Prison",
         slug: "crystal-prison",
         type: "power",
-        cooldown: 8,
-        damage: 25,
-        effect: "Stuns target for 1.5 seconds",
-        description: "Traps enemy in crystalline ice, preventing movement.",
+        cooldown: 12,
+        damage: 0,
+        effect: "Stuns target for 2.5 seconds",
+        description: "Traps enemy in crystalline ice, preventing actions.",
         target: "single-enemy",
-        castTime: 2.0,
-        soulshardCost: 4,
-        activationConditions: [{ type: "on_enemy_hp_below", value: 70 }],
+        castTime: 1.8,
+        soulshardCost: 5,
+        activationConditions: [{ type: "on_available", priority: 8 }],
       },
       {
         name: "Abyssal Tide",
@@ -118,11 +89,11 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
         type: "passive",
         cooldown: 0,
         damage: 0,
-        effect: "Gain 15% evasion after using an ability.",
-        description: "The demonic frost energies grant you fleeting speed.",
+        effect: "Gain 20% evasion for 3 seconds after using an ability",
+        description: "Demonic energy enhances your reflexes.",
         target: "self",
         castTime: 0,
-        soulshardCost: 4,
+        soulshardCost: 3,
         activationConditions: [{ type: "at_start" }],
       },
       {
@@ -149,22 +120,20 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
         target: "self",
         castTime: 1.0,
         soulshardCost: 3,
-        activationConditions: [{ type: "after_damage_taken" }],
+        activationConditions: [{ type: "on_available", priority: 6 }],
       },
       {
         name: "Frozen Wake",
         slug: "frozen-wake",
         type: "power",
-        cooldown: 9,
+        cooldown: 14,
         damage: 28,
-        effect: "Damages all enemies and applies a minor slow.",
-        description: "A wave of chilling water washes over all foes.",
+        effect: "Damages all enemies and applies minor slow for 5 seconds",
+        description: "Leaves a trail of ice that hinders all foes.",
         target: "all-enemy",
-        castTime: 1.8,
-        soulshardCost: 4,
-        activationConditions: [
-          { type: "after_ability_used", abilityName: "Abyssal Tide" },
-        ],
+        castTime: 2.2,
+        soulshardCost: 6,
+        activationConditions: [{ type: "on_available", priority: 6 }],
       },
       {
         name: "Permafrost",
@@ -200,7 +169,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       {
         name: "Controller Build",
         description:
-          "Focuses on slowing and stunning the enemy to control the flow of battle.",
+          "Focuses on slowing and stunning the enemy to control the flow of battle. Manual timing of Crystal Prison is key.",
         abilities: [
           "Nightmare Frost",
           "Ice Shard",
@@ -225,21 +194,22 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       {
         name: "Sustained Damage",
         description:
-          "A balanced build that combines damage with self-preservation.",
+          "A balanced build that combines damage with self-preservation. Use Glacial Armor manually for optimal defense.",
         abilities: [
           "Abyssal Tide",
           "Frozen Wake",
-          "Demonic Haste",
+          "Glacial Armor",
           "Nightmare Frost",
           "Ice Shard",
         ],
-        totalCost: 16,
+        totalCost: 15,
       },
     ],
   },
   "Crimson Vorthak": {
     name: "Crimson Vorthak",
     title: "Bleeding Rose Executioner",
+    image: "/img/cards/crimson-vorthak.webp",
     composition: { fire: 60, demon: 30, beast: 10 },
     abilities: [
       {
@@ -280,7 +250,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
         target: "single-enemy",
         castTime: 2.1,
         soulshardCost: 6,
-        activationConditions: [{ type: "on_enemy_hp_below", value: 40 }],
+        activationConditions: [{ type: "on_available", priority: 7 }],
       },
       {
         name: "Rose of Destruction",
@@ -334,7 +304,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
         target: "self",
         castTime: 1.2,
         soulshardCost: 3,
-        activationConditions: [{ type: "on_own_hp_above", value: 80 }],
+        activationConditions: [{ type: "on_available", priority: 8 }],
       },
       {
         name: "Scent of Blood",
@@ -342,8 +312,8 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
         type: "passive",
         cooldown: 0,
         damage: 0,
-        effect: "Gain +15% critical hit chance against enemies below 50% HP.",
-        description: "The smell of a wounded foe drives you into a frenzy.",
+        effect: "Gain 25% critical hit chance when enemy is below 40% HP",
+        description: "The smell of blood drives you into a frenzy.",
         target: "self",
         castTime: 0,
         soulshardCost: 4,
@@ -353,35 +323,34 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
         name: "Fire Wall",
         slug: "fire-wall",
         type: "power",
-        cooldown: 15,
-        damage: 15,
-        effect:
-          "Creates a wall that damages any enemy who uses a quick ability.",
-        description: "Erect a barrier of flame to punish swift attackers.",
-        target: "self",
-        castTime: 2.0,
-        soulshardCost: 4,
-        activationConditions: [{ type: "after_enemy_dodges" }],
+        cooldown: 16,
+        damage: 35,
+        effect: "Damages enemies that use quick abilities for 8 seconds",
+        description: "Creates a barrier of flames that punishes hasty actions.",
+        target: "all-enemy",
+        castTime: 2.8,
+        soulshardCost: 6,
+        activationConditions: [{ type: "on_available", priority: 7 }],
       },
       {
         name: "Reckless Charge",
         slug: "reckless-charge",
-        type: "quick",
-        cooldown: 5,
-        damage: 30,
-        effect: "You take 15% increased damage for the next turn.",
-        description: "A powerful, headfirst charge that leaves you exposed.",
+        type: "power",
+        cooldown: 10,
+        damage: 50,
+        effect: "Deal 12 damage to yourself",
+        description: "A devastating attack that comes at a personal cost.",
         target: "single-enemy",
-        castTime: 0.5,
-        soulshardCost: 2,
-        activationConditions: [{ type: "on_available", priority: 3 }],
+        castTime: 1.4,
+        soulshardCost: 4,
+        activationConditions: [{ type: "on_available", priority: 4 }],
       },
     ],
     configurations: [
       {
         name: "Executioner",
         description:
-          "Wear down the enemy and then finish them with a powerful blow.",
+          "Wear down the enemy and then finish them with a powerful blow. Time Infernal Execution manually for maximum impact.",
         abilities: [
           "Flame Slash",
           "Scent of Blood",
@@ -393,7 +362,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       {
         name: "Wounded Beast",
         description:
-          "This build gets stronger as your health gets lower. High risk, high reward.",
+          "This build gets stronger as your health gets lower. Manually activate Raging Beast at the perfect moment.",
         abilities: [
           "Burning Blood",
           "Demonic Roar",
@@ -420,62 +389,60 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
   "Bone Thurak": {
     name: "Bone Thurak",
     title: "Ancient Fire Caller",
+    image: "/img/cards/bone-thurak.webp",
     composition: { earth: 50, fire: 30, demon: 20 },
     abilities: [
       {
         name: "Stone Shard",
         slug: "stone-shard",
         type: "quick",
-        cooldown: 3,
-        damage: 20,
-        effect: "Reduces enemy damage output by 20% for 4 seconds",
-        description: "Hurls sharp stone fragments that weaken enemies.",
+        cooldown: 5,
+        damage: 22,
+        effect: "Reduces enemy damage by 20% for 4 seconds",
+        description: "A sharp stone that weakens your foe.",
         target: "single-enemy",
-        castTime: 0.7,
-        soulshardCost: 2,
-        activationConditions: [{ type: "on_available", priority: 1 }],
+        castTime: 0.9,
+        soulshardCost: 3,
+        activationConditions: [{ type: "on_available", priority: 2 }],
       },
       {
         name: "Molten Boulder",
         slug: "molten-boulder",
         type: "power",
-        cooldown: 8,
+        cooldown: 9,
         damage: 40,
-        effect: "25% chance to daze enemy, preventing ability use for 1 second",
-        description: "Launches a massive burning rock that can stun enemies.",
+        effect: "40% chance to daze target for 2.5 seconds",
+        description: "A massive rock heated by inner fire.",
         target: "single-enemy",
-        castTime: 2.3,
-        soulshardCost: 4,
-        activationConditions: [{ type: "on_available", priority: 4 }],
+        castTime: 2.0,
+        soulshardCost: 5,
+        activationConditions: [{ type: "on_available", priority: 3 }],
       },
       {
         name: "Bone Armor",
         slug: "bone-armor",
         type: "power",
-        cooldown: 10,
+        cooldown: 15,
         damage: 0,
-        effect: "Reduces all damage by 50% for 6 seconds",
-        description: "Summons protective bone plating from the earth.",
+        effect: "Reduce incoming damage by 35% for 8 seconds",
+        description: "Surround yourself with protective bone fragments.",
         target: "self",
-        castTime: 1.0,
+        castTime: 1.8,
         soulshardCost: 5,
-        activationConditions: [
-          { type: "on_own_hp_below", value: 50 },
-          { type: "after_damage_taken" },
-        ],
+        activationConditions: [{ type: "on_own_hp_below", value: 70 }],
       },
       {
         name: "Ancient Eruption",
         slug: "ancient-eruption",
         type: "ultimate",
-        cooldown: 28,
-        damage: 65,
-        effect: "Creates 3 lava pools that deal 8 damage/second",
-        description: "Calls forth an ancient volcanic eruption.",
-        initiationTime: 9,
+        cooldown: 30,
+        damage: 75,
+        effect: "Creates lava pools that deal damage over time for 10 seconds",
+        description: "Unleash the fury of ancient volcanic power.",
+        initiationTime: 10,
         target: "all-enemy",
-        castTime: 3.8,
-        soulshardCost: 8,
+        castTime: 4.0,
+        soulshardCost: 9,
         activationConditions: [{ type: "on_available", priority: 10 }],
       },
       {
@@ -525,8 +492,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
         cooldown: 15,
         damage: 10,
         effect: "Enemy is slowed by 50% for 3 seconds.",
-        description:
-          "A demonic gaze that turns flesh to stone, hindering movement.",
+        description: "A demonic gaze that turns flesh to stone, hindering actions.",
         target: "single-enemy",
         castTime: 1.8,
         soulshardCost: 3,
@@ -566,7 +532,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       {
         name: "Unkillable Tank",
         description:
-          "A build focused on extreme survivability through damage reduction.",
+          "A build focused on extreme survivability through damage reduction. Manual Bone Armor timing is crucial.",
         abilities: ["Bone Armor", "Fossilize", "Stone Shard", "Demonic Core"],
         totalCost: 15,
       },
@@ -588,16 +554,17 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
   "Shrom Xelar": {
     name: "Shrom Xelar",
     title: "Psychic Mushroom Axelar",
+    image: "/img/cards/shrom-xelar.webp",
     composition: { nature: 60, beast: 30, demon: 10 },
     abilities: [
       {
         name: "Spore Burst",
         slug: "spore-burst",
         type: "quick",
-        cooldown: 3,
-        damage: 20,
-        effect: "30% chance to poison for 8 damage over 4 seconds",
-        description: "Releases toxic spores from mushroom cap.",
+        cooldown: 4,
+        damage: 18,
+        effect: "40% chance to poison target for 5 seconds",
+        description: "Release toxic spores that may poison your foe.",
         target: "single-enemy",
         castTime: 0.9,
         soulshardCost: 2,
@@ -609,7 +576,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
         type: "power",
         cooldown: 9,
         damage: 28,
-        effect: "Spreads to nearby enemies, damage increases per target hit",
+        effect: "Damages all enemies, damage increases per target hit",
         description: "Underground fungal network damages connected foes.",
         target: "all-enemy",
         castTime: 2.4,
@@ -621,14 +588,13 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
         slug: "soul-absorb",
         type: "power",
         cooldown: 12,
-        damage: 25,
-        effect: "Heals for 100% of damage dealt and gains 20% damage boost",
-        description: "Mushroom feeds on enemy soul energy to grow stronger.",
-        initiationTime: 3,
+        damage: 30,
+        effect: "Heal 20 HP and gain 15% damage boost for 10 seconds",
+        description: "Drain the essence of your foe to empower yourself.",
         target: "single-enemy",
-        castTime: 1.9,
-        soulshardCost: 6,
-        activationConditions: [{ type: "on_own_hp_below", value: 70 }],
+        castTime: 1.8,
+        soulshardCost: 5,
+        activationConditions: [{ type: "on_available", priority: 5 }],
       },
       {
         name: "Fungal Nightmare",
@@ -648,15 +614,15 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       {
         name: "Toxic Aura",
         slug: "toxic-aura",
-        type: "passive",
-        cooldown: 0,
+        type: "power",
+        cooldown: 15,
         damage: 0,
-        effect: "Enemies that hit you have a chance to be poisoned.",
-        description: "Your very presence is poisonous to your foes.",
-        target: "self",
-        castTime: 0,
-        soulshardCost: 5,
-        activationConditions: [{ type: "at_start" }],
+        effect: "Poisons all enemies for 8 seconds",
+        description: "Emit a cloud of toxic spores that affects all foes.",
+        target: "all-enemy",
+        castTime: 2.3,
+        soulshardCost: 6,
+        activationConditions: [{ type: "on_available", priority: 7 }],
       },
       {
         name: "Rapid Growth",
@@ -664,15 +630,12 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
         type: "power",
         cooldown: 10,
         damage: 0,
-        effect: "Heals for 30 HP over 3 seconds.",
-        description: "Rapidly grow new fungal matter to heal yourself.",
+        effect: "Heal 40 HP over 5 seconds",
+        description: "Channel natural energy to rapidly regenerate.",
         target: "self",
         castTime: 1.5,
-        soulshardCost: 3,
-        activationConditions: [
-          { type: "on_own_hp_below", value: 40 },
-          { type: "after_heal" },
-        ],
+        soulshardCost: 4,
+        activationConditions: [{ type: "on_own_hp_below", value: 60 }],
       },
       {
         name: "Hallucinogenic Haze",
@@ -746,7 +709,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       {
         name: "Life-Leecher",
         description:
-          "A durable build that out-sustains the opponent through healing.",
+          "A durable build that out-sustains the opponent through healing. Manual Soul Absorb for strategic life steal.",
         abilities: ["Soul Absorb", "Rapid Growth", "Symbiosis", "Spore Burst"],
         totalCost: 15,
       },
@@ -762,6 +725,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
   "Void Ghorth": {
     name: "Void Ghorth",
     title: "Dimensional Terror Beast",
+    image: "/img/cards/void-ghorth.webp",
     composition: { water: 50, beast: 40, demon: 10 },
     abilities: [
       {
@@ -789,7 +753,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
         target: "single-enemy",
         castTime: 2.1,
         soulshardCost: 5,
-        activationConditions: [{ type: "on_available", priority: 4 }],
+        activationConditions: [{ type: "on_available", priority: 11 }],
       },
       {
         name: "Terror Howl",
@@ -864,9 +828,9 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
         type: "power",
         cooldown: 12,
         damage: 30,
-        effect: "Has a chance to pull other enemies in.",
+        effect: "Confuses target, reducing accuracy by 40% for 4 seconds.",
         description:
-          "Tear a hole in reality that damages and displaces your foes.",
+          "Tear a hole in reality that disorients your foe.",
         target: "single-enemy",
         castTime: 2.2,
         soulshardCost: 4,
@@ -905,7 +869,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       {
         name: "Evasive Bruiser",
         description:
-          "A hard-to-hit brawler that excels at surviving and dealing consistent damage.",
+          "A hard-to-hit brawler that excels at surviving and dealing consistent damage. Manual Dimensional Bite for armor piercing.",
         abilities: [
           "Phase Shift",
           "Savage Splash",
@@ -927,44 +891,45 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
         totalCost: 16,
       },
       {
-        name: "Rift Manipulator",
+        name: "Dimensional Controller",
         description:
-          "Control the battlefield by displacing and silencing your enemies.",
-        abilities: ["Void Tsunami", "Unstable Rift", "Drown"],
-        totalCost: 15,
+          "Control the battlefield through dimensional manipulation and terror tactics.",
+        abilities: ["Unstable Rift", "Terror Howl", "Drown", "Savage Splash"],
+        totalCost: 14,
       },
     ],
   },
   "Deep Zephyros": {
     name: "Deep Zephyros",
     title: "Abyssal Mind Breaker",
+    image: "/img/cards/deep-zephyros.webp",
     composition: { water: 40, beast: 30, demon: 30 },
     abilities: [
       {
         name: "Mind Lash",
         slug: "mind-lash",
         type: "quick",
-        cooldown: 3,
-        damage: 20,
-        effect: "Reduces enemy accuracy by 25% for 4 seconds",
+        cooldown: 4,
+        damage: 24,
+        effect: "Reduces enemy accuracy by 30% for 5 seconds",
         description: "Psychic attack that disrupts enemy focus.",
         target: "single-enemy",
-        castTime: 0.8,
-        soulshardCost: 2,
+        castTime: 0.9,
+        soulshardCost: 3,
         activationConditions: [{ type: "on_available", priority: 1 }],
       },
       {
         name: "Bestial Surge",
         slug: "bestial-surge",
         type: "power",
-        cooldown: 10,
+        cooldown: 12,
         damage: 0,
-        effect: "Increases attack speed by 30% for 5 seconds.",
+        effect: "Increases attack speed by 35% for 6 seconds.",
         description: "Channels primal instincts for rapid attacks.",
         target: "self",
-        castTime: 1.6,
-        soulshardCost: 3,
-        activationConditions: [{ type: "on_own_hp_above", value: 70 }],
+        castTime: 1.8,
+        soulshardCost: 4,
+        activationConditions: [{ type: "on_available", priority: 12 }],
       },
       {
         name: "Abyssal Drain",
@@ -984,14 +949,14 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
         name: "Mind Break",
         slug: "mind-break",
         type: "ultimate",
-        cooldown: 24,
-        damage: 65,
-        effect: "Enemy abilities have double cooldown for 8 seconds",
+        cooldown: 28,
+        damage: 70,
+        effect: "Enemy abilities have double cooldown for 10 seconds",
         description: "Shatters enemy psyche, disrupting their abilities.",
-        initiationTime: 8,
+        initiationTime: 10,
         target: "single-enemy",
-        castTime: 3.4,
-        soulshardCost: 8,
+        castTime: 3.8,
+        soulshardCost: 9,
         activationConditions: [{ type: "on_available", priority: 10 }],
       },
       {
@@ -1027,12 +992,12 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
         type: "power",
         cooldown: 12,
         damage: 0,
-        effect: "Become invisible for 3 seconds.",
-        description: "Use demonic power to vanish from sight.",
+        effect: "Gain 100% evasion for 3 seconds.",
+        description: "Use demonic power to become untouchable.",
         target: "self",
         castTime: 1.0,
         soulshardCost: 4,
-        activationConditions: [{ type: "after_enemy_dodges" }],
+        activationConditions: [{ type: "on_available", priority: 13 }],
       },
       {
         name: "Mental Fog",
@@ -1097,7 +1062,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
       {
         name: "Pack Hunter",
-        description: "Focuses on speed and aggression to overwhelm the enemy.",
+        description: "Focuses on speed and aggression to overwhelm the enemy. Manual Bestial Surge and Demon's Guile for tactical advantage.",
         abilities: [
           "Bestial Surge",
           "Tidal Slash",
@@ -1112,18 +1077,19 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
   Astrix: {
     name: "Astrix",
     title: "Starbound Void Walker",
+    image: "/img/cards/astrix.webp",
     composition: { demon: 40, divine: 30, wind: 30 },
     abilities: [
       {
         name: "Void Wind",
         slug: "void-wind",
         type: "quick",
-        cooldown: 2,
-        damage: 21,
+        cooldown: 3,
+        damage: 25,
         effect: "Ignores 100% of enemy armor",
         description: "Wind infused with void energy that bypasses armor.",
         target: "single-enemy",
-        castTime: 0.9,
+        castTime: 1.0,
         soulshardCost: 3,
         activationConditions: [{ type: "on_available", priority: 1 }],
       },
@@ -1131,14 +1097,14 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
         name: "Divine Punishment",
         slug: "divine-punishment",
         type: "power",
-        cooldown: 9,
-        damage: 38,
+        cooldown: 11,
+        damage: 45,
         effect: "+100% damage vs demon enemies",
         description: "Holy power that especially harms demonic foes.",
-        initiationTime: 3,
+        initiationTime: 4,
         target: "single-enemy",
-        castTime: 1.6,
-        soulshardCost: 5,
+        castTime: 1.8,
+        soulshardCost: 6,
         activationConditions: [{ type: "on_available", priority: 5 }],
       },
       {
@@ -1148,24 +1114,24 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
         cooldown: 7,
         damage: 25,
         effect: "Becomes invulnerable during cast",
-        description: "Dashes at light speed, avoiding all attacks.",
+        description: "Moves at light speed, avoiding all attacks.",
         target: "single-enemy",
         castTime: 2.1,
         soulshardCost: 4,
-        activationConditions: [{ type: "after_damage_taken" }],
+        activationConditions: [{ type: "on_available", priority: 14 }],
       },
       {
         name: "Paradox Storm",
         slug: "paradox-storm",
         type: "ultimate",
-        cooldown: 29,
-        damage: 65,
+        cooldown: 32,
+        damage: 80,
         effect: "Deals divine damage to demons, demon damage to divine",
         description: "Creates a storm of contradictory energies.",
-        initiationTime: 12,
+        initiationTime: 14,
         target: "all-enemy",
-        castTime: 3.2,
-        soulshardCost: 8,
+        castTime: 3.6,
+        soulshardCost: 10,
         activationConditions: [{ type: "on_available", priority: 10 }],
       },
       {
@@ -1201,12 +1167,12 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
         type: "power",
         cooldown: 10,
         damage: 0,
-        effect: "Teleport to a new location, clearing all debuffs.",
-        description: "Step through the void to reposition and purify yourself.",
+        effect: "Clear all debuffs and gain brief invulnerability.",
+        description: "Step through the void to purify yourself and avoid harm.",
         target: "self",
         castTime: 0.5,
         soulshardCost: 3,
-        activationConditions: [{ type: "on_own_hp_below", value: 40 }],
+        activationConditions: [{ type: "on_available", priority: 15 }],
       },
       {
         name: "Zephyr's Blessing",
@@ -1214,7 +1180,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
         type: "power",
         cooldown: 12,
         damage: 0,
-        effect: "Increases your movement and attack speed by 25%.",
+        effect: "Increases your attack speed and evasion by 25%.",
         description: "A divine wind hastens your actions.",
         target: "self",
         castTime: 1.0,
@@ -1227,8 +1193,8 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
         type: "power",
         cooldown: 14,
         damage: 20,
-        effect: "Pulls in nearby enemies and slows them.",
-        description: "Manipulate gravity to trap and hinder your foes.",
+        effect: "Slows all enemies and reduces their damage output.",
+        description: "Manipulate gravity to weaken and hinder your foes.",
         target: "all-enemy",
         castTime: 2.0,
         soulshardCost: 4,
@@ -1270,9 +1236,16 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
         totalCost: 16,
       },
       {
+        name: "Manual Mastery",
+        description:
+          "A high-skill build focused on manual ability timing for maximum control and impact.",
+        abilities: ["Stellar Dash", "Void Jaunt", "Void Wind", "Starfall"],
+        totalCost: 12,
+      },
+      {
         name: "Evasive Striker",
         description:
-          "A slippery build that uses mobility and invulnerability to outplay opponents.",
+          "A slippery build that uses evasion and invulnerability to outplay opponents. Manual Stellar Dash for perfect invulnerability timing.",
         abilities: [
           "Stellar Dash",
           "Void Jaunt",
@@ -1284,4 +1257,7 @@ export const AllSoulBeast: { [key: string]: SoulBeast } = {
       },
     ],
   },
-};
+} as const;
+
+// Export the typed name after AllSoulBeast is defined
+export type SoulBeastName = keyof typeof AllSoulBeast;

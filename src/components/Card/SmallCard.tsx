@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { FC, useEffect } from "react";
-import { DataLoader } from "../../engine/DataLoader";
+import { AllSoulBeast } from "../../engine/SoulBeast";
 import { useLocal } from "../../lib/use-local";
 import { SoulBeastName } from "../../types";
 
@@ -10,14 +10,14 @@ export const SmallCard: FC<{
   cardName?: SoulBeastName;
   variant?: "regular" | "radial";
   selected?: boolean;
-  onClick?: (cardName: string) => void;
+  onClick?: (cardName: SoulBeastName) => void;
   className?: string;
 }> = ({ cardName, variant = "regular", selected, onClick, className }) => {
   const local = useLocal({
     clicked: false,
     selected: null as unknown as boolean,
   });
-  const card = (cardName && DataLoader.getSoulBeast(cardName)) || {
+  const card = (cardName && AllSoulBeast[cardName]) || {
     abilities: [],
     composition: {},
     name: "???",

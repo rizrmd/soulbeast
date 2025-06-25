@@ -134,3 +134,180 @@ export class FungalNightmare extends BaseAbility {
     });
   }
 }
+
+export class ToxicAura extends BaseAbility {
+  constructor() {
+    super("Shrom Xelar", "Toxic Aura");
+  }
+
+  execute(context: AbilityContext): void {
+    // Passive ability - enemies that hit you have a chance to be poisoned
+    this.applyStatusToCaster(context, {
+      name: "Toxic Aura",
+      type: "buff",
+      duration: 999, // Permanent passive
+      value: 0.3, // 30% chance to poison attackers
+    });
+
+    context.addEvent({
+      timestamp: context.getCurrentTime(),
+      type: "ability_used",
+      source: context.caster.id,
+      target: context.caster.id,
+      ability: this.getAbilityData()?.name ?? "Toxic Aura",
+      message: `${context.caster.character.name}'s presence becomes poisonous to attackers`,
+    });
+  }
+}
+
+export class RapidGrowth extends BaseAbility {
+  constructor() {
+    super("Shrom Xelar", "Rapid Growth");
+  }
+
+  execute(context: AbilityContext): void {
+    // Heals for 30 HP over 3 seconds
+    this.applyStatusToCaster(context, {
+      name: "Rapid Growth",
+      type: "hot",
+      duration: 3.0,
+      value: 10, // 10 HP per second for 3 seconds = 30 HP total
+      tickInterval: 1.0,
+    });
+
+    context.addEvent({
+      timestamp: context.getCurrentTime(),
+      type: "ability_used",
+      source: context.caster.id,
+      target: context.caster.id,
+      ability: this.getAbilityData()?.name ?? "Rapid Growth",
+      message: `${context.caster.character.name} rapidly grows new fungal matter to heal`,
+    });
+  }
+}
+
+export class HallucinogenicHaze extends BaseAbility {
+  constructor() {
+    super("Shrom Xelar", "Hallucinogenic Haze");
+  }
+
+  execute(context: AbilityContext): void {
+    const abilityData = this.getAbilityData();
+    const damage = abilityData?.damage ?? 10;
+    const enemies = this.getEnemyTeam(context);
+    
+    // Deal damage to all enemies
+    for (const enemy of enemies) {
+      if (enemy.isAlive) {
+        context.dealDamage(context.caster, enemy, damage);
+      }
+    }
+
+    // Reduce enemy accuracy by 30% for 5 seconds
+    for (const enemy of enemies) {
+      if (enemy.isAlive) {
+        context.applyStatusEffect(enemy, {
+          name: "Hallucinogenic Haze",
+          type: "debuff",
+          duration: 5.0,
+          value: 0.3, // 30% accuracy reduction
+        });
+      }
+    }
+
+    context.addEvent({
+      timestamp: context.getCurrentTime(),
+      type: "ability_used",
+      source: context.caster.id,
+      ability: abilityData?.name ?? "Hallucinogenic Haze",
+      message: `${context.caster.character.name} releases a confusing haze that impairs enemy accuracy`,
+    });
+  }
+}
+
+export class ParasiticSpore extends BaseAbility {
+  constructor() {
+    super("Shrom Xelar", "Parasitic Spore");
+  }
+
+  execute(context: AbilityContext): void {
+    const abilityData = this.getAbilityData();
+    const damage = abilityData?.damage ?? 15;
+    
+    // Deal damage
+    this.applyDamage(context, damage);
+
+    // Apply parasitic spore - if target dies while this is active, heal for 25 HP
+    this.applyStatusToTargets(context, {
+      name: "Parasitic Spore",
+      type: "debuff",
+      duration: 10.0,
+      value: 25, // Healing amount on death
+    });
+
+    context.addEvent({
+      timestamp: context.getCurrentTime(),
+      type: "ability_used",
+      source: context.caster.id,
+      target: context.targets[0]?.id,
+      ability: abilityData?.name ?? "Parasitic Spore",
+      message: `${context.caster.character.name} infects the enemy with a parasitic spore`,
+    });
+  }
+}
+
+export class Symbiosis extends BaseAbility {
+  constructor() {
+    super("Shrom Xelar", "Symbiosis");
+  }
+
+  execute(context: AbilityContext): void {
+    // Passive ability - healing abilities also deal 25% of healed amount as damage to random enemy
+    this.applyStatusToCaster(context, {
+      name: "Symbiosis",
+      type: "buff",
+      duration: 999, // Permanent passive
+      value: 0.25, // 25% of healing as damage
+    });
+
+    context.addEvent({
+      timestamp: context.getCurrentTime(),
+      type: "ability_used",
+      source: context.caster.id,
+      target: context.caster.id,
+      ability: this.getAbilityData()?.name ?? "Symbiosis",
+      message: `${context.caster.character.name} establishes a symbiotic connection - life taken from others`,
+    });
+  }
+}
+
+export class Decompose extends BaseAbility {
+  constructor() {
+    super("Shrom Xelar", "Decompose");
+  }
+
+  execute(context: AbilityContext): void {
+    const abilityData = this.getAbilityData();
+    const damage = abilityData?.damage ?? 20;
+    
+    // Deal damage
+    this.applyDamage(context, damage);
+
+    // Reduce enemy armor by 40% for 8 seconds
+    this.applyStatusToTargets(context, {
+      name: "Decompose",
+      type: "debuff",
+      duration: 8.0,
+      value: 0.4, // 40% armor reduction
+    });
+
+    context.addEvent({
+      timestamp: context.getCurrentTime(),
+      type: "ability_used",
+      source: context.caster.id,
+      target: context.targets[0]?.id,
+      ability: abilityData?.name ?? "Decompose",
+      message: `${context.caster.character.name} breaks down the enemy's defenses, making them vulnerable`,
+    });
+  }
+}

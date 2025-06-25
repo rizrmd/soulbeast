@@ -1,5 +1,6 @@
 import { BattleEngine } from "../engine/BattleEngine";
 import { ActionInput, SimulatorTimingConfig, BattleConfig } from "../types";
+import { AllSoulBeast, SoulBeastName } from "../engine/SoulBeast";
 
 export class RealtimeBattleSimulator {
   private engine: BattleEngine;
@@ -30,7 +31,24 @@ export class RealtimeBattleSimulator {
   }
 
   public startBattle(player1Cards: string[], player2Cards: string[]): boolean {
-    const success = this.engine.initializeBattle(player1Cards, player2Cards);
+    // Convert card names to CardWithConfiguration objects using first available configuration
+    const player1CardsWithConfig = player1Cards.map(cardName => {
+      const soulBeast = AllSoulBeast[cardName as SoulBeastName];
+      return {
+        cardName: cardName as SoulBeastName,
+        configuration: soulBeast?.configurations[0] || { name: "Default", abilities: [] }
+      };
+    });
+    
+    const player2CardsWithConfig = player2Cards.map(cardName => {
+      const soulBeast = AllSoulBeast[cardName as SoulBeastName];
+      return {
+        cardName: cardName as SoulBeastName,
+        configuration: soulBeast?.configurations[0] || { name: "Default", abilities: [] }
+      };
+    });
+    
+    const success = this.engine.initializeBattle(player1CardsWithConfig, player2CardsWithConfig);
     if (!success) {
       console.log("Failed to initialize battle - cards not found");
       return false;

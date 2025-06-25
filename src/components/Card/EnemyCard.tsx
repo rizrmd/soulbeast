@@ -2,11 +2,11 @@ import { css } from "goober";
 import { motion } from "motion/react";
 import { FC, useEffect, useRef } from "react";
 import { useSnapshot } from "valtio";
-import { DataLoader } from "../../engine/DataLoader";
+import { AllSoulBeast, SoulBeastName } from "../../engine/SoulBeast";
 import { cn } from "../../lib/cn";
 import { useLocal } from "../../lib/use-local";
 import { gameStore } from "../../store/game-store";
-import { Ability, BattleEntity, SoulBeastUI } from "../../types";
+import { Ability, BattleEntity, SoulBeast } from "../../types";
 import { useFlyingText } from "../Battle/FlyingText";
 import StatusIcon from "../Battle/StatusIcon";
 
@@ -26,9 +26,7 @@ export const EnemyCard: FC<{
   const local = useLocal(
     {
       init: false,
-      image: "",
       hover: { card: false, ability: "" },
-      card: null as null | SoulBeastUI,
       tick: false,
       ival: null as any,
       lastTick: Date.now(),
@@ -105,13 +103,6 @@ export const EnemyCard: FC<{
       });
     }
   );
-  useEffect(() => {
-    if (entity.character.name) {
-      local.card = DataLoader.getSoulBeast(entity.character.name);
-      local.image = local.card?.image ?? "";
-      local.render();
-    }
-  }, [entity.character.name]);
 
   useEffect(() => {
     clearInterval(local.ival);
@@ -130,12 +121,11 @@ export const EnemyCard: FC<{
     }
   }, [local.tick]);
 
-  const card = local.card;
+  const card = entity.character;
   const cardName = entity.character.name;
   const hp = { current: entity.hp, max: entity.maxHp };
 
   const casting = entity.currentCast;
-  if (!local.image) return null;
 
   const cardEvents = {
     onPointerDown: () => {
@@ -171,7 +161,7 @@ export const EnemyCard: FC<{
             )}
           >
             <img
-              src={local.image}
+              src={card.image}
               className={cn(
                 "w-full transition-all duration-[2s] ease-out",
                 local.hover.card && "-mt-[100px]"
@@ -245,7 +235,7 @@ export const EnemyCard: FC<{
       </motion.div>
       <div className="absolute z-[4] ml-[15px] top-[90px] w-full flex flex-col">
         <div className="h-[36px] self-stretch -ml-3 mr-7 mt-3 flex items-stretch gap-1">
-          {card?.abilities.map((ability, index) => {
+          {card.abilities.map((ability, index) => {
             let cooldown = 0;
             let castTime = 0;
 

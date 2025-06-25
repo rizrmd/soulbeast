@@ -1,8 +1,13 @@
 import { proxy } from "valtio";
 import { BattleEngine } from "../engine/BattleEngine";
 import { ImageLoader } from "../lib/loader";
-import { ActionInput, BattleEvent, BattleState, SoulBeastName } from "../types";
-import { AllSoulBeast } from "../engine/SoulBeast";
+import { ActionInput, BattleEvent, BattleState } from "../types";
+import { AllSoulBeast, SoulbeastConfiguration, SoulBeastName } from "../engine/SoulBeast";
+
+interface CardWithConfiguration {
+  cardName: SoulBeastName;
+  configuration: SoulbeastConfiguration;
+}
 
 interface GameStore {
   // Game state
@@ -12,8 +17,8 @@ interface GameStore {
 
   // Card selection
   availableCards: SoulBeastName[];
-  player1Cards: SoulBeastName[];
-  player2Cards: SoulBeastName[];
+  player1Cards: CardWithConfiguration[];
+  player2Cards: CardWithConfiguration[];
   selectedCardIndex: number;
 
   // Battle UI state
@@ -84,7 +89,7 @@ export const gameActions = {
 
     const loader = ImageLoader.getInstance();
     await loader.loadImagesFromFolder({
-      onProgress: (progress) => {},
+      onProgress: (_progress) => {},
       onError: (error) => console.error("Error:", error),
     });
 
@@ -109,22 +114,36 @@ export const gameActions = {
 
     const playerCards =
       player === "player1" ? gameStore.player1Cards : gameStore.player2Cards;
-    // Clear any existing AI cards
+    // Clear any existing cards
     playerCards.length = 0;
 
     // Create a copy of available cards to avoid modifying the original
     const availableCardsCopy = [...gameStore.availableCards];
 
-    // Select 2 random card for Player 2
+    // Select random cards with configurations
     for (let i = 0; i < totalCards; i++) {
       if (availableCardsCopy.length === 0) break;
 
       // Randomly select a card
       const randomIndex = Math.floor(Math.random() * availableCardsCopy.length);
-      const selectedCard = availableCardsCopy[randomIndex];
+      const selectedCardName = availableCardsCopy[randomIndex];
+      
+      // Get the soul beast data to access configurations
+      const soulBeastData = AllSoulBeast[selectedCardName as keyof typeof AllSoulBeast];
+      
+      // Randomly select a configuration for this card
+      const configurations = soulBeastData.configurations;
+      const randomConfigIndex = Math.floor(Math.random() * configurations.length);
+      const selectedConfiguration = configurations[randomConfigIndex];
 
-      // Add to Player 2's cards
-      playerCards.push(selectedCard);
+      // Add card with configuration to player's cards
+      playerCards.push({
+        cardName: selectedCardName,
+        configuration: selectedConfiguration
+      });
+      
+      // Log the selected configuration for debugging
+      console.log(`Selected ${selectedCardName} with configuration: ${selectedConfiguration.name} (${selectedConfiguration.abilities.join(', ')})`);
 
       // Remove selected card from available cards
       availableCardsCopy.splice(randomIndex, 1);
@@ -134,30 +153,52 @@ export const gameActions = {
   addToPlayer1(cardName: SoulBeastName) {
     if (
       gameStore.player1Cards.length < 2 &&
-      !gameStore.player1Cards.includes(cardName)
+      !gameStore.player1Cards.some(card => card.cardName === cardName)
     ) {
-      gameStore.player1Cards.push(cardName);
+      // Get the soul beast data to access configurations
+      const soulBeastData = AllSoulBeast[cardName as keyof typeof AllSoulBeast];
+      
+      // Randomly select a configuration for this card
+      const configurations = soulBeastData.configurations;
+      const randomConfigIndex = Math.floor(Math.random() * configurations.length);
+      const selectedConfiguration = configurations[randomConfigIndex];
+      
+      gameStore.player1Cards.push({
+        cardName,
+        configuration: selectedConfiguration
+      });
     }
   },
 
   addToPlayer2(cardName: SoulBeastName) {
     if (
       gameStore.player2Cards.length < 2 &&
-      !gameStore.player2Cards.includes(cardName)
+      !gameStore.player2Cards.some(card => card.cardName === cardName)
     ) {
-      gameStore.player2Cards.push(cardName);
+      // Get the soul beast data to access configurations
+      const soulBeastData = AllSoulBeast[cardName as keyof typeof AllSoulBeast];
+      
+      // Randomly select a configuration for this card
+      const configurations = soulBeastData.configurations;
+      const randomConfigIndex = Math.floor(Math.random() * configurations.length);
+      const selectedConfiguration = configurations[randomConfigIndex];
+      
+      gameStore.player2Cards.push({
+        cardName,
+        configuration: selectedConfiguration
+      });
     }
   },
 
   removeFromPlayer1(cardName: SoulBeastName) {
-    const index = gameStore.player1Cards.indexOf(cardName);
+    const index = gameStore.player1Cards.findIndex(card => card.cardName === cardName);
     if (index > -1) {
       gameStore.player1Cards.splice(index, 1);
     }
   },
 
   removeFromPlayer2(cardName: SoulBeastName) {
-    const index = gameStore.player2Cards.indexOf(cardName);
+    const index = gameStore.player2Cards.findIndex(card => card.cardName === cardName);
     if (index > -1) {
       gameStore.player2Cards.splice(index, 1);
     }
@@ -175,8 +216,14 @@ export const gameActions = {
 
     gameStore.battleEngine = new BattleEngine();
     const success = gameStore.battleEngine.initializeBattle(
-      gameStore.player1Cards,
-      gameStore.player2Cards
+      gameStore.player1Cards.map(card => ({
+        cardName: card.cardName,
+        configuration: card.configuration
+      })),
+      gameStore.player2Cards.map(card => ({
+        cardName: card.cardName,
+        configuration: card.configuration
+      }))
     );
 
     if (success) {

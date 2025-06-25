@@ -63,7 +63,7 @@ export const useFlyingText = (arg: {
 
       const item: FlyingTextItem = {
         id,
-        text: params.value,
+        text: Math.round((params.value as any) * 10) / 10 + "",
         title: params.title,
         icon: params.icon,
         color: params.color || "#ffffff",

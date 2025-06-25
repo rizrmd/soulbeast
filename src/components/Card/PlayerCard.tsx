@@ -2,11 +2,10 @@ import { css } from "goober";
 import { motion } from "motion/react";
 import { FC, useEffect, useRef } from "react";
 import { useSnapshot } from "valtio";
-import { DataLoader } from "../../engine/DataLoader";
 import { cn } from "../../lib/cn";
 import { useLocal } from "../../lib/use-local";
 import { gameStore } from "../../store/game-store";
-import { BattleEntity, SoulBeastUI } from "../../types";
+import { BattleEntity } from "../../types";
 import { useFlyingText } from "../Battle/FlyingText";
 import { PlayerTarget } from "../Battle/PlayerTarget";
 import StatusIcon from "../Battle/StatusIcon";
@@ -25,10 +24,8 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
   const local = useLocal(
     {
       init: false,
-      image: "",
       touched: false,
       hover: { card: false, ability: "" },
-      card: null as null | SoulBeastUI,
       tick: false,
       ival: null as any,
       lastTick: Date.now(),
@@ -67,13 +64,6 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
       entity.on("status_removed", local.render);
     }
   );
-  useEffect(() => {
-    if (entity.character.name) {
-      local.card = DataLoader.getSoulBeast(entity.character.name);
-      local.image = local.card?.image ?? "";
-      local.render();
-    }
-  }, [entity.character.name]);
 
   useEffect(() => {
     clearInterval(local.ival);
@@ -92,10 +82,8 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
     }
   }, [local.tick]);
 
-  const card = local.card;
+  const card = entity.character;
   const hp = { current: entity.hp, max: entity.maxHp };
-
-  if (!local.image) return null;
 
   const cardEvents = {
     onPointerDown: () => {
@@ -129,7 +117,7 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
 
       <div className={cn("flex flex-col mb-4 relative player-card")}>
         {game.selectedEntity === entity.id && (
-          <PlayerTarget card={local.card!} />
+          <PlayerTarget card={card!} />
         )}
         <div className="hidden">{game.battleState?.events.length}</div>
         <div className="flex items-end mb-2" {...cardEvents}>
@@ -249,7 +237,7 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
               )}
             >
               <img
-                src={local.image}
+                src={card.image}
                 className={cn(
                   "w-full absolute left-0 bottom-0 right-2 object-cover transition-all duration-300 border border-[#f9daab] border-b-0",
                   !local.hover.card
@@ -258,7 +246,7 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
                 )}
               />
               <motion.img
-                src={local.image}
+                src={card.image}
                 className={cn(
                   "w-full object-cover rounded",
                   local.hover.card && "hidden"
@@ -291,7 +279,7 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
         </div>
 
         <div className="flex h-[75px] mt-2">
-          {card.abilities.map((ability, index) => {
+          {entity.character.abilities.map((ability, index) => {
             const selected = game.selectedAbility === ability.name;
 
             let cooldown = 0;

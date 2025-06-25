@@ -7,7 +7,10 @@
     "build": "rsbuild build",
     "dev": "rsbuild dev --open",
     "preview": "rsbuild preview",
-    "simulate": "bun run src/simulator/multiCardBattle.ts"
+    "simulate": "bun run src/simulator/multiCardBattle.ts",
+    "verify-abilities": "bun run verify-abilities.ts",
+    "verify-abilities:detailed": "bun run verify-abilities-detailed.ts --suggestions",
+    "verify-abilities:full": "bun run verify-abilities-detailed.ts --details --suggestions"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.10",

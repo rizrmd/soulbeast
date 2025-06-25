@@ -1,5 +1,3 @@
-import { AllSoulBeast } from "./engine/SoulBeast";
-
 export interface ElementComposition {
   frost?: number;
   demon?: number;
@@ -16,12 +14,30 @@ export interface Character {
   name: string;
   title: string;
   composition: ElementComposition;
+  image: string;
+}
+
+export interface AbilityCondition {
+  type:
+    | "on_available"
+    | "at_start"
+    | "after_damage_taken"
+    | "after_heal"
+    | "on_own_hp_above"
+    | "on_own_hp_below"
+    | "on_enemy_hp_above"
+    | "on_enemy_hp_below"
+    | "after_enemy_dodges"
+    | "after_ability_used";
+  priority?: number; // For 'on_available' to set order
+  value?: number; // For HP thresholds
+  abilityName?: string; // For after_ability_used
 }
 
 export interface Ability {
   name: string;
   slug: string;
-  type: "quick" | "power" | "ultimate";
+  type: "quick" | "power" | "ultimate" | "passive";
   cooldown: number;
   damage: number;
   effect: string;
@@ -31,19 +47,19 @@ export interface Ability {
     | "all-enemy"
     | "single-friend"
     | "all-friend"
-    | "self";
-  castTime?: number; // in seconds
+    | "self"
+    | "ally";
+  castTime: number; // in seconds
   initiationTime?: number; // initial delay before first use (in seconds)
+  soulshardCost: number; // cost in soulshards
+  activationConditions: readonly AbilityCondition[]; // conditions for automatic activation
 }
-export type SoulBeastName = keyof typeof AllSoulBeast;
 
 export interface SoulBeast {
-  name: SoulBeastName;
+  name: string;
   title: string;
   composition: ElementComposition;
-  abilities: Ability[];
-}
-export interface SoulBeastUI extends SoulBeast {
+  abilities: readonly Ability[];
   image: string;
 }
 

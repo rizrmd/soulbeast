@@ -6,11 +6,9 @@ import {
   BattleEvent,
   BattleState,
   PlayerState,
-  SoulBeast,
-  SoulBeastName,
   StatusEffect,
 } from "../types";
-import { DataLoader } from "./DataLoader";
+import { AllSoulBeast, SoulBeast, SoulBeastName } from "./SoulBeast";
 import { abilityRegistry } from "../abilities";
 import { AbilityContext } from "../abilities/types";
 
@@ -41,8 +39,8 @@ export class BattleEngine {
   }
 
   public initializeBattle(
-    player1Cards: SoulBeastName[],
-    player2Cards: SoulBeastName[]
+    player1Cards: { cardName: SoulBeastName; configuration: { name: string; abilities: readonly string[] } }[],
+    player2Cards: { cardName: SoulBeastName; configuration: { name: string; abilities: readonly string[] } }[]
   ): boolean {
     if (player1Cards.length === 0 || player2Cards.length === 0) {
       return false;
@@ -69,14 +67,15 @@ export class BattleEngine {
 
     // Create entities for player 1 cards
     for (let i = 0; i < player1Cards.length; i++) {
-      const cardData = DataLoader.getSoulBeast(player1Cards[i]);
+      const cardWithConfig = player1Cards[i];
+      const cardData = AllSoulBeast[cardWithConfig.cardName];
       if (!cardData) {
-        console.warn(`Card not found: ${player1Cards[i]}`);
+        console.warn(`Card not found: ${cardWithConfig.cardName}`);
         continue;
       }
 
       const entityId = `player1_card${i}`;
-      const entity = this.createEntity(entityId, cardData);
+      const entity = this.createEntity(entityId, cardData, cardWithConfig.configuration);
 
       // Position cards in formation - center single cards
       if (player1Cards.length === 1) {
@@ -94,14 +93,15 @@ export class BattleEngine {
 
     // Create entities for player 2 cards
     for (let i = 0; i < player2Cards.length; i++) {
-      const cardData = DataLoader.getSoulBeast(player2Cards[i]);
+      const cardWithConfig = player2Cards[i];
+      const cardData = AllSoulBeast[cardWithConfig.cardName];
       if (!cardData) {
-        console.warn(`Card not found: ${player2Cards[i]}`);
+        console.warn(`Card not found: ${cardWithConfig.cardName}`);
         continue;
       }
 
       const entityId = `player2_card${i}`;
-      const entity = this.createEntity(entityId, cardData);
+      const entity = this.createEntity(entityId, cardData as SoulBeast, cardWithConfig.configuration);
 
       // Position cards in formation on opposite side - center single cards
       if (player2Cards.length === 1) {
@@ -145,7 +145,7 @@ export class BattleEngine {
     return true;
   }
 
-  private createEntity(id: string, character: SoulBeast): BattleEntity {
+  private createEntity(id: string, character: SoulBeast, configuration: { name: string; abilities: readonly string[] }): BattleEntity {
     const eventListeners = new Map<
       BattleEvent["type"],
       Array<(event: BattleEvent) => void>
@@ -193,12 +193,23 @@ export class BattleEngine {
       },
     };
 
-    // Initialize ability initiation times
-    character.abilities.forEach((ability) => {
+    // Filter abilities based on configuration
+    const allowedAbilities = character.abilities.filter(ability => 
+      configuration.abilities.includes(ability.name)
+    );
+
+    // Initialize ability initiation times for allowed abilities only
+    allowedAbilities.forEach((ability) => {
       if (ability.initiationTime && ability.initiationTime > 0) {
         entity.abilityInitiationTimes.set(ability.name, ability.initiationTime);
       }
     });
+
+    // Create a modified character with only the allowed abilities
+    entity.character = {
+      ...character,
+      abilities: allowedAbilities
+    };
 
     return entity;
   }
@@ -240,6 +251,9 @@ export class BattleEngine {
           source: "system",
           message: "FIGHT!",
         });
+
+        // Trigger "at_start" abilities
+        this.triggerAtStartAbilities();
       }
 
       return; // Don't update entities during countdown
@@ -252,6 +266,9 @@ export class BattleEngine {
     for (const entity of this.state.entities.values()) {
       this.updateEntity(entity, dt);
     }
+
+    // Check for automatic ability activations
+    this.checkAutomaticAbilityActivations();
 
     // Check win conditions
     this.checkWinConditions();
@@ -323,6 +340,9 @@ export class BattleEngine {
 
     // Start cooldown
     entity.abilityCooldowns.set(ability.name, ability.cooldown);
+
+    // Trigger after_ability_used abilities
+    this.triggerAfterAbilityUsedAbilities(entity, ability.name);
 
     // Clear current cast
     entity.currentCast = undefined;
@@ -551,6 +571,11 @@ export class BattleEngine {
       message: `${attacker.character.name} deals ${Math.round(finalDamage)} damage to ${target.character.name}`,
     });
 
+    // Trigger after_damage_taken abilities on the target
+    if (finalDamage > 0) {
+      this.triggerAfterDamageAbilities(target);
+    }
+
     // Check if target died
     if (target.hp <= 0 && target.isAlive) {
       target.isAlive = false;
@@ -654,6 +679,11 @@ export class BattleEngine {
       ability: ability,
       message: `${entity.character.name} heals for ${actualHealing} HP`,
     });
+
+    // Trigger after_heal abilities
+    if (actualHealing > 0) {
+      this.triggerAfterHealAbilities(entity);
+    }
   }
 
   public applyStatusEffect(entity: BattleEntity, effect: StatusEffect): void {
@@ -935,5 +965,253 @@ export class BattleEngine {
 
   public getBattleDuration(): number {
     return (this.state.currentTime - this.state.startTime) / 1000;
+  }
+
+  private triggerAtStartAbilities(): void {
+    for (const entity of this.state.entities.values()) {
+      if (!entity.isAlive) continue;
+
+      // Use entity.character.abilities which contains only the configured abilities
+      for (const ability of entity.character.abilities) {
+        const hasAtStartCondition = ability.activationConditions?.some(
+          (condition) => condition.type === "at_start"
+        );
+
+        if (hasAtStartCondition) {
+          this.attemptAutomaticAbilityActivation(entity, ability);
+        }
+      }
+    }
+  }
+
+  private checkAutomaticAbilityActivations(): void {
+    for (const entity of this.state.entities.values()) {
+      if (!entity.isAlive) continue;
+
+      // Get abilities sorted by priority for "on_available" conditions
+      const availableAbilities = entity.character.abilities
+        .filter((ability) => {
+          const hasOnAvailableCondition = ability.activationConditions?.some(
+            (condition) => condition.type === "on_available"
+          );
+          return (
+            hasOnAvailableCondition && this.canActivateAbility(entity, ability)
+          );
+        })
+        .sort((a, b) => {
+          const aPriority =
+            a.activationConditions?.find((c) => c.type === "on_available")
+              ?.priority || 0;
+          const bPriority =
+            b.activationConditions?.find((c) => c.type === "on_available")
+              ?.priority || 0;
+          return aPriority - bPriority;
+        });
+
+      // Activate the highest priority available ability
+      if (availableAbilities.length > 0) {
+        this.attemptAutomaticAbilityActivation(entity, availableAbilities[0]);
+      }
+
+      // Check other condition-based abilities
+      for (const ability of entity.character.abilities) {
+        if (this.shouldActivateAbilityByCondition(entity, ability)) {
+          this.attemptAutomaticAbilityActivation(entity, ability);
+        }
+      }
+    }
+  }
+
+  private canActivateAbility(entity: BattleEntity, ability: any): boolean {
+    // Check if ability is on cooldown
+    if (entity.abilityCooldowns.has(ability.name)) {
+      return false;
+    }
+
+    // Check if ability is in initiation time
+    if (entity.abilityInitiationTimes.has(ability.name)) {
+      return false;
+    }
+
+    // Check if entity is already casting
+    if (entity.currentCast) {
+      return false;
+    }
+
+    // Check if entity is prevented from taking actions
+    if (entity.statusEffects.some((e) => e.behaviors?.preventsActions)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  private shouldActivateAbilityByCondition(
+    entity: BattleEntity,
+    ability: any
+  ): boolean {
+    if (!this.canActivateAbility(entity, ability)) {
+      return false;
+    }
+
+    for (const condition of ability.activationConditions || []) {
+      switch (condition.type) {
+        case "on_own_hp_below":
+          if (
+            condition.value &&
+            (entity.hp / entity.maxHp) * 100 <= condition.value
+          ) {
+            return true;
+          }
+          break;
+
+        case "on_own_hp_above":
+          if (
+            condition.value &&
+            (entity.hp / entity.maxHp) * 100 >= condition.value
+          ) {
+            return true;
+          }
+          break;
+
+        case "on_enemy_hp_below":
+        case "on_enemy_hp_above":
+          const enemies = this.getEnemies(entity);
+          for (const enemy of enemies) {
+            const enemyHpPercent = (enemy.hp / enemy.maxHp) * 100;
+            if (
+              condition.type === "on_enemy_hp_below" &&
+              condition.value &&
+              enemyHpPercent <= condition.value
+            ) {
+              return true;
+            }
+            if (
+              condition.type === "on_enemy_hp_above" &&
+              condition.value &&
+              enemyHpPercent >= condition.value
+            ) {
+              return true;
+            }
+          }
+          break;
+      }
+    }
+
+    return false;
+  }
+
+  private getEnemies(entity: BattleEntity): BattleEntity[] {
+    const casterTeam = entity.id.startsWith("player1_") ? "player1" : "player2";
+    const enemyTeam = casterTeam === "player1" ? "player2" : "player1";
+
+    return Array.from(this.state.entities.values()).filter(
+      (e) => e.id.startsWith(enemyTeam + "_") && e.isAlive
+    );
+  }
+
+  private attemptAutomaticAbilityActivation(
+    entity: BattleEntity,
+    ability: any
+  ): void {
+    // Find a suitable target based on ability target type
+    let targetId: string | undefined;
+
+    if (ability.target === "single-enemy") {
+      const enemies = this.getEnemies(entity);
+      if (enemies.length > 0) {
+        // Target the enemy with the lowest HP
+        const target = enemies.reduce((lowest, current) =>
+          current.hp < lowest.hp ? current : lowest
+        );
+        targetId = target.id;
+      }
+    } else if (
+      ability.target === "ally" ||
+      ability.target === "single-friend"
+    ) {
+      const allies = this.getAllies(entity);
+      if (allies.length > 0) {
+        // Target the ally with the lowest HP
+        const target = allies.reduce((lowest, current) =>
+          current.hp < lowest.hp ? current : lowest
+        );
+        targetId = target.id;
+      }
+    }
+
+    // Attempt to activate the ability
+    const action: ActionInput = {
+      entityId: entity.id,
+      abilityName: ability.name,
+      targetId,
+    };
+
+    this.attemptAction(action);
+  }
+
+  private getAllies(entity: BattleEntity): BattleEntity[] {
+    const casterTeam = entity.id.startsWith("player1_") ? "player1" : "player2";
+
+    return Array.from(this.state.entities.values()).filter(
+      (e) =>
+        e.id.startsWith(casterTeam + "_") && e.isAlive && e.id !== entity.id
+    );
+  }
+
+  public triggerAfterDamageAbilities(entity: BattleEntity): void {
+    for (const ability of entity.character.abilities) {
+      const hasAfterDamageCondition = ability.activationConditions?.some(
+        (condition) => condition.type === "after_damage_taken"
+      );
+
+      if (hasAfterDamageCondition && this.canActivateAbility(entity, ability)) {
+        this.attemptAutomaticAbilityActivation(entity, ability);
+      }
+    }
+  }
+
+  public triggerAfterHealAbilities(entity: BattleEntity): void {
+    for (const ability of entity.character.abilities) {
+      const hasAfterHealCondition = ability.activationConditions?.some(
+        (condition) => condition.type === "after_heal"
+      );
+
+      if (hasAfterHealCondition && this.canActivateAbility(entity, ability)) {
+        this.attemptAutomaticAbilityActivation(entity, ability);
+      }
+    }
+  }
+
+  public triggerAfterAbilityUsedAbilities(
+    entity: BattleEntity,
+    usedAbilityName: string
+  ): void {
+    for (const ability of entity.character.abilities) {
+      const hasAfterAbilityCondition = ability.activationConditions?.some(
+        (condition) =>
+          condition.type === "after_ability_used" &&
+          condition.abilityName === usedAbilityName
+      );
+
+      if (
+        hasAfterAbilityCondition &&
+        this.canActivateAbility(entity, ability)
+      ) {
+        this.attemptAutomaticAbilityActivation(entity, ability);
+      }
+    }
+  }
+
+  public triggerAfterEnemyDodgesAbilities(entity: BattleEntity): void {
+    for (const ability of entity.character.abilities) {
+      const hasAfterDodgeCondition = ability.activationConditions?.some(
+        (condition) => condition.type === "after_enemy_dodges"
+      );
+
+      if (hasAfterDodgeCondition && this.canActivateAbility(entity, ability)) {
+        this.attemptAutomaticAbilityActivation(entity, ability);
+      }
+    }
   }
 }

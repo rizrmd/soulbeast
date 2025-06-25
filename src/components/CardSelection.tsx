@@ -1,7 +1,7 @@
 import { motion } from "motion/react";
-import { DataLoader } from "../engine/DataLoader";
+import { AllSoulBeast } from "../engine/SoulBeast";
 import { useLocal } from "../lib/use-local";
-import { Ability, SoulBeastName, SoulBeastUI } from "../types";
+import { Ability, SoulBeastName, SoulBeast } from "../types";
 import { SmallCard } from "./Card/SmallCard";
 import { gameActions, gameStore } from "../store/game-store";
 import { useSnapshot } from "valtio";
@@ -21,7 +21,7 @@ const CardSelection = () => {
           string,
           SoulBeastName | undefined
         >,
-        card: undefined as void | SoulBeastUI,
+        card: undefined as void | SoulBeast,
         final: false,
       },
       hover: "",
@@ -55,7 +55,7 @@ const CardSelection = () => {
       )}
       <div className="p-3 flex items-stretch gap-3 max-h-[20%] flex-1 justify-center">
         {[...Array(local.max.enemy)].map((_, index) => (
-          <SmallCard key={index} cardName={game.player2Cards[index]} />
+          <SmallCard key={index} cardName={game.player2Cards[index]?.cardName} />
         ))}
       </div>
       <div className="relative flex items-center justify-center pointer-events-none h-[3%] -mt-5 mb-3">
@@ -96,9 +96,9 @@ const CardSelection = () => {
                 local.selected.index = index;
 
                 if (local.selected.cards[index]) {
-                  local.selected.card = DataLoader.getSoulBeast(
+                  local.selected.card = AllSoulBeast[
                     local.selected.cards[index]
-                  ) as unknown as SoulBeastUI;
+                  ] as unknown as SoulBeast;
 
                   const el = local.cardsEl[local.selected.card.name];
                   if (el) {
@@ -129,84 +129,82 @@ const CardSelection = () => {
           e.currentTarget.scrollBy({ left: e.deltaY, behavior: "auto" });
         }}
       >
-        {Object.entries(DataLoader.getAllSoulBeasts()).map(
-          ([, card], index) => {
-            const selected =
-              local.selected.cards["0"] === card.name ||
-              local.selected.cards["1"] === card.name;
-            return (
-              <div
-                className={cn("snap-center aspect-[2/3] relative", css``)}
-                key={index}
-                onPointerDown={(e) => {
-                  e.stopPropagation();
-                  local.hover = card.name as string;
-                  local.render();
-                }}
-                ref={(e) => {
-                  local.cardsEl[card.name] = e as HTMLDivElement;
-                }}
-                onPointerOut={() => {
+        {Object.values(AllSoulBeast).map((card, index) => {
+          const selected =
+            local.selected.cards["0"] === card.name ||
+            local.selected.cards["1"] === card.name;
+          return (
+            <div
+              className={cn("snap-center aspect-[2/3] relative", css``)}
+              key={index}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                local.hover = card.name as string;
+                local.render();
+              }}
+              ref={(e) => {
+                local.cardsEl[card.name] = e as HTMLDivElement;
+              }}
+              onPointerOut={() => {
+                local.hover = "";
+                local.render();
+              }}
+              onPointerUp={(e) => {
+                e.stopPropagation();
+
+                e.currentTarget.scrollIntoView({
+                  behavior: "smooth",
+                  block: "nearest",
+                  inline: "center",
+                });
+                if (local.hover !== card.name) {
                   local.hover = "";
                   local.render();
+                  return;
+                }
+
+                const idx = Object.values(local.selected.cards).findIndex(
+                  (e) => e === card.name
+                );
+
+                if (idx < 0) {
+                  local.selected.cards[local.selected.index] = card.name;
+                  local.selected.card = card;
+                } else {
+                  local.selected.cards[idx] = undefined;
+                  local.selected.card = undefined;
+                }
+
+                local.hover = "";
+                local.render();
+              }}
+            >
+              <motion.img
+                src={card.image}
+                animate={{
+                  scale: local.hover === card.name || selected ? 0.95 : 1,
                 }}
-                onPointerUp={(e) => {
-                  e.stopPropagation();
-
-                  e.currentTarget.scrollIntoView({
-                    behavior: "smooth",
-                    block: "nearest",
-                    inline: "center",
-                  });
-                  if (local.hover !== card.name) {
-                    local.hover = "";
-                    local.render();
-                    return;
-                  }
-
-                  const idx = Object.values(local.selected.cards).findIndex(
-                    (e) => e === card.name
-                  );
-
-                  if (idx < 0) {
-                    local.selected.cards[local.selected.index] = card.name;
-                    local.selected.card = card;
-                  } else {
-                    local.selected.cards[idx] = undefined;
-                    local.selected.card = undefined;
-                  }
-
-                  local.hover = "";
-                  local.render();
+                className="object-cover h-full rounded-2xl w-full pointer-events-none"
+              />
+              <motion.div
+                animate={{
+                  opacity: selected ? 1 : 0,
+                  scale: selected ? 1 : 1.2,
                 }}
-              >
-                <motion.img
-                  src={card.image}
-                  animate={{
-                    scale: local.hover === card.name || selected ? 0.95 : 1,
-                  }}
-                  className="object-cover h-full rounded-2xl w-full pointer-events-none"
-                />
-                <motion.div
-                  animate={{
-                    opacity: selected ? 1 : 0,
-                    scale: selected ? 1 : 1.2,
-                  }}
-                  initial={{ opacity: 0, scale: 1.2 }}
-                  transition={{ ease: "easeIn", duration: 0.1 }}
-                  className={cn(
-                    "w-full h-full absolute inset-0 rounded-xl pointer-events-none",
-                    css`
-                      background-image: url("/img/battle/rect-select.webp");
-                      background-size: 100% 100%;
-                      background-repeat: no-repeat;
-                    `
-                  )}
-                ></motion.div>
-              </div>
-            );
-          }
-        )}
+                initial={{ opacity: 0, scale: 1.2 }}
+                transition={{ ease: "easeIn", duration: 0.1 }}
+                className={cn(
+                  "w-full h-full absolute inset-0 rounded-xl pointer-events-none",
+                  css`
+                    background-image: url("/img/battle/rect-select.webp");
+                    background-size: 100% 100%;
+                    background-repeat: no-repeat;
+                  `
+                )}
+              ></motion.div>
+            </div>
+          );
+        })}
       </div>
       <div className="flex-1 flex-col flex min-h-[170px]">
         {card ? (
