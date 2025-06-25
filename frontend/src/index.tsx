@@ -2,7 +2,7 @@ import { FC, ReactElement } from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./App.css";
-import { getSession, Session } from "./lib/auth";
+import { authClient, getSession, Session } from "./lib/auth";
 import "./lib/init";
 import { useLocal } from "./lib/use-local";
 
@@ -20,6 +20,11 @@ if (rootEl) {
         if (ses.data?.session) {
           local.session = ses.data.session;
           local.render();
+          console.log(local.session)
+        } else {
+          const data = await authClient.signIn.social({
+            provider: "google",
+          });
         }
       }
     );

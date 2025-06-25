@@ -37,8 +37,8 @@ const CardSelection = () => {
     () => {
       gameActions.selectRandomCards("player2", 1);
       // gameActions.selectRandomCards("player1", 1);
-      gameActions.addToPlayer1("Bone Thurak", 0);
-      gameActions.startBattle();
+      // gameActions.addToPlayer1("Bone Thurak", 0);
+      // gameActions.startBattle();
     }
   );
   const card = local.selected.card;
