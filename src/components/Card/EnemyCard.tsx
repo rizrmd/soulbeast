@@ -2,11 +2,10 @@ import { css } from "goober";
 import { motion } from "motion/react";
 import { FC, useEffect, useRef } from "react";
 import { useSnapshot } from "valtio";
-import { AllSoulBeast, SoulBeastName } from "../../engine/SoulBeast";
 import { cn } from "../../lib/cn";
 import { useLocal } from "../../lib/use-local";
 import { gameStore } from "../../store/game-store";
-import { Ability, BattleEntity, SoulBeast } from "../../types";
+import { Ability, BattleEntity } from "../../types";
 import { useFlyingText } from "../Battle/FlyingText";
 import StatusIcon from "../Battle/StatusIcon";
 
@@ -36,6 +35,7 @@ export const EnemyCard: FC<{
       showAbilityInfo: false,
       interrupted: false as false | { by: string; ability: string },
       interruptTimeout: null as any,
+      lastPercent: 0,
     },
     () => {
       local.init = true;
@@ -126,6 +126,17 @@ export const EnemyCard: FC<{
   const hp = { current: entity.hp, max: entity.maxHp };
 
   const casting = entity.currentCast;
+  const currentPercent = casting
+    ? 100 -
+      Math.round(
+        (casting.timeRemaining / local.abilityCastTime[casting.ability.name]) *
+          100
+      )
+    : 0;
+
+  useEffect(() => {
+    local.lastPercent = currentPercent;
+  }, [currentPercent]);
 
   const cardEvents = {
     onPointerDown: () => {
@@ -360,8 +371,8 @@ export const EnemyCard: FC<{
             );
           })}
         </div>
-        <div className="font-megrim lowercase -ml-[16px] mr-8 mt-1 relative">
-          {casting && (
+        <div className="font-megrim lowercase flex flex-col w-full items-stretch -ml-[16px] pr-4 mt-1 relative">
+          {(casting || local.interrupted) && (
             <>
               <motion.div
                 animate={{ opacity: 1, y: 0 }}
@@ -369,36 +380,66 @@ export const EnemyCard: FC<{
                 transition={{ duration: 0.3, ease: "easeInOut" }}
                 className="flex justify-between items-center mb-1"
               >
-                <div className="font-bold leading-4">
-                  {!!casting && casting.ability.name}
-                </div>
-                {casting && (
-                  <div className="text-xs font-texturina min-w-[30px] text-right ">
-                    {Math.round(casting.timeRemaining * 10) / 10}
-                  </div>
+                {casting ? (
+                  <>
+                    <div className="font-bold leading-4">
+                      {!!casting && casting.ability.name}
+                    </div>
+                    <div className="text-xs font-texturina min-w-[30px] text-right ">
+                      {Math.round(casting.timeRemaining * 10) / 10}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {local.interrupted && (
+                      <>
+                        <div className="font-bold leading-4">
+                          {local.interrupted.ability}
+                        </div>
+                        <div className="text-xs font-texturina min-w-[30px] text-right ">
+                          -
+                        </div>
+                      </>
+                    )}
+                  </>
                 )}
               </motion.div>
+
               {local.interrupted ? (
                 <>
-                  <div className="font-texturina text-sm leading-4 text-red-500 capitalize">
-                    Interrupted By{" "}
-                    {game.battleState?.entities.get(local.interrupted.by)
-                      ?.character.name || "unknown"}
-                  </div>
+                  <motion.div
+                    animate={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, y: -10 }}
+                    transition={{
+                      duration: 0.3,
+                      ease: "easeInOut",
+                      delay: 0.1,
+                    }}
+                    className="flex flex-col"
+                  >
+                    <div className="border-l-2 border-red-700 pl-1 whitespace-nowrap">Interrupted By</div>
+                    <div className="border-l-2 border-red-700 pl-1 whitespace-nowrap">
+                      {game.battleState?.entities.get(local.interrupted.by)
+                        ?.character.name || "unknown"}
+                    </div>
+                  </motion.div>
                 </>
               ) : (
                 <>
-                  {casting && (
-                    <motion.div
-                      className={cn(
-                        "bg-amber-400  h-[2px] absolute left-0 bottom-0"
-                      )}
-                      animate={{
-                        width: `${100 - Math.round((casting.timeRemaining / local.abilityCastTime[casting.ability.name]) * 100)}%`,
-                      }}
-                      initial={{ width: "0%" }}
-                    ></motion.div>
-                  )}
+                  {casting &&
+                    !!currentPercent &&
+                    !!local.lastPercent &&
+                    local.lastPercent <= currentPercent && (
+                      <motion.div
+                        className={cn(
+                          "bg-amber-400  h-[2px] absolute left-0 bottom-0"
+                        )}
+                        animate={{
+                          width: `${currentPercent}%`,
+                        }}
+                        initial={{ width: "0%" }}
+                      ></motion.div>
+                    )}
                 </>
               )}
             </>

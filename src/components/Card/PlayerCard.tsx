@@ -116,9 +116,7 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
       )}
 
       <div className={cn("flex flex-col mb-4 relative player-card")}>
-        {game.selectedEntity === entity.id && (
-          <PlayerTarget card={card!} />
-        )}
+        {game.selectedEntity === entity.id && <PlayerTarget card={card!} />}
         <div className="hidden">{game.battleState?.events.length}</div>
         <div className="flex items-end mb-2" {...cardEvents}>
           <div className="border-t border-[#f9daab] relative">
@@ -278,7 +276,7 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
           </div>
         </div>
 
-        <div className="flex h-[75px] mt-2">
+        <div className="flex h-[100px] mt-2 px-2">
           {entity.character.abilities.map((ability, index) => {
             const selected = game.selectedAbility === ability.name;
 
@@ -328,7 +326,7 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
             return (
               <div
                 key={index}
-                className={cn("flex-1 p-2 relative")}
+                className={cn("flex-1 p-2 relative skew-x-[-10deg]")}
                 onClick={(e) => {
                   e.stopPropagation();
                   if (local.touched) {
@@ -381,26 +379,69 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
                 <div
                   className={cn(
                     "absolute inset-0 m-1",
-                    selected && "border rounded-lg border-[#f9daab]"
+                    maxCasting
+                      ? "border-3 border-[#febc00]"
+                      : selected && "border rounded-lg border-[#f9daab]"
                   )}
                 ></div>
+                {maxCasting && (
+                  <div className="absolute top-3 left-3 font-black font-rocker text-sm text-[#febc00]">
+                    Casting
+                  </div>
+                )}
+
+                {maxCooldown && (
+                  <div className="absolute top-3 left-3 font-black font-rocker text-sm text-[white]">
+                    Cooldown
+                  </div>
+                )}
                 <motion.img
-                  animate={{
-                    scale:
-                      local.hover.ability === ability.slug || selected
-                        ? 0.9
-                        : 1,
-                  }}
+                  animate={
+                    maxCasting
+                      ? { scale: 0.95 }
+                      : {
+                          scale:
+                            local.hover.ability === ability.slug || selected
+                              ? 0.9
+                              : 1,
+                        }
+                  }
                   transition={{ duration: 0.2 }}
                   src={`/img/abilities/${ability.slug}.webp`}
                   className={cn(
                     "w-full  h-full object-cover pointer-events-none transition-all",
-                    !selected ? "rounded-xl" : "rounded-[4px]",
-                    maxCasting && "border-3 border-amber-400",
-                    maxCooldown && "opacity-50"
+                    (maxCooldown || maxCasting) && "opacity-50"
                   )}
                 />
 
+                {maxCasting && (
+                  <>
+                    {casting?.timeRemaining && (
+                      <div
+                        className={cn(
+                          "absolute bottom-[34px] h-[3px] left-1 right-1 flex justify-end "
+                        )}
+                      >
+                        <motion.div
+                          animate={{
+                            width: `calc(${Math.round((casting?.timeRemaining / maxCasting) * 100)}% )`,
+                          }}
+                          initial={{ width: "100%" }}
+                          className="bg-[#febc00]  h-full"
+                        ></motion.div>
+                      </div>
+                    )}
+
+                    <div
+                      className={cn(
+                        "absolute  text-black text-xs bg-[#febc00]  flex flex-col items-center justify-center pb-1",
+                        "h-[25px] leading-0 left-2 bottom-2 right-2"
+                      )}
+                    >
+                      <>{Math.round(casting!.timeRemaining * 10) / 10}</>
+                    </div>
+                  </>
+                )}
                 {maxCooldown && (
                   <>
                     {cooldown && (
@@ -422,7 +463,7 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
                     <div
                       className={cn(
                         "absolute  text-black text-xs bg-white/70  flex flex-col items-center justify-center pb-1",
-                        "h-[25px] leading-0 left-2 bottom-2 right-2 rounded-b-xl"
+                        "h-[25px] leading-0 left-2 bottom-2 right-2"
                       )}
                     >
                       <>{Math.round(cooldown * 10) / 10}</>

@@ -614,6 +614,9 @@ export class BattleEngine {
       target.emit(castInterruptedEvent);
       attacker.emit(castInterruptedEvent);
 
+      // Add 1 second delay before the same ability can be used again
+      target.abilityCooldowns.set(interruptedAbility.name, 1.0);
+
       // Clear the current cast
       target.currentCast = undefined;
 

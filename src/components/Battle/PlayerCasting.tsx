@@ -1,8 +1,9 @@
-import { motion } from "motion/react";
+import { getValueTransition, motion } from "motion/react";
 import { useSnapshot } from "valtio";
 import { cn } from "../../lib/cn";
 import { useLocal } from "../../lib/use-local";
 import { gameStore } from "../../store/game-store";
+import { useEffect } from "react";
 
 export const PlayerCasting = ({ entityId }: { entityId: string }) => {
   const game = useSnapshot(gameStore);
@@ -13,6 +14,7 @@ export const PlayerCasting = ({ entityId }: { entityId: string }) => {
       timer: null as any,
       interrupted: false as false | { by: string; ability: string },
       interruptTimeout: null as any,
+      lastPercent: 0,
     },
     () => {
       entity?.on("cast_start", (event) => {
@@ -31,6 +33,7 @@ export const PlayerCasting = ({ entityId }: { entityId: string }) => {
         if (event.source === entityId) {
           clearTimeout(local.timer);
           clearTimeout(local.interruptTimeout);
+          local.timer = null;
           local.interrupted = false;
           local.render();
         }
@@ -56,6 +59,13 @@ export const PlayerCasting = ({ entityId }: { entityId: string }) => {
   );
   const entity = game.battleState?.entities.get(entityId);
   const casting = entity?.currentCast;
+
+  const currentPercent =
+    100 - Math.round(((casting?.timeRemaining || 0) / local.castTime) * 100);
+
+  useEffect(() => {
+    local.lastPercent = currentPercent;
+  }, [currentPercent]);
 
   if (!casting && !local.interrupted) return null;
 
@@ -88,15 +98,21 @@ export const PlayerCasting = ({ entityId }: { entityId: string }) => {
             </div>
           )}
         </motion.div>
-        {!local.interrupted && (
-          <motion.div
-            className={cn("bg-amber-400 h-[2px]")}
-            animate={{
-              width: `${100 - Math.round(((casting?.timeRemaining || 0) / local.castTime) * 100)}%`,
-            }}
-            initial={{ width: "0%" }}
-          ></motion.div>
-        )}
+        <div className="h-[2px]">
+          {!local.interrupted &&
+            !!currentPercent &&
+            !!local.lastPercent &&
+            local.lastPercent <= currentPercent && (
+              <motion.div
+                className={cn("bg-amber-400 h-[2px]")}
+                animate={{
+                  width: `${currentPercent}%`,
+                }}
+                initial={{ width: "0%" }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              ></motion.div>
+            )}
+        </div>
       </div>
     </>
   );
