@@ -10,6 +10,17 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "prisma": "^6.10.1"
+    "prisma": "^6.10.1",
+    "@prisma/client": "^6.10.1",
+    "better-auth": "^1.2.0",
+    "hono": "^4.0.0"
+  },
+  "scripts": {
+    "dev": "bun --watch index.ts",
+    "start": "bun index.ts",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio"
   }
 }
