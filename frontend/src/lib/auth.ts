@@ -9,7 +9,7 @@ export const authClient = createAuthClient({
       : "http://localhost:3001", // Your backend server URL
 });
 
-export const { useSession, signIn, signOut, signUp } = authClient;
+export const { getSession, signIn, signOut, signUp } = authClient;
 
 // Export types for use in components
 export type { Session, User };

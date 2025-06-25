@@ -1,8 +1,10 @@
 import { FC, ReactElement } from "react";
 import ReactDOM from "react-dom/client";
+import App from "./App";
 import "./App.css";
-import { Session, useSession } from "./lib/auth";
+import { getSession, Session } from "./lib/auth";
 import "./lib/init";
+import { useLocal } from "./lib/use-local";
 
 const rootEl = document.getElementById("root");
 if (rootEl) {
@@ -10,17 +12,26 @@ if (rootEl) {
   const Root: FC<{
     children: (opt: { session?: Session }) => ReactElement;
   }> = ({ children }) => {
-    const { data } = useSession();
+    const local = useLocal(
+      { session: undefined as undefined | Session },
+      async () => {
+        const ses = await getSession();
 
-    const session = data?.session;
-    return children({ session });
+        if (ses.data?.session) {
+          local.session = ses.data.session;
+          local.render();
+        }
+      }
+    );
+
+    return children({ session: local.session });
   };
 
   root.render(
     <Root>
       {({ session }) => (
         <>
-          {/* <App session={session} /> */}
+          <App session={session} />
         </>
       )}
     </Root>

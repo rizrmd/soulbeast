@@ -1,4 +1,4 @@
-import { FC, ReactElement, useEffect, useRef } from "react";
+import { FC, useEffect, useRef } from "react";
 import { useSnapshot } from "valtio";
 import { FlyingTextRoot } from "./components/Battle/FlyingText";
 import BattleArena from "./components/BattleArena";
@@ -6,7 +6,7 @@ import { CardDeck } from "./components/CardDeck";
 import CardSelection from "./components/CardSelection";
 import MainMenu from "./components/MainMenu";
 import ResultsScreen from "./components/ResultsScreen";
-import { Session, useSession } from "./lib/auth";
+import { Session } from "./lib/auth";
 import { gameActions, gameStore } from "./store/game-store";
 
 const App: FC<{ session?: Session }> = ({ session }) => {

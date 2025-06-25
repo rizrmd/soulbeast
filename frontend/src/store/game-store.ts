@@ -98,6 +98,7 @@ export const gameActions = {
     });
 
     gameStore.currentScreen = "cardDeck";
+    gameStore.isLoading = false;
 
     // try {
     //   gameStore.availableCards = Object.keys(AllSoulBeast) as SoulBeastName[];
