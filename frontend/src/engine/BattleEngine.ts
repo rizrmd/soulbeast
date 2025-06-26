@@ -7,10 +7,10 @@ import {
   BattleState,
   PlayerState,
   StatusEffect,
-} from "../types";
-import { AllSoulBeast, SoulBeast, SoulBeastName } from "./SoulBeast";
-import { abilityRegistry } from "../abilities";
-import { AbilityContext } from "../abilities/types";
+} from "../../../core/types";
+import { AllSoulBeast, SoulBeast, SoulBeastName } from "core/SoulBeast";
+import { abilityRegistry } from "core/abilities";
+import { AbilityContext } from "core/abilities/types";
 
 export class BattleEngine {
   private config: BattleConfig;
@@ -1230,9 +1230,7 @@ export class BattleEngine {
         );
         targetId = target.id;
       }
-    } else if (
-      ability.target === "single-ally"
-    ) {
+    } else if (ability.target === "single-ally") {
       const allies = this.getAllies(entity);
       if (allies.length > 0) {
         // Target the ally with the lowest HP

@@ -5,7 +5,7 @@ import { useSnapshot } from "valtio";
 import { cn } from "../../lib/cn";
 import { useLocal } from "../../lib/use-local";
 import { gameStore } from "../../engine/GameStore";
-import { BattleEntity } from "../../types";
+import { BattleEntity } from "../../../../core/types";
 import { useFlyingText } from "../Battle/FlyingText";
 import { PlayerTarget } from "../Battle/PlayerTarget";
 import StatusIcon from "../Battle/StatusIcon";

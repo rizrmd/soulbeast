@@ -4,7 +4,7 @@ import { spawn } from "bun";
 import { join } from "path";
 import { existsSync } from "fs";
 
-const projectRoot = import.meta.dir;
+const projectRoot = process.cwd();
 const backendPath = join(projectRoot, "backend");
 const frontendPath = join(projectRoot, "frontend");
 

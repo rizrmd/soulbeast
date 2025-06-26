@@ -1,4 +1,4 @@
-import { Ability, ElementComposition } from "../types";
+import { Ability, ElementComposition } from "./types";
 
 // SoulBeast interface with typed name
 export interface SoulBeast {

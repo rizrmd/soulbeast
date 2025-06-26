@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
-import { AllSoulBeast } from '../engine/SoulBeast';
-import { abilityRegistry } from '../abilities/AbilityRegistry';
+import { AllSoulBeast } from '../frontend/src/engine/SoulBeast';
+import { abilityRegistry } from '../frontend/src/abilities/AbilityRegistry';
 
 // ANSI color codes for terminal output
 const colors = {

@@ -34,6 +34,8 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({ onBattleEnd }) => {
     );
   }, [networkSnap.network.isConnected, networkSnap.network.latency]);
 
+  // The client should only render what the server sends - no auto-progression logic
+
   const handleEntityClick = (entity: BattleEntity) => {
     if (battleActions.isEntitySelectable(entity.id)) {
       battleActions.selectEntity(entity.id);
@@ -131,11 +133,20 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({ onBattleEnd }) => {
             <div
               key={entity.id}
               className={`bg-white/10 rounded-xl p-4 backdrop-blur-sm border-2 cursor-pointer transition-all duration-300 min-w-[150px] text-center hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/30 ${
-                battleActions.isEntityTargetable(entity.id) ? 'border-red-400' : 'border-white/20'
+                battleSnap.uiState.targetEntity === entity.id
+                  ? 'border-red-500 bg-red-500/20 shadow-lg shadow-red-500/50'
+                  : battleActions.isEntityTargetable(entity.id) 
+                    ? 'border-red-400' 
+                    : 'border-white/20'
               }`}
               onClick={() => handleEntityClick(entity)}
             >
-              <h4>{entity.name}</h4>
+              <div className="relative">
+                <h4>{entity.name}</h4>
+                {battleSnap.uiState.targetEntity === entity.id && battleSnap.uiState.isPlayerTurn && (
+                  <div className="absolute -top-2 -right-2 w-3 h-3 bg-red-400 rounded-full animate-pulse"></div>
+                )}
+              </div>
               <div className="w-full h-2 bg-white/20 rounded-full overflow-hidden my-2">
                 <div 
                   className="h-full bg-gradient-to-r from-red-400 via-orange-400 to-teal-400 transition-all duration-300"
@@ -148,12 +159,30 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({ onBattleEnd }) => {
                   Effects: {entity.statusEffects.length}
                 </div>
               )}
+              {battleSnap.uiState.targetEntity === entity.id && (
+                <div className="text-xs text-red-400 mt-1 font-medium">
+                  Targeted
+                </div>
+              )}
             </div>
           ))}
         </div>
 
         {/* UI Panel */}
         <div className="bg-black/80 rounded-xl p-4 backdrop-blur-sm border border-white/20">
+          {/* Battle status indicator */}
+          {battleSnap.battleState?.phase === 'battle' && (
+            <div className="mb-4 p-3 bg-blue-500/20 border border-blue-500/50 rounded-lg">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                <span className="text-blue-400 font-medium">Battle in Progress</span>
+              </div>
+              <p className="text-sm text-blue-300 mt-1">
+                Waiting for server updates. Battle state is managed by the server.
+              </p>
+            </div>
+          )}
+          
           {selectedEntity ? (
             <div>
               <h3>Selected: {selectedEntity.name}</h3>
@@ -179,14 +208,17 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({ onBattleEnd }) => {
               
               {battleSnap.uiState.selectedAbility && (
                 <div className="mt-4 text-orange-400">
-                  Select a target for {battleSnap.uiState.selectedAbility}
+                  Selected ability: {battleSnap.uiState.selectedAbility}
                 </div>
               )}
             </div>
           ) : (
             <div>
-              <h3>Select an entity to view details</h3>
-              <p>Click on your entities to select them and use abilities</p>
+              <h3>Battle Overview</h3>
+              <p>Battle state is managed by the server</p>
+              {battleSnap.uiState.isPlayerTurn && (
+                <p className="text-yellow-400 mt-2">Your turn</p>
+              )}
             </div>
           )}
         </div>
@@ -198,12 +230,17 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({ onBattleEnd }) => {
               key={entity.id}
               className={`bg-white/10 rounded-xl p-4 backdrop-blur-sm border-2 cursor-pointer transition-all duration-300 min-w-[150px] text-center hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/30 ${
                 battleSnap.uiState.selectedEntity === entity.id 
-                  ? 'border-indigo-500 bg-indigo-500/20' 
+                  ? 'border-indigo-500 bg-indigo-500/20 shadow-lg shadow-indigo-500/50' 
                   : 'border-teal-400'
               }`}
               onClick={() => handleEntityClick(entity)}
             >
-              <h4>{entity.name}</h4>
+              <div className="relative">
+                <h4>{entity.name}</h4>
+                {battleSnap.uiState.selectedEntity === entity.id && battleSnap.uiState.isPlayerTurn && (
+                  <div className="absolute -top-2 -right-2 w-3 h-3 bg-indigo-400 rounded-full animate-pulse"></div>
+                )}
+              </div>
               <div className="w-full h-2 bg-white/20 rounded-full overflow-hidden my-2">
                 <div 
                   className="h-full bg-gradient-to-r from-red-400 via-orange-400 to-teal-400 transition-all duration-300"
@@ -214,6 +251,11 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({ onBattleEnd }) => {
               {entity.statusEffects.length > 0 && (
                 <div className="text-xs text-orange-400">
                   Effects: {entity.statusEffects.length}
+                </div>
+              )}
+              {battleSnap.uiState.selectedEntity === entity.id && (
+                <div className="text-xs text-indigo-400 mt-1 font-medium">
+                  Selected
                 </div>
               )}
             </div>

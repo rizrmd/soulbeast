@@ -1,12 +1,12 @@
-import { proxy } from "valtio";
-import { BattleEngine } from "./BattleEngine";
-import { ImageLoader } from "../lib/loader";
-import { ActionInput, BattleEvent, BattleState } from "../types";
 import {
   AllSoulBeast,
   SoulbeastConfiguration,
   SoulBeastName,
-} from "./SoulBeast";
+} from "core/SoulBeast";
+import { ActionInput, BattleEvent, BattleState } from "core/types";
+import { proxy } from "valtio";
+import { ImageLoader } from "../lib/loader";
+import { BattleEngine } from "./BattleEngine";
 
 interface CardWithConfiguration {
   cardName: SoulBeastName;

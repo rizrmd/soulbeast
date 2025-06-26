@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { FC, useEffect } from "react";
-import { AllSoulBeast, SoulBeastName } from "../../engine/SoulBeast";
+import { AllSoulBeast, SoulBeastName } from "core/SoulBeast";
 import { useLocal } from "../../lib/use-local";
 
 const selsize = { w: 0, h: 0 };

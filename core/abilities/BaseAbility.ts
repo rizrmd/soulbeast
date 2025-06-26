@@ -1,6 +1,6 @@
 import { AbilityContext, AbilityImplementation } from "./types";
 import { BattleEntity, StatusEffect, Ability } from "../types";
-import { AllSoulBeast } from "../engine/SoulBeast";
+import { AllSoulBeast } from "../SoulBeast";
 
 export abstract class BaseAbility implements AbilityImplementation {
   protected characterName?: string;

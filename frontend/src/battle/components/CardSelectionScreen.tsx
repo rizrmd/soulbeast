@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { AllSoulBeast, SoulBeastName } from "../../engine/SoulBeast";
+import { AllSoulBeast, SoulBeastName } from "core/SoulBeast";
 import { gameStore } from "../../engine/GameStore";
 
 interface CardSelectionScreenProps {

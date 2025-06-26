@@ -4,7 +4,7 @@ import { useSnapshot } from "valtio";
 import { cn } from "../../lib/cn";
 import { useLocal } from "../../lib/use-local";
 import { gameStore } from "../../engine/GameStore";
-import { StatusEffect } from "../../types";
+import { StatusEffect } from "../../../../core/types";
 
 interface StatusIconProps {
   entityId: string;

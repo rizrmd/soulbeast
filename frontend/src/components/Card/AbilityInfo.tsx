@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { FC } from "react";
-import { Ability } from "../../types";
+import { Ability } from "../../../../core/types";
 
 interface AbilityInfoProps {
   ability: Ability | null;

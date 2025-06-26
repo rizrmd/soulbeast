@@ -1,11 +1,11 @@
 import { motion } from "motion/react";
 import { FC } from "react";
 import { useSnapshot } from "valtio";
-import { AllSoulBeast, SoulBeastName } from "../../engine/SoulBeast";
+import { AllSoulBeast, SoulBeastName } from "core/SoulBeast";
 import { cn } from "../../lib/cn";
 import { useLocal } from "../../lib/use-local";
 import { gameActions, gameStore } from "../../engine/GameStore";
-import { BattleEntity, SoulBeast } from "../../types";
+import { BattleEntity, SoulBeast } from "../../../../core/types";
 import { AbilityTable } from "../Card/AbilityInfo";
 
 export const PlayerTarget: FC<{ card: SoulBeast }> = ({ card }) => {

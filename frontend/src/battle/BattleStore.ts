@@ -1,5 +1,5 @@
 import { proxy } from "valtio";
-import { SoulBeastName } from "../engine/SoulBeast";
+import { SoulBeastName } from "core/SoulBeast";
 
 // Types for battle system
 export interface PlayerCard {
