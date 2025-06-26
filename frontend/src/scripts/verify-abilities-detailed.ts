@@ -2,8 +2,8 @@
 
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
-import { AllSoulBeast } from './src/engine/SoulBeast';
-import { abilityRegistry } from './src/abilities/AbilityRegistry';
+import { AllSoulBeast } from '../engine/SoulBeast';
+import { abilityRegistry } from '../abilities/AbilityRegistry';
 
 // ANSI color codes for terminal output
 const colors = {

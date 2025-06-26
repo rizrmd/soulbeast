@@ -6,6 +6,7 @@ const MainMenu: React.FC = () => {
     gameActions.initialize();
   };
 
+  console.log("asd")
   useEffect(() => {
     handleStartGame();
   }, []);

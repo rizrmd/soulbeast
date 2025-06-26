@@ -7,14 +7,14 @@ import type { IncomingHttpHeaders } from 'node:http'
 const prisma = new PrismaClient()
 
 // Zod schemas for validation
-const InventorySchema = z.object({
-  id: z.string().cuid(),
-  userId: z.string(),
-  itemSlug: z.string().min(1),
-  quantity: z.number().int().min(1),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-})
+// const InventorySchema = z.object({
+//   id: z.string().cuid(),
+//   userId: z.string(),
+//   itemSlug: z.string().min(1),
+//   quantity: z.number().int().min(1),
+//   createdAt: z.date(),
+//   updatedAt: z.date(),
+// })
 
 const SoulBeastSchema = z.object({
   id: z.string().cuid(),

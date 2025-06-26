@@ -1,4 +1,4 @@
-import { FC, ReactElement } from "react";
+import { FC, ReactElement, StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./App.css";
@@ -20,7 +20,7 @@ if (rootEl) {
         if (ses.data?.session) {
           local.session = ses.data.session;
           local.render();
-          console.log(local.session)
+          console.log(local.session);
         } else {
           await authClient.signIn.social({
             provider: "google",
@@ -33,12 +33,14 @@ if (rootEl) {
   };
 
   root.render(
-    <Root>
-      {({ session }) => (
-        <>
-          <App session={session} />
-        </>
-      )}
-    </Root>
+    <StrictMode>
+      <Root>
+        {({ session }) => (
+          <>
+            <App session={session} />
+          </>
+        )}
+      </Root>
+    </StrictMode>
   );
 }

@@ -4,7 +4,7 @@ import { serveStatic } from "hono/bun";
 import { auth } from "./auth";
 import { router } from "./api/router";
 import { openAPISpec } from "./api/openapi";
-// import { createORPCHandler } from "@orpc/server";
+import { RPCHandler } from "@orpc/server/fetch";
 import { join } from "path";
 import { existsSync } from "fs";
 
@@ -96,10 +96,20 @@ app.get("/api/docs/ui", (c) => {
   return c.html(html);
 });
 
-// oRPC routes - simplified for now
+// oRPC routes
+const orpcHandler = new RPCHandler(router);
+
 app.all('/api/rpc/*', async (c) => {
-  // TODO: Implement proper oRPC handler
-  return c.json({ error: 'oRPC handler not implemented yet' }, 501)
+  const request = c.req.raw;
+  const result = await orpcHandler.handle(request, {
+    context: {
+      headers: Object.fromEntries(request.headers.entries())
+    }
+  });
+  if (result.matched) {
+    return result.response;
+  }
+  return c.notFound();
 });
 
 // Legacy API routes

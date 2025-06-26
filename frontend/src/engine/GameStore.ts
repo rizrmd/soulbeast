@@ -15,9 +15,17 @@ interface CardWithConfiguration {
 
 interface GameStore {
   // Game state
-  currentScreen: "menu" | "cardSelection" | "battle" | "results" | "cardDeck";
   battleEngine: BattleEngine | null;
   battleState: BattleState | null;
+
+  // Navigation callbacks
+  navigationCallbacks?: {
+    goToMenu?: () => void;
+    goToCardSelection?: () => void;
+    goToCardDeck?: () => void;
+    goToBattle?: () => void;
+    goToResults?: () => void;
+  };
 
   // Card selection
   availableCards: SoulBeastName[];
@@ -55,9 +63,9 @@ interface GameStore {
 }
 
 export const gameStore = proxy<GameStore>({
-  currentScreen: "cardSelection",
   battleEngine: null,
   battleState: null,
+  navigationCallbacks: undefined,
 
   availableCards: [],
   player1Cards: [],
@@ -97,7 +105,7 @@ export const gameActions = {
       onError: (error) => console.error("Error:", error),
     });
 
-    gameStore.currentScreen = "cardDeck";
+    // Navigation will be handled by React Router
     gameStore.isLoading = false;
 
     // try {
@@ -246,11 +254,15 @@ export const gameActions = {
     );
 
     if (success) {
-      gameStore.currentScreen = "battle";
       gameStore.battleState = gameStore.battleEngine.getState();
       gameStore.recentEvents = gameStore.battleEngine.getRecentEvents(
         gameStore.maxEvents
       );
+
+      // Navigate to battle
+      if (gameStore.navigationCallbacks?.goToBattle) {
+        gameStore.navigationCallbacks.goToBattle();
+      }
 
       // Start game loop
       gameActions.startGameLoop();
@@ -266,7 +278,10 @@ export const gameActions = {
         // Battle ended
         gameStore.winner = gameStore.battleEngine?.getWinner() || null;
         if (gameStore.winner || !gameStore.battleEngine?.isActive()) {
-          gameStore.currentScreen = "results";
+          // Navigation to results will be handled by React Router
+          if (gameStore.navigationCallbacks?.goToResults) {
+            gameStore.navigationCallbacks.goToResults();
+          }
         }
         return;
       }
@@ -588,9 +603,19 @@ export const gameActions = {
     }
   },
 
-  // Navigation
+  // Navigation callbacks (set by React Router)
+  setNavigationCallbacks(callbacks: {
+    goToMenu?: () => void;
+    goToCardSelection?: () => void;
+    goToCardDeck?: () => void;
+    goToBattle?: () => void;
+    goToResults?: () => void;
+  }) {
+    gameStore.navigationCallbacks = callbacks;
+  },
+
+  // Navigation actions
   goToMenu() {
-    gameStore.currentScreen = "menu";
     gameStore.battleEngine = null;
     gameStore.battleState = null;
     gameStore.player1Cards = [];
@@ -600,10 +625,13 @@ export const gameActions = {
     gameStore.targetEntity = null;
     gameStore.winner = null;
     gameStore.error = null;
+    
+    if (gameStore.navigationCallbacks?.goToMenu) {
+      gameStore.navigationCallbacks.goToMenu();
+    }
   },
 
   goToCardSelection() {
-    gameStore.currentScreen = "cardSelection";
     gameStore.player1Cards = [];
     gameStore.player2Cards = [];
     gameStore.error = null;
@@ -611,6 +639,22 @@ export const gameActions = {
     // Re-select random cards for AI when going back to card selection
     if (gameStore.availableCards.length > 0) {
       gameActions.selectRandomCards("player2");
+    }
+    
+    if (gameStore.navigationCallbacks?.goToCardSelection) {
+      gameStore.navigationCallbacks.goToCardSelection();
+    }
+  },
+
+  goToBattle() {
+    if (gameStore.navigationCallbacks?.goToBattle) {
+      gameStore.navigationCallbacks.goToBattle();
+    }
+  },
+
+  goToCardDeck() {
+    if (gameStore.navigationCallbacks?.goToCardDeck) {
+      gameStore.navigationCallbacks.goToCardDeck();
     }
   },
 };
