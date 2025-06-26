@@ -9,7 +9,7 @@ import ResultsScreen from "./components/ResultsScreen";
 import { Session } from "./lib/auth";
 import { gameActions, gameStore } from "./engine/GameStore";
 
-const App: FC<{ session?: Session }> = ({ session }) => {
+const App: FC<{ session?: Session }> = ({ session: _session }) => {
   const state = useSnapshot(gameStore);
   const ref = useRef<HTMLDivElement>(null);
 

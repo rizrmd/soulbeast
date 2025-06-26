@@ -10,10 +10,15 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "prisma": "^6.10.1",
+    "@orpc/client": "^1.5.2",
+    "@orpc/openapi": "^1.5.2",
+    "@orpc/server": "^1.5.2",
+    "@orpc/zod": "^1.5.2",
     "@prisma/client": "^6.10.1",
     "better-auth": "^1.2.0",
-    "hono": "^4.0.0"
+    "hono": "^4.0.0",
+    "prisma": "^6.10.1",
+    "zod": "^3.25.67"
   },
   "scripts": {
     "dev": "bun --watch index.ts",

@@ -3,7 +3,7 @@ import {
   createImageState,
   setupImage,
 } from "@pmndrs/uikit/internals";
-import { Image as UIKitImage } from "@react-three/uikit";
+// import { Image as UIKitImage } from "@react-three/uikit"; // Unused import
 import { ParentProvider, useParent } from "@react-three/uikit/dist/context.js";
 import { DefaultProperties } from "@react-three/uikit/dist/default.js";
 import {

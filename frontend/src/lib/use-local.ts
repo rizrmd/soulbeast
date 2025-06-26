@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useSnapshot } from "valtio";
+// import { useSnapshot } from "valtio"; // Unused import
 
 export const useLocal = <T extends Record<string, any>>(
   value: T,

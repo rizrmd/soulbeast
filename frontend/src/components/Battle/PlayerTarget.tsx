@@ -48,7 +48,7 @@ export const PlayerTarget: FC<{ card: SoulBeast }> = ({ card }) => {
       >
         <div
           className={cn("p-2 flex items-center mb-4")}
-          onPointerDown={(e) => {
+          onPointerDown={() => {
             local.detail = !local.detail;
             local.render();
           }}

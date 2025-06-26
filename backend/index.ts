@@ -2,6 +2,9 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { serveStatic } from "hono/bun";
 import { auth } from "./auth";
+import { router } from "./api/router";
+import { openAPISpec } from "./api/openapi";
+// import { createORPCHandler } from "@orpc/server";
 import { join } from "path";
 import { existsSync } from "fs";
 
@@ -46,7 +49,60 @@ app.get("/health", (c) => {
   return c.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-// API routes
+// OpenAPI documentation endpoint
+app.get("/api/docs", async (c) => {
+  const spec = await openAPISpec;
+  return c.json(spec);
+});
+
+// Swagger UI endpoint
+app.get("/api/docs/ui", (c) => {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>SoulBeast API Documentation</title>
+        <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui.css" />
+        <style>
+          html { box-sizing: border-box; overflow: -moz-scrollbars-vertical; overflow-y: scroll; }
+          *, *:before, *:after { box-sizing: inherit; }
+          body { margin:0; background: #fafafa; }
+        </style>
+      </head>
+      <body>
+        <div id="swagger-ui"></div>
+        <script src="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-bundle.js"></script>
+        <script src="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-standalone-preset.js"></script>
+        <script>
+          window.onload = function() {
+            const ui = SwaggerUIBundle({
+              url: '/api/docs',
+              dom_id: '#swagger-ui',
+              deepLinking: true,
+              presets: [
+                SwaggerUIBundle.presets.apis,
+                SwaggerUIStandalonePreset
+              ],
+              plugins: [
+                SwaggerUIBundle.plugins.DownloadUrl
+              ],
+              layout: "StandaloneLayout"
+            });
+          };
+        </script>
+      </body>
+    </html>
+  `;
+  return c.html(html);
+});
+
+// oRPC routes - simplified for now
+app.all('/api/rpc/*', async (c) => {
+  // TODO: Implement proper oRPC handler
+  return c.json({ error: 'oRPC handler not implemented yet' }, 501)
+});
+
+// Legacy API routes
 app.get("/api/user", async (c) => {
   const session = await auth.api.getSession({
     headers: new Headers(c.req.header()),

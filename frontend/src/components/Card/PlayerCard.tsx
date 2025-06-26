@@ -485,7 +485,7 @@ export const PlayerCard: FC<{ idx: number }> = ({ idx }) => {
   );
 };
 
-const BoxCorner = () => {
+export const BoxCorner = () => {
   return (
     <>
       <img

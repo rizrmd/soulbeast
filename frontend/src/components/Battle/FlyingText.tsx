@@ -30,18 +30,19 @@ const removeFlyingTextItem = (id: string) => {
   flyingTextListeners.forEach((listener) => listener());
 };
 
-const getRelativePosition = (
-  element: HTMLDivElement,
-  parent: HTMLDivElement
-) => {
-  const elementRect = element.getBoundingClientRect();
-  const parentRect = parent.getBoundingClientRect();
+// Unused function - commented out to fix TypeScript error
+// const getRelativePosition = (
+//   element: HTMLDivElement,
+//   parent: HTMLDivElement
+// ) => {
+//   const elementRect = element.getBoundingClientRect();
+//   const parentRect = parent.getBoundingClientRect();
 
-  return {
-    x: elementRect.left - parentRect.left + elementRect.width / 2,
-    y: elementRect.top - parentRect.top + elementRect.height / 2,
-  };
-};
+//   return {
+//     x: elementRect.left - parentRect.left + elementRect.width / 2,
+//     y: elementRect.top - parentRect.top + elementRect.height / 2,
+//   };
+// };
 
 export const useFlyingText = (arg: {
   div: React.RefObject<HTMLDivElement | null>;
