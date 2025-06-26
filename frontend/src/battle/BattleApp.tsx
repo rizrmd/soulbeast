@@ -76,7 +76,7 @@ export const BattleApp: React.FC<BattleAppProps> = ({ onExit }) => {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white relative">
+    <div className="h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white relative overflow-auto">
       {/* Exit Button */}
       {onExit && (
         <button 

@@ -9,6 +9,25 @@ import { join } from "path";
 import { existsSync } from "fs";
 import { wsManager } from "./src/websocket/WebSocketManager";
 import { messageHandler } from "./src/websocket/MessageHandler";
+import type { ServerWebSocket } from "bun";
+
+// WebSocket data interface
+interface WebSocketData {
+  connectionId: string;
+  playerId: string;
+}
+
+// Server configuration type
+interface ServerConfig {
+  port: string | number;
+  fetch(req: Request, server: any): Response | Promise<Response>;
+  websocket: {
+    message(ws: ServerWebSocket<WebSocketData>, message: string | Buffer): void;
+    open(ws: ServerWebSocket<WebSocketData>): void;
+    close(ws: ServerWebSocket<WebSocketData>): void;
+    error(ws: ServerWebSocket<WebSocketData>, error: Error): void;
+  };
+}
 
 const app = new Hono();
 
@@ -176,15 +195,23 @@ const port = process.env.PORT || 3001;
 
 export default {
   port,
-  fetch: app.fetch,
+  fetch(req: Request, server: any): Response | Promise<Response> {
+    // Check for WebSocket upgrade
+    if (req.headers.get("upgrade") === "websocket") {
+      return server.upgrade(req);
+    }
+    
+    // Handle regular HTTP requests
+    return app.fetch(req, server);
+  },
   websocket: {
-    message(ws: any, message: any) {
+    message(ws: ServerWebSocket<WebSocketData>, message: string | Buffer): void {
       const connectionId = ws.data?.connectionId;
       if (connectionId) {
         messageHandler.handleMessage(connectionId, message.toString());
       }
     },
-    open(ws: any) {
+    open(ws: ServerWebSocket<WebSocketData>): void {
       const connectionId = `conn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       const playerId = ws.data?.playerId || `player_${Date.now()}`;
       
@@ -193,17 +220,17 @@ export default {
       
       console.log(`WebSocket connection opened: ${connectionId}`);
     },
-    close(ws: any) {
+    close(ws: ServerWebSocket<WebSocketData>): void {
       const connectionId = ws.data?.connectionId;
       if (connectionId) {
         wsManager.removeConnection(connectionId);
         console.log(`WebSocket connection closed: ${connectionId}`);
       }
     },
-    error(ws: any, error: any) {
+    error(ws: ServerWebSocket<WebSocketData>, error: Error): void {
       console.error('WebSocket error:', error);
     }
   }
-};
+} satisfies ServerConfig;
 
 console.log(`🚀 Server running on port ${port}`);

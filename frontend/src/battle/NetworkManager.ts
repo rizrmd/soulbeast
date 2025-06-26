@@ -111,7 +111,7 @@ export class NetworkManager {
       networkStore.battle.isInBattle = true;
       networkStore.matchmaking.isInQueue = false;
       networkStore.matchmaking.matchFound = false;
-      
+
       // Initialize battle in battle store
       if (data.initialState) {
         battleActions.startBattle(data.battleId, data.initialState);
@@ -121,7 +121,7 @@ export class NetworkManager {
     this.messageHandlers.set("BATTLE_STATE_UPDATE", (data) => {
       networkStore.battle.battleState = data;
       networkStore.battle.lastStateUpdate = Date.now();
-      
+
       // Update battle store with new state
       battleActions.updateBattleState(data);
     });
@@ -130,15 +130,17 @@ export class NetworkManager {
       networkStore.battle.isInBattle = false;
       networkStore.battle.battleId = null;
       networkStore.battle.battleState = null;
-      
+
       // End battle in battle store
       battleActions.endBattle();
-      
+
       // Show battle result notification
       if (data.winner) {
         const isWinner = data.winner === battleStore.playerId;
         battleActions.addNotification(
-          isWinner ? "Victory! You won the battle!" : "Defeat! Better luck next time!"
+          isWinner
+            ? "Victory! You won the battle!"
+            : "Defeat! Better luck next time!"
         );
       }
     });
@@ -146,7 +148,7 @@ export class NetworkManager {
     this.messageHandlers.set("PONG", () => {
       const now = Date.now();
       networkStore.network.latency = now - networkStore.network.lastPingTime;
-      
+
       // Update battle store connection state
       battleActions.setConnectionState(true, networkStore.network.latency);
     });
@@ -154,11 +156,15 @@ export class NetworkManager {
     this.messageHandlers.set("ACTION_RESULT", (data) => {
       // Handle action results (success/failure)
       battleActions.setActionInProgress(false);
-      
+
       if (data.success) {
-        battleActions.addNotification(`Action successful: ${data.message || 'Action completed'}`);
+        battleActions.addNotification(
+          `Action successful: ${data.message || "Action completed"}`
+        );
       } else {
-        battleActions.addNotification(`Action failed: ${data.error || 'Unknown error'}`);
+        battleActions.addNotification(
+          `Action failed: ${data.error || "Unknown error"}`
+        );
       }
     });
 
@@ -166,7 +172,7 @@ export class NetworkManager {
       // Handle turn changes
       const isPlayerTurn = data.currentPlayerId === battleStore.playerId;
       battleStore.uiState.isPlayerTurn = isPlayerTurn;
-      
+
       battleActions.addNotification(
         isPlayerTurn ? "Your turn!" : "Opponent's turn"
       );
@@ -181,15 +187,20 @@ export class NetworkManager {
 
     this.messageHandlers.set("ERROR", (data) => {
       // Handle server errors
-      battleActions.addNotification(`Error: ${data.message || 'Unknown error occurred'}`);
-      
+      battleActions.addNotification(
+        `Error: ${data.message || "Unknown error occurred"}`
+      );
+
       // Reset action state on error
       battleActions.setActionInProgress(false);
     });
   }
 
   connect(): Promise<void> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 2000);
+      });
       if (this.ws?.readyState === WebSocket.OPEN) {
         resolve();
         return;
@@ -206,7 +217,7 @@ export class NetworkManager {
         networkStore.network.isConnecting = false;
         networkStore.network.connectionError = null;
         this.reconnectAttempts = 0;
-        
+
         this.startPingInterval();
         console.log("WebSocket connected");
         resolve();
@@ -221,26 +232,38 @@ export class NetworkManager {
         }
       };
 
-      this.ws.onclose = () => {
+      this.ws.onclose = (event) => {
         networkStore.network.isConnected = false;
         networkStore.network.isConnecting = false;
         this.stopPingInterval();
-        
+
+        console.log(
+          `WebSocket disconnected. Code: ${event.code}, Reason: ${event.reason}`
+        );
+
         if (this.reconnectAttempts < this.maxReconnectAttempts) {
+          const delay = this.reconnectDelay * this.reconnectAttempts;
+          console.log(
+            `Attempting reconnect ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts} in ${delay}ms`
+          );
           setTimeout(() => {
             this.reconnectAttempts++;
-            this.connect();
-          }, this.reconnectDelay * this.reconnectAttempts);
+            this.connect().catch(console.error);
+          }, delay);
+        } else {
+          networkStore.network.connectionError =
+            "Max reconnection attempts reached";
+          console.error("Max reconnection attempts reached");
         }
-        
-        console.log("WebSocket disconnected");
       };
 
       this.ws.onerror = (error) => {
-        networkStore.network.connectionError = "Connection failed";
+        const errorMsg = `WebSocket connection failed to ${wsUrl}`;
+        networkStore.network.connectionError = errorMsg;
         networkStore.network.isConnecting = false;
         console.error("WebSocket error:", error);
-        reject(error);
+        console.error(errorMsg);
+        reject(new Error(errorMsg));
       };
     });
   }
@@ -257,8 +280,13 @@ export class NetworkManager {
   private getWebSocketUrl(): string {
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     const host = window.location.hostname;
-    const port = window.location.hostname === "localhost" ? "3001" : window.location.port;
-    return `${protocol}//${host}:${port}`;
+    const port =
+      window.location.hostname === "localhost"
+        ? "3001"
+        : window.location.port || "3001";
+    const url = `${protocol}//${host}:${port}`;
+    console.log(`Connecting to WebSocket: ${url}`);
+    return url;
   }
 
   private getPlayerId(): string {

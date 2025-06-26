@@ -20,7 +20,6 @@ if (rootEl) {
         if (ses.data?.session) {
           local.session = ses.data.session;
           local.render();
-          console.log(local.session);
         } else {
           await authClient.signIn.social({
             provider: "google",

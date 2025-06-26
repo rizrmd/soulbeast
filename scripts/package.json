@@ -1,0 +1,18 @@
+{
+  "name": "soulbeast-scripts",
+  "version": "1.0.0",
+  "description": "Testing and simulation scripts for SoulBeast",
+  "type": "module",
+  "scripts": {
+    "battle-sim": "bun battle-simulation.ts",
+    "quick-test": "bun quick-battle-test.ts",
+    "stress-test": "bun stress-test.ts"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.5.13",
+    "@types/bun": "latest"
+  }
+}

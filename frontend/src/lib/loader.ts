@@ -44,12 +44,6 @@ export class ImageLoader {
 
       // Development: Use require.context
       if (process.env.NODE_ENV === "development") {
-        const imageContext = require.context(
-          "/public/img",
-          true,
-          /\.(png|jpe?g|gif|webp)$/
-        );
-        imagePaths = imageContext.keys().map((key) => `/img${key.slice(1)}`);
       }
       // Production: Load from manifest
       else {

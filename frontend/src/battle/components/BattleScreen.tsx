@@ -89,7 +89,13 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({ onBattleEnd }) => {
   const playerEntities = battleActions.getPlayerEntities();
   const opponentEntities = battleActions.getOpponentEntities();
   const selectedEntity = battleSnap.uiState.selectedEntity 
-    ? battleSnap.battleState.entities.find(e => e.id === battleSnap.uiState.selectedEntity)
+    ? (() => {
+        // Handle entities as either array or object (from Map serialization)
+        const entities = Array.isArray(battleSnap.battleState.entities) 
+          ? battleSnap.battleState.entities
+          : Object.values(battleSnap.battleState.entities);
+        return entities.find(e => e.id === battleSnap.uiState.selectedEntity);
+      })()
     : null;
 
   return (
@@ -155,7 +161,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({ onBattleEnd }) => {
               
               {selectedEntity.playerId === battleSnap.playerId && (
                 <div className="flex gap-2 flex-wrap mt-4">
-                  {selectedEntity.abilities.map((abilityName) => (
+                  {selectedEntity.abilities.map((abilityName: string) => (
                     <button
                       key={abilityName}
                       className={`border rounded-md text-white px-3 py-2 cursor-pointer transition-all duration-200 ${

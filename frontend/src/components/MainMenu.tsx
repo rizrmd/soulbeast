@@ -1,22 +1,16 @@
-import { useEffect, useState } from "react";
-import { gameActions } from "../engine/GameStore";
+import { useState } from "react";
 import { BattleApp } from "../battle";
 
 const MainMenu: React.FC = () => {
   const [showBattle, setShowBattle] = useState(false);
 
   const handleStartGame = () => {
-    gameActions.initialize();
     setShowBattle(true);
   };
 
   const handleExitBattle = () => {
     setShowBattle(false);
   };
-
-  useEffect(() => {
-    gameActions.initialize();
-  }, []);
 
   if (showBattle) {
     return <BattleApp onExit={handleExitBattle} />;

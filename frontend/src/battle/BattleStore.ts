@@ -34,7 +34,7 @@ export interface BattleState {
   currentTurn: number;
   timeRemaining: number;
   players: BattlePlayer[];
-  entities: BattleEntity[];
+  entities: BattleEntity[] | Record<string, BattleEntity>; // Can be array or object (from Map serialization)
   events: any[];
   winner?: string;
 }
@@ -208,14 +208,23 @@ export const battleActions = {
   // Helper functions
   getPlayerEntities(): BattleEntity[] {
     if (!battleStore.battleState) return [];
-    return battleStore.battleState.entities.filter(
+    // Handle entities as either array or object (from Map serialization)
+    const entities = Array.isArray(battleStore.battleState.entities) 
+      ? battleStore.battleState.entities
+      : Object.values(battleStore.battleState.entities);
+      
+    return entities.filter(
       entity => entity.playerId === battleStore.playerId
     );
   },
   
   getOpponentEntities(): BattleEntity[] {
     if (!battleStore.battleState) return [];
-    return battleStore.battleState.entities.filter(
+    // Handle entities as either array or object (from Map serialization)
+    const entities = Array.isArray(battleStore.battleState.entities) 
+      ? battleStore.battleState.entities
+      : Object.values(battleStore.battleState.entities);
+    return entities.filter(
       entity => entity.playerId !== battleStore.playerId
     );
   },
@@ -237,7 +246,11 @@ export const battleActions = {
   isEntitySelectable(entityId: string): boolean {
     if (!battleStore.battleState || !battleStore.uiState.isPlayerTurn) return false;
     
-    const entity = battleStore.battleState.entities.find(e => e.id === entityId);
+    // Handle entities as either array or object (from Map serialization)
+    const entities = Array.isArray(battleStore.battleState.entities) 
+      ? battleStore.battleState.entities
+      : Object.values(battleStore.battleState.entities);
+    const entity = entities.find(e => e.id === entityId);
     if (!entity) return false;
     
     // Can select own entities
@@ -247,7 +260,11 @@ export const battleActions = {
   isEntityTargetable(entityId: string): boolean {
     if (!battleStore.battleState || !battleStore.uiState.selectedAbility) return false;
     
-    const entity = battleStore.battleState.entities.find(e => e.id === entityId);
+    // Handle entities as either array or object (from Map serialization)
+    const entities = Array.isArray(battleStore.battleState.entities) 
+      ? battleStore.battleState.entities
+      : Object.values(battleStore.battleState.entities);
+    const entity = entities.find(e => e.id === entityId);
     if (!entity) return false;
     
     // For now, can target any entity (abilities will determine valid targets)
