@@ -1,4 +1,4 @@
-import React, { FC, useRef, useEffect } from "react";
+import { FC, useEffect, useRef } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -6,7 +6,6 @@ import {
   Navigate,
   useNavigate,
 } from "react-router-dom";
-import { useSnapshot } from "valtio";
 import { FlyingTextRoot } from "./components/Battle/FlyingText";
 import BattleArena from "./components/BattleArena";
 import { CardDeck } from "./components/CardDeck";
@@ -14,11 +13,10 @@ import CardSelection from "./components/CardSelection";
 import MainMenu from "./components/MainMenu";
 import ResultsScreen from "./components/ResultsScreen";
 import { Session } from "./lib/auth";
-import { gameActions, gameStore } from "./engine/GameStore";
+import { gameActions } from "./engine/GameStore";
 import { cn } from "./lib/cn";
 
 const AppContent: FC = () => {
-  const state = useSnapshot(gameStore);
   const ref = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
@@ -42,12 +40,6 @@ const AppContent: FC = () => {
         `${document.documentElement.clientHeight}px`;
     }
   }, [navigate]);
-
-  const LoadingScreen = () => (
-    <div className="flex items-center justify-center h-screen">
-      <div className="text-white text-lg">Loading...</div>
-    </div>
-  );
 
   return (
     <div

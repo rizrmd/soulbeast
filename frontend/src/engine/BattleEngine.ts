@@ -398,12 +398,12 @@ export class BattleEngine {
       targets = Array.from(this.state.entities.values()).filter(
         (entity) => entity.id.startsWith(enemyTeam + "_") && entity.isAlive
       );
-    } else if (ability.target === "single-friend") {
+    } else if (ability.target === "single-ally") {
       const target = targetId ? this.state.entities.get(targetId) : null;
       if (target && target.isAlive) {
         targets = [target];
       }
-    } else if (ability.target === "all-friend") {
+    } else if (ability.target === "all-ally") {
       // Get all living allies
       const casterTeam = caster.id.startsWith("player1_")
         ? "player1"
@@ -1231,8 +1231,7 @@ export class BattleEngine {
         targetId = target.id;
       }
     } else if (
-      ability.target === "ally" ||
-      ability.target === "single-friend"
+      ability.target === "single-ally"
     ) {
       const allies = this.getAllies(entity);
       if (allies.length > 0) {

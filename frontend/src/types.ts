@@ -45,10 +45,9 @@ export interface Ability {
   target:
     | "single-enemy"
     | "all-enemy"
-    | "single-friend"
-    | "all-friend"
-    | "self"
-    | "ally";
+    | "single-ally"
+    | "all-ally"
+    | "self";
   castTime: number; // in seconds
   initiationTime?: number; // initial delay before first use (in seconds)
   soulshardCost: number; // cost in soulshards

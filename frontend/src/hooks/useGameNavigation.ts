@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import { gameStore } from '../engine/GameStore';
 
 export const useGameNavigation = () => {
   const navigate = useNavigate();

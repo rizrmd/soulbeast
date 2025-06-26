@@ -1,7 +1,5 @@
 #!/usr/bin/env bun
 
-import { readFileSync } from 'fs';
-import { join } from 'path';
 import { AllSoulBeast } from '../engine/SoulBeast';
 import { abilityRegistry } from '../abilities/AbilityRegistry';
 

@@ -89,7 +89,7 @@ frontend/src/
 - **Email/Password Authentication**: Sign up and sign in with email
 - **Google OAuth**: One-click social login
 - **Form Validation**: Client-side validation with error handling
-- **Responsive Design**: Mobile-friendly interface with Tailwind CSS
+- **Responsive Design**: Mobile-allyly interface with Tailwind CSS
 - **Smooth Animations**: Motion animations for better UX
 - **Loading States**: Visual feedback during authentication
 

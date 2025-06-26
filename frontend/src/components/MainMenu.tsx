@@ -1,15 +1,26 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { gameActions } from "../engine/GameStore";
+import { BattleApp } from "../battle";
 
 const MainMenu: React.FC = () => {
+  const [showBattle, setShowBattle] = useState(false);
+
   const handleStartGame = () => {
     gameActions.initialize();
+    setShowBattle(true);
   };
 
-  console.log("asd")
+  const handleExitBattle = () => {
+    setShowBattle(false);
+  };
+
   useEffect(() => {
-    handleStartGame();
+    gameActions.initialize();
   }, []);
+
+  if (showBattle) {
+    return <BattleApp onExit={handleExitBattle} />;
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800">
@@ -24,7 +35,7 @@ const MainMenu: React.FC = () => {
           onClick={handleStartGame}
           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200"
         >
-          Start Game
+          Start Battle vs AI
         </button>
         <div className="mt-6 text-center">
           <p className="text-gray-400 text-sm">

@@ -7,6 +7,8 @@ import { openAPISpec } from "./api/openapi";
 import { RPCHandler } from "@orpc/server/fetch";
 import { join } from "path";
 import { existsSync } from "fs";
+import { wsManager } from "./src/websocket/WebSocketManager";
+import { messageHandler } from "./src/websocket/MessageHandler";
 
 const app = new Hono();
 
@@ -175,4 +177,33 @@ const port = process.env.PORT || 3001;
 export default {
   port,
   fetch: app.fetch,
+  websocket: {
+    message(ws: any, message: any) {
+      const connectionId = ws.data?.connectionId;
+      if (connectionId) {
+        messageHandler.handleMessage(connectionId, message.toString());
+      }
+    },
+    open(ws: any) {
+      const connectionId = `conn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const playerId = ws.data?.playerId || `player_${Date.now()}`;
+      
+      ws.data = { connectionId, playerId };
+      wsManager.addConnection(connectionId, ws, playerId);
+      
+      console.log(`WebSocket connection opened: ${connectionId}`);
+    },
+    close(ws: any) {
+      const connectionId = ws.data?.connectionId;
+      if (connectionId) {
+        wsManager.removeConnection(connectionId);
+        console.log(`WebSocket connection closed: ${connectionId}`);
+      }
+    },
+    error(ws: any, error: any) {
+      console.error('WebSocket error:', error);
+    }
+  }
 };
+
+console.log(`🚀 Server running on port ${port}`);
